@@ -1,0 +1,9 @@
+C:\Program Files\NetBeans 8.2\platform=1506271130233
+cluster.C:/Users/Sigl/Documents/NetBeansProjects/TestModuleApp/build/cluster=1516454349431
+cluster.C:/Program Files/NetBeans 8.2/platform=1506271130233
+user=1516454349431
+crc=7
+locale=ru_RU
+branding=testmoduleapp
+java.version=1.8.0_144
+java.vm.version=25.144-b01
