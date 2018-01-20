@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.familytree.personviewer">
+    <module_version install_time="1515692575905" last="true" origin="installer" specification_version="1.0">
+        <file crc="2913653238" name="config/Modules/com-familytree-personviewer.xml"/>
+        <file crc="3611757352" name="modules/com-familytree-personviewer.jar"/>
+    </module_version>
+</module>

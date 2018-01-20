@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.familytree.personeditor">
+    <module_version install_time="1515692575249" last="true" origin="installer" specification_version="1.0">
+        <file crc="932815846" name="config/Modules/com-familytree-personeditor.xml"/>
+        <file crc="3749000291" name="modules/com-familytree-personeditor.jar"/>
+    </module_version>
+</module>

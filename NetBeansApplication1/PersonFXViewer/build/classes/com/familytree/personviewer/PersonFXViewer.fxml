@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="720.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.familytree.personviewer.PersonFXViewerController">
+    <children>
+        <TreeView fx:id="personTreeView" prefHeight="289.0" 
+                  prefWidth="225.0" 
+                  AnchorPane.bottomAnchor="23.0" 
+                  AnchorPane.leftAnchor="23.0" 
+                  AnchorPane.rightAnchor="23.0" 
+                  AnchorPane.topAnchor="14.0" />
+    </children>
+</AnchorPane>

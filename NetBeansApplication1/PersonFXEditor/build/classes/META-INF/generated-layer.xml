@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+                            "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="xml">
+        <folder name="entities">
+            <folder name="com_familytree_personeditor">
+                <file name="PersonEditor" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <!--com.familytree.personeditor.PersonEditorTopComponent-->
+                    <attr name="hint.originalPublicID" stringvalue="-//com.familytree.personeditor//PersonEditor//EN"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="memory">
+            <folder name="com">
+                <folder name="familytree">
+                    <folder name="personeditor">
+                        <file name="PersonEditorTopComponent">
+                            <!--com.familytree.personeditor.PersonEditorTopComponent-->
+                            <attr name="settings.providerPath" stringvalue="xml/lookups//com_familytree_personeditor/PersonEditor.instance"/>
+                        </file>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="lookups">
+            <folder name="com_familytree_personeditor">
+                <file name="PersonEditor.instance">
+                    <!--com.familytree.personeditor.PersonEditorTopComponent-->
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="com.familytree.personeditor.PersonEditorTopComponent"/>
+                    <attr name="settings.instanceOf" stringvalue="com.familytree.personeditor.PersonEditorTopComponent"/>
+                    <attr boolvalue="true" name="xmlproperties.preventStoring"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="com-familytree-personeditor-PersonEditorTopComponent.shadow">
+                <!--com.familytree.personeditor.PersonEditorTopComponent-->
+                <attr name="originalFile" stringvalue="Actions/Window/com-familytree-personeditor-PersonEditorTopComponent.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="PersonEditorTopComponent.settings">
+                <!--com.familytree.personeditor.PersonEditorTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+  <instance class="com.familytree.personeditor.PersonEditorTopComponent"/>
+</settings>
+]]></file>
+        </folder>
+        <folder name="Modes">
+            <folder name="editor">
+                <file name="PersonEditorTopComponent.wstcref">
+                    <!--com.familytree.personeditor.PersonEditorTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tc-ref PUBLIC "-//NetBeans//DTD Top Component in Mode Properties 2.0//EN" "http://www.netbeans.org/dtds/tc-ref2_0.dtd">
+<tc-ref version="2.0">
+  <tc-id id="PersonEditorTopComponent"/>
+  <state opened="true"/>
+</tc-ref>
+]]></file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="com-familytree-personeditor-PersonEditorTopComponent.instance">
+                <!--com.familytree.personeditor.PersonEditorTopComponent-->
+                <attr
+                    methodvalue="org.openide.windows.TopComponent.openAction" name="instanceCreate"/>
+                <attr name="component" newvalue="com.familytree.personeditor.PersonEditorTopComponent"/>
+                <attr name="preferredID" stringvalue="PersonEditorTopComponent"/>
+                <attr
+                    bundlevalue="com.familytree.personeditor.Bundle#CTL_PersonEditorAction" name="displayName"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

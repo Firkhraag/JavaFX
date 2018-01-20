@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.familytree.manager.impl">
+    <module_version install_time="1515692574675" last="true" origin="installer" specification_version="1.0">
+        <file crc="872563142" name="config/Modules/com-familytree-manager-impl.xml"/>
+        <file crc="2984051064" name="modules/com-familytree-manager-impl.jar"/>
+    </module_version>
+</module>

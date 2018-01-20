@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module: com.familytree.model
+OpenIDE-Module-Localizing-Bundle: com/familytree/model/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+

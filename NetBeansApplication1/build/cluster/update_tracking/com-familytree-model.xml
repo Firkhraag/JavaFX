@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.familytree.model">
+    <module_version install_time="1515692574565" last="true" origin="installer" specification_version="1.0">
+        <file crc="1495983213" name="config/Modules/com-familytree-model.xml"/>
+        <file crc="3403418902" name="modules/com-familytree-model.jar"/>
+    </module_version>
+</module>

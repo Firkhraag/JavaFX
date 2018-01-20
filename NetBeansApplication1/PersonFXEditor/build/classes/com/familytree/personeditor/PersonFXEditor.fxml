@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="720.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.familytree.personeditor.PersonFXEditorController">
+    <children>
+                <VBox>
+                    <children>
+                        <GridPane fx:id="gridPane">
+                            <Label fx:id="firstnameLabel" text="First" 
+                                   GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                            <TextField fx:id="firstnameField" prefWidth="300"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="0" 
+                                    onKeyReleased="#handleKeyAction" />
+                            <Label fx:id="middlenameLabel" text="Middle" 
+                                   GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                            <TextField fx:id="middlenameField" prefWidth="300"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="1" 
+                                    onKeyReleased="#handleKeyAction" />
+                            <Label fx:id="lastnameLabel" text="Last" 
+                                   GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                            <TextField fx:id="lastnameField" prefWidth="300"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="2" 
+                                    onKeyReleased="#handleKeyAction" />
+                            <Label fx:id="suffixLabel" text="Suffix" 
+                                   GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                            <TextField fx:id="suffixField" prefWidth="300"
+                                    GridPane.columnIndex="1" GridPane.rowIndex="3" 
+                                    onKeyReleased="#handleKeyAction" />
+                        </GridPane>
+                        <HBox fx:id="buttonsBox" spacing="30">
+                            <children>
+                                <RadioButton fx:id="maleRadio" text="Male"
+                                            onAction="#genderSelectionAction">
+                                    <toggleGroup>
+                                        <ToggleGroup fx:id="genderToggleGroup" />
+                                    </toggleGroup>
+                                </RadioButton>
+                                <RadioButton fx:id="femaleRadio" text="Female" 
+                                            toggleGroup="$genderToggleGroup" 
+                                            onAction="#genderSelectionAction" />
+                                <RadioButton fx:id="unknownRadio" text="Unknown" 
+                                            toggleGroup="$genderToggleGroup" 
+                                            onAction="#genderSelectionAction"/>
+                            </children>
+                        </HBox>
+                        <VBox fx:id="bottomVBox" spacing="10">
+                            <children>
+                                <Label fx:id="notesLabel" text="Notes" />
+                                <TextArea fx:id="notesArea" prefHeight="200"
+                                        prefWidth="200" 
+                                        onKeyReleased="#handleKeyAction" />
+                                <Button fx:id="updateButton" text="Update"
+                                        onAction="#updateAction" 
+                                        disable="true"/>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
+    </children>
+</AnchorPane>
