@@ -93,15 +93,9 @@ public class Cube extends Application {
                     cameraXform.ry.setAngle(cameraXform.ry.getAngle() - dx*modifierFactor*modifier*2.0);  // +
                     cameraXform.rx.setAngle(cameraXform.rx.getAngle() + dy*modifierFactor*modifier*2.0);  // -
             }
-            if (e.isMiddleButtonDown()) {
-                rotateX.setAngle(rotateX.getAngle() - 
-                        dy / (myBox.getHeight() / 2) * 360 * Math.PI / 180);
-                rotateY.setAngle(rotateY.getAngle() - 
-                        dx / (myBox.getWidth() / 2) * (-360) * Math.PI / 180);
-            }
             if (e.isSecondaryButtonDown()) {
-                camera.setTranslateX(camera.getTranslateX() + dx);
-                camera.setTranslateY(camera.getTranslateY() + dy);
+                cameraXform2.t.setX(cameraXform2.t.getX() + dx*modifierFactor*modifier);  // -
+                cameraXform2.t.setY(cameraXform2.t.getY() + dy*modifierFactor*modifier);
             }
             mousePosX = e.getSceneX();
             mousePosY = e.getSceneY();
