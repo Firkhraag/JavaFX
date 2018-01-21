@@ -6,20 +6,15 @@
 package com.space;
 
 import java.awt.BorderLayout;
-import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
-import java.util.concurrent.CountDownLatch;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
-import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
-import javafx.scene.PointLight;
 import javafx.scene.Scene;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.SceneAntialiasing;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
@@ -31,16 +26,13 @@ import javafx.scene.shape.Sphere;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import org.netbeans.api.settings.ConvertAsProperties;
-import org.openide.LifecycleManager;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.LookupEvent;
 import org.openide.util.LookupListener;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.openide.util.Utilities;
 import org.openide.windows.WindowManager;
 import org.shape.Shape;
 
@@ -70,28 +62,21 @@ import org.shape.Shape;
 })
 public final class SpaceTopComponent extends TopComponent {
     
+    final Group axisGroup = new Group();
     
-        private double mousePosX;
-        private double mousePosY;
-        private double mouseOldX;
-        private double mouseOldY;
-        
-    
-    
+    private double mousePosX;
+    private double mousePosY;
+    private double mouseOldX;
+    private double mouseOldY;
+  
     private Lookup.Result<Shape> lookupResult = null;
     
     private static JFXPanel fxPanel;
     private Scene scene;
     private PerspectiveCamera camera;
-    /*private final Xform cameraXform = new Xform();
-    private final Xform cameraXform2 = new Xform();
-    private final Xform cameraXform3 = new Xform();*/
-    //private double mousePosX, mousePosY = 0;
     private Group root = new Group();
     private Group shapeGroup;
-    //Cylinder cylinder;
-    //Box myBox;
-    //Sphere sphere;
+    double fov = 35.0;
 
     public SpaceTopComponent() {
         initComponents();
@@ -109,100 +94,122 @@ public final class SpaceTopComponent extends TopComponent {
         Platform.runLater(() -> createScene());
     }
     
-    private void createScene() {
-        /*camera = new PerspectiveCamera(false);
-        camera.setTranslateX(-500.0);
-        camera.setTranslateY(-290.0);
-        camera.setTranslateZ(0.0);
-        cameraXform.getChildren().add(cameraXform2);
-        cameraXform2.getChildren().add(cameraXform3);
-        cameraXform3.getChildren().add(camera);
-        cameraXform3.setRotateZ(180.0);      
-        root.getChildren().addAll(cameraXform);*/
-        
-        PointLight light = new PointLight(Color.WHITE);
-        light.setTranslateX(-1000);
-        light.setTranslateY(100);
-        light.setTranslateZ(-1000);
-        root.getChildren().add(light);
-        
-        
-        scene = new Scene(root);
-        //scene.setCamera(camera);
+    private void createScene() {        
+        buildAxes();
+        scene = new Scene(root, 1000, 1000, true, SceneAntialiasing.BALANCED);
         buildCamera();
-        //handleMouseEvents();
+        handleKeyboard();
         fxPanel.setScene(scene);       
     }
     
-    private void buildCamera() {
-        /*camera.setNearClip(1.0);
-        camera.setFarClip(10000.0);
-        camera.setFieldOfView(2d*dimModel/3d);
-        camera.getTransforms().addAll(yUpRotate,cameraPosition,
-                                      cameraLookXRotate,cameraLookZRotate);
-        cameraXform.getChildren().add(cameraXform2);
-        cameraXform2.getChildren().add(camera);
-        cameraPosition.setZ(-2d*dimModel);
-        root.getChildren().add(cameraXform);
-         
-        // Rotate camera to show isometric view X right, Y top, Z 120º left-down from each
-        cameraXform.setRx(-30.0);
-        cameraXform.setRy(30);*/
+    
+    private void buildAxes() {
+        final PhongMaterial redMaterial = new PhongMaterial();
+        redMaterial.setDiffuseColor(Color.DARKRED);
+        redMaterial.setSpecularColor(Color.RED);
+
+        final PhongMaterial greenMaterial = new PhongMaterial();
+        greenMaterial.setDiffuseColor(Color.DARKGREEN);
+        greenMaterial.setSpecularColor(Color.GREEN);
+
+        final PhongMaterial blueMaterial = new PhongMaterial();
+        blueMaterial.setDiffuseColor(Color.DARKBLUE);
+        blueMaterial.setSpecularColor(Color.BLUE);
+
+        final Box xAxis = new Box(1000.0, 1, 1);
+        final Box yAxis = new Box(1, 1000.0, 1);
+        final Box zAxis = new Box(1, 1, 1000.0);
         
-        PerspectiveCamera camera = new PerspectiveCamera(true);
+        xAxis.setTranslateX(0);
+        xAxis.setTranslateY(0);
+        xAxis.setTranslateZ(0);
+
+        xAxis.setMaterial(redMaterial);
+        yAxis.setMaterial(greenMaterial);
+        zAxis.setMaterial(blueMaterial);
+
+        axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
+        root.getChildren().addAll(axisGroup);
+    }
+    
+    private void buildCamera() {
+        camera = new PerspectiveCamera(true);
         camera.setTranslateZ(-1000);
         camera.setNearClip(0.1);
         camera.setFarClip(2000.0);
-        camera.setFieldOfView(35);
-        scene.setCamera(camera);
- 
-        
+        camera.setFieldOfView(fov);
+        scene.setCamera(camera);          
     }
     
     private void handleMouseEvents() {
-        Rotate rotateX = new Rotate(30, 0, 0, 0, Rotate.X_AXIS);
-        Rotate rotateY = new Rotate(20, 0, 0, 0, Rotate.Y_AXIS);
-        shapeGroup.getTransforms().addAll(rotateX, rotateY);
-        /*scene.setOnMousePressed((MouseEvent e) -> {
-            mousePosX = e.getSceneX();
-            mousePosY = e.getSceneY();
-            //System.out.println(e.getSceneX());
-            //System.out.println(e.getSceneY());
-        });
-
-        scene.setOnMouseDragged((MouseEvent e) -> {
-            double modifier = 1.0;
-            double modifierFactor = 0.1;
-            double dx = (mousePosX - e.getSceneX()) ;
-            double dy = (mousePosY - e.getSceneY());
-            if (e.isPrimaryButtonDown()) {
-                    cameraXform.ry.setAngle(cameraXform.ry.getAngle() - dx*modifierFactor*modifier);  // +
-                    cameraXform.rx.setAngle(cameraXform.rx.getAngle() + dy*modifierFactor*modifier);  // -
-            }
-        });*/
         
-        scene.setOnMousePressed(me -> {
+        Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
+        Rotate rotateY = new Rotate(0, Rotate.Y_AXIS);
+        shapeGroup.getTransforms().addAll(rotateX, rotateY);
+        axisGroup.getTransforms().clear();
+        axisGroup.getTransforms().addAll(rotateX, rotateY);
+        
+        
+        Rotate rotateXCam = new Rotate(0, Rotate.X_AXIS);
+        Rotate rotateYCam = new Rotate(0, Rotate.Y_AXIS);
+        camera.getTransforms().clear();
+        camera.getTransforms().addAll(rotateXCam, rotateYCam);
+        
+        scene.setOnMousePressed(me -> {         
             mouseOldX = me.getSceneX();
             mouseOldY = me.getSceneY();
         });
         scene.setOnMouseDragged(me -> {
-            mousePosX = me.getSceneX();
-            mousePosY = me.getSceneY();
-            rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY));
-            rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX));
-            mouseOldX = mousePosX;
-            mouseOldY = mousePosY;
+            
+            if (me.isPrimaryButtonDown()) {
+                mousePosX = me.getSceneX();
+                mousePosY = me.getSceneY();
+                rotateX.setAngle(rotateX.getAngle()-(mousePosY - mouseOldY)*0.1);
+                rotateY.setAngle(rotateY.getAngle()+(mousePosX - mouseOldX)*0.1);
+                mouseOldX = mousePosX;
+                mouseOldY = mousePosY;
+            }
+            if (me.isSecondaryButtonDown()) {
+                mousePosX = me.getSceneX();
+                mousePosY = me.getSceneY();
+                rotateXCam.setAngle(rotateXCam.getAngle()-(mousePosY - mouseOldY)*0.1);
+                rotateYCam.setAngle(rotateYCam.getAngle()+(mousePosX - mouseOldX)*0.1);
+                mouseOldX = mousePosX;
+                mouseOldY = mousePosY;
+            }
         });
         
         scene.setOnScroll((ScrollEvent e) -> {
-                double zoom = 1.05;
                 double dy = e.getDeltaY();
                 if (dy < 0)
-                  zoom = 2.0 - zoom;
-                shapeGroup.setScaleX(shapeGroup.getScaleX() * zoom);
-                shapeGroup.setScaleY(shapeGroup.getScaleY() * zoom);
-                shapeGroup.setScaleZ(shapeGroup.getScaleZ() * zoom);
+                    fov += 0.5;
+                else
+                    fov -= 0.5;
+                camera.setFieldOfView(fov);
             });
+    }
+    
+    private void handleKeyboard() {
+        final boolean moveCamera = true;
+        scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent event) {
+                switch (event.getCode()) {
+                    case A:
+                        camera.setTranslateX(camera.getTranslateX() - 5);
+                        break;
+                    case D:
+                        camera.setTranslateX(camera.getTranslateX() + 5);
+                        break;
+                    case S:
+                        camera.setTranslateY(camera.getTranslateY() + 5);
+                        break;
+                    case W:
+                        camera.setTranslateY(camera.getTranslateY() - 5);
+                        break;
+                }
+            }
+        });
     }
 
     /**
@@ -210,7 +217,7 @@ public final class SpaceTopComponent extends TopComponent {
      * WARNING: Do NOT modify this code. The content of this method is always
      * regenerated by the Form Editor.
      */
-    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">                          
     private void initComponents() {
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
@@ -223,10 +230,10 @@ public final class SpaceTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 300, Short.MAX_VALUE)
         );
-    }// </editor-fold>//GEN-END:initComponents
+    }// </editor-fold>                        
 
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    // End of variables declaration//GEN-END:variables
+    // Variables declaration - do not modify                     
+    // End of variables declaration                   
     LookupListener lookupListener = (LookupEvent le) -> checkLookup();
     
     private void checkLookup() {
