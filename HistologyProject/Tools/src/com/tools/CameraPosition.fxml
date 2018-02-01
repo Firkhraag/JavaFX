@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="200.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.tools.CameraPositionController">
+    <children>
+        <VBox fx:id="vBox">
+            <children>
+                <Label fx:id="xPositionLabel" text="X position" />
+                <TextField fx:id="xPosition" prefWidth="200"/>
+                <Label fx:id="yPositionLabel" text="Y position" />
+                <TextField fx:id="yPosition" prefWidth="200"/>
+                <Label fx:id="zPositionLabel" text="Z position" />
+                <TextField fx:id="zPosition" prefWidth="200"/>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

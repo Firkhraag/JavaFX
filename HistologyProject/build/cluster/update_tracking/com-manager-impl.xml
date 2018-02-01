@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.manager.impl">
+    <module_version install_time="1517521772850" last="true" origin="installer" specification_version="1.0">
+        <file crc="2199838733" name="config/Modules/com-manager-impl.xml"/>
+        <file crc="2281311852" name="modules/com-manager-impl.jar"/>
+    </module_version>
+</module>

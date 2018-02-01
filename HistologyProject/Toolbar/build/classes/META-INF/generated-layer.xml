@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+                            "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="com-toolbar-CameraLookAction.instance">
+                <!--com.toolbar.CameraLookAction-->
+                <attr
+                    bundlevalue="com.toolbar.Bundle#CTL_CameraLookAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="com.toolbar.CameraLookAction"/>
+                <attr name="iconBase" stringvalue="com/toolbar/eye.png"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="com-toolbar-CameraPositionAction.instance">
+                <!--com.toolbar.CameraPositionAction-->
+                <attr
+                    bundlevalue="com.toolbar.Bundle#CTL_CameraPositionAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="com.toolbar.CameraPositionAction"/>
+                <attr name="iconBase" stringvalue="com/toolbar/move.png"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="com-toolbar-HomeAction.instance">
+                <!--com.toolbar.HomeAction-->
+                <attr bundlevalue="com.toolbar.Bundle#CTL_HomeAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="com.toolbar.HomeAction"/>
+                <attr name="iconBase" stringvalue="com/toolbar/home.png.png"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="com-toolbar-ZoomAction.instance">
+                <!--com.toolbar.ZoomAction-->
+                <attr bundlevalue="com.toolbar.Bundle#CTL_ZoomAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="com.toolbar.ZoomAction"/>
+                <attr name="iconBase" stringvalue="com/toolbar/magnifying-glass.png"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Toolbars">
+        <folder name="File">
+            <file name="com-toolbar-CameraLookAction.shadow">
+                <!--com.toolbar.CameraLookAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/com-toolbar-CameraLookAction.instance"/>
+                <attr intvalue="350" name="position"/>
+            </file>
+            <file name="com-toolbar-CameraPositionAction.shadow">
+                <!--com.toolbar.CameraPositionAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/com-toolbar-CameraPositionAction.instance"/>
+                <attr intvalue="375" name="position"/>
+            </file>
+            <file name="com-toolbar-HomeAction.shadow">
+                <!--com.toolbar.HomeAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/com-toolbar-HomeAction.instance"/>
+                <attr intvalue="300" name="position"/>
+            </file>
+            <file name="com-toolbar-ZoomAction.shadow">
+                <!--com.toolbar.ZoomAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/com-toolbar-ZoomAction.instance"/>
+                <attr intvalue="400" name="position"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

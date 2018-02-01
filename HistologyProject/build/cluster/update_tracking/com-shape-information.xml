@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.shape.information">
+    <module_version install_time="1517521775106" last="true" origin="installer" specification_version="1.0">
+        <file crc="2299155337" name="config/Modules/com-shape-information.xml"/>
+        <file crc="2421857490" name="modules/com-shape-information.jar"/>
+    </module_version>
+</module>

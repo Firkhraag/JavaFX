@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="com.toolbar">
+    <module_version install_time="1517521782332" last="true" origin="installer" specification_version="1.0">
+        <file crc="2757127810" name="config/Modules/com-toolbar.xml"/>
+        <file crc="2402724577" name="modules/com-toolbar.jar"/>
+    </module_version>
+</module>
