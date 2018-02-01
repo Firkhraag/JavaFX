@@ -163,7 +163,7 @@ public class Shape {
         this.name.set(name);
         this.type.set(type);
         this.xRotate.set(xRot);
-        this.yRotate.set(xRot);
+        this.yRotate.set(yRot);
         this.zRotate.set(zRot);
         this.xCoordinate.set(x);
         this.yCoordinate.set(y);
@@ -177,7 +177,7 @@ public class Shape {
         this.name.set(name);
         this.type.set(type);
         this.xRotate.set(xRot);
-        this.yRotate.set(xRot);
+        this.yRotate.set(yRot);
         this.zRotate.set(zRot);
         this.xCoordinate.set(x);
         this.yCoordinate.set(y);
