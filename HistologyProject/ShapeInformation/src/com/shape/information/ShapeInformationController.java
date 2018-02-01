@@ -109,13 +109,13 @@ public class ShapeInformationController implements Initializable {
     
     private Label lengthLabelCube = new Label("Length");
     private TextField lengthFieldCube = new TextField();
-    private Label widthLabelCube = new Label("Width");
+    private Label widthLabelCube = new Label("Height");
     private TextField widthFieldCube = new TextField();
-    private Label heightLabelCube = new Label("Height");
+    private Label heightLabelCube = new Label("Width");
     private TextField heightFieldCube = new TextField();
-    private Label radiusLabelCylinder = new Label("Radius");
+    private Label radiusLabelCylinder = new Label("Height");
     private TextField radiusFieldCylinder = new TextField();
-    private Label heightLabelCylinder = new Label("Height");
+    private Label heightLabelCylinder = new Label("Radius");
     private TextField heightFieldCylinder = new TextField();
     private Label radiusLabelSphere = new Label("Radius");
     private TextField radiusFieldSphere = new TextField();
@@ -228,9 +228,6 @@ public class ShapeInformationController implements Initializable {
     
     @FXML
     private void buttonAction() {
-        System.out.println("Contr");
-        System.out.println(theShape.getId());
-        System.out.println("Contr");
         switch (shapeType) {
             case "Cube":   
                 try {
@@ -239,7 +236,8 @@ public class ShapeInformationController implements Initializable {
                             (Double.parseDouble(widthFieldCube.getText()) <= 0)) {
                         throw new Exception();
                     }
-                    BoxShape bs = new BoxShape(theShape.getId(), nameField.getText(), shapeType, 
+                    if (ShapeInformationInitialization.mode.equals("Edit"))
+                        sm.updateShape(new BoxShape(theShape.getId(), nameField.getText(), shapeType, 
                             String.valueOf(Double.parseDouble(xRotationField.getText())), 
                             String.valueOf(Double.parseDouble(yRotationField.getText())), 
                             String.valueOf(Double.parseDouble(zRotationField.getText())), 
@@ -249,11 +247,19 @@ public class ShapeInformationController implements Initializable {
                             diffuseColorPicker.getValue(), specularColorPicker.getValue(), 
                             String.valueOf(Double.parseDouble(lengthFieldCube.getText())), 
                             String.valueOf(Double.parseDouble(widthFieldCube.getText())),
-                            String.valueOf(Double.parseDouble(heightFieldCube.getText())));
-                    if (ShapeInformationInitialization.mode.equals("Edit"))
-                        sm.updateShape(bs, theShape.getId());
+                            String.valueOf(Double.parseDouble(heightFieldCube.getText()))), theShape.getId());
                     else
-                        sm.addShape(bs);
+                        sm.addShape(new BoxShape(nameField.getText(), shapeType, 
+                            String.valueOf(Double.parseDouble(xRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(yRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(zRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(xPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(yPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(zPositionField.getText())), 
+                            diffuseColorPicker.getValue(), specularColorPicker.getValue(), 
+                            String.valueOf(Double.parseDouble(lengthFieldCube.getText())), 
+                            String.valueOf(Double.parseDouble(widthFieldCube.getText())),
+                            String.valueOf(Double.parseDouble(heightFieldCube.getText()))));
                     ShapeInformationInitialization.stage.close();
                 } catch (Exception ex) {
                     Alert alert = new Alert(AlertType.INFORMATION);
@@ -265,7 +271,8 @@ public class ShapeInformationController implements Initializable {
                 break;
             case "Cylinder":   
                 try {
-                    CylinderShape cs = new CylinderShape(theShape.getId(), nameField.getText(), shapeType, 
+                    if (ShapeInformationInitialization.mode.equals("Edit"))
+                        sm.updateShape(new CylinderShape(theShape.getId(), nameField.getText(), shapeType, 
                             String.valueOf(Double.parseDouble(xRotationField.getText())), 
                             String.valueOf(Double.parseDouble(yRotationField.getText())), 
                             String.valueOf(Double.parseDouble(zRotationField.getText())), 
@@ -274,11 +281,18 @@ public class ShapeInformationController implements Initializable {
                             String.valueOf(Double.parseDouble(zPositionField.getText())), 
                             diffuseColorPicker.getValue(), specularColorPicker.getValue(), 
                             String.valueOf(Double.parseDouble(heightFieldCylinder.getText())),
-                            String.valueOf(Double.parseDouble(radiusFieldCylinder.getText())));
-                    if (ShapeInformationInitialization.mode.equals("Edit"))
-                        sm.updateShape(cs, theShape.getId());
+                            String.valueOf(Double.parseDouble(radiusFieldCylinder.getText()))), theShape.getId());
                     else
-                        sm.addShape(cs);
+                        sm.addShape(new CylinderShape(nameField.getText(), shapeType, 
+                            String.valueOf(Double.parseDouble(xRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(yRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(zRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(xPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(yPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(zPositionField.getText())), 
+                            diffuseColorPicker.getValue(), specularColorPicker.getValue(), 
+                            String.valueOf(Double.parseDouble(heightFieldCylinder.getText())),
+                            String.valueOf(Double.parseDouble(radiusFieldCylinder.getText()))));
                     ShapeInformationInitialization.stage.close();
                 } catch (Exception ex) {
                     Alert alert = new Alert(AlertType.INFORMATION);
@@ -290,7 +304,8 @@ public class ShapeInformationController implements Initializable {
                 break;
             case "Sphere":   
                 try {
-                    SphereShape ss = new SphereShape(theShape.getId(), nameField.getText(), shapeType, 
+                    if (ShapeInformationInitialization.mode.equals("Edit"))
+                        sm.updateShape(new SphereShape(theShape.getId(), nameField.getText(), shapeType, 
                             String.valueOf(Double.parseDouble(xRotationField.getText())), 
                             String.valueOf(Double.parseDouble(yRotationField.getText())), 
                             String.valueOf(Double.parseDouble(zRotationField.getText())), 
@@ -298,11 +313,17 @@ public class ShapeInformationController implements Initializable {
                             String.valueOf(Double.parseDouble(yPositionField.getText())), 
                             String.valueOf(Double.parseDouble(zPositionField.getText())), 
                             diffuseColorPicker.getValue(), specularColorPicker.getValue(),
-                            String.valueOf(Double.parseDouble(radiusFieldSphere.getText())));
-                    if (ShapeInformationInitialization.mode.equals("Edit"))
-                        sm.updateShape(ss, theShape.getId());
+                            String.valueOf(Double.parseDouble(radiusFieldSphere.getText()))), theShape.getId());
                     else
-                        sm.addShape(ss);
+                        sm.addShape(new SphereShape(nameField.getText(), shapeType, 
+                            String.valueOf(Double.parseDouble(xRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(yRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(zRotationField.getText())), 
+                            String.valueOf(Double.parseDouble(xPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(yPositionField.getText())), 
+                            String.valueOf(Double.parseDouble(zPositionField.getText())), 
+                            diffuseColorPicker.getValue(), specularColorPicker.getValue(),
+                            String.valueOf(Double.parseDouble(radiusFieldSphere.getText()))));
                     ShapeInformationInitialization.stage.close();
                 } catch (Exception ex) {
                     Alert alert = new Alert(AlertType.INFORMATION);
