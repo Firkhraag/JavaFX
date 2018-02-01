@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="com.space">
-    <module_version install_time="1516454178953" last="true" origin="installer" specification_version="1.0">
-        <file crc="3584637548" name="config/Modules/com-space.xml"/>
-        <file crc="1645629343" name="modules/com-space.jar"/>
-    </module_version>
-</module>

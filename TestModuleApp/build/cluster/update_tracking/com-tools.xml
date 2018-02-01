@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><module codename="com.tools">
-    <module_version install_time="1516454349171" last="true" origin="installer" specification_version="1.0">
-        <file crc="971361276" name="config/Modules/com-tools.xml"/>
-        <file crc="3323962742" name="modules/com-tools.jar"/>
-    </module_version>
-</module>

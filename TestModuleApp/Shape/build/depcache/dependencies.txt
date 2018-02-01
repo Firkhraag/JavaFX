@@ -1,6 +1,0 @@
-||:org.shape.Shape
-java.lang.String
-java.lang.Object
-org.shape.Shape
-javafx.beans.property.SimpleStringProperty
-javafx.beans.property.StringProperty
