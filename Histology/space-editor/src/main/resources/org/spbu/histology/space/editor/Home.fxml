@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="300.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.spbu.histology.space.editor.HomeController">
+    <children>
+        <ScrollPane fx:id="scrollPane">
+            <content>
+        <VBox fx:id="vBox">
+            <children>
+                <GridPane fx:id="gridPane">
+                    <Button fx:id="addButton" text=""
+                        GridPane.columnIndex="0" GridPane.rowIndex="0"
+                        onAction="#addShape"/>
+                </GridPane>
+            </children>
+        </VBox>
+            </content>
+        </ScrollPane>  
+    </children>
+</AnchorPane>
