@@ -1,6 +1,5 @@
 package org.spbu.histology.model;
 
-import java.util.Arrays;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -213,14 +212,13 @@ public class Shape {
     }
     
     public Shape(Shape shape) { 
-        //this.id = shape.getId();
         this.id = count++;
         this.name.set(shape.getName());
-        this.xRotate.set(shape.getXRotate());
-        this.yRotate.set(shape.getYRotate());
-        this.xCoordinate.set(shape.getXCoordinate());
-        this.yCoordinate.set(shape.getYCoordinate());
-        this.zCoordinate.set(shape.getZCoordinate());
+        this.xRotate.set(0);
+        this.yRotate.set(0);
+        this.xCoordinate.set(0);
+        this.yCoordinate.set(0);
+        this.zCoordinate.set(0);
         this.pointData = shape.getPointData();
         this.holeData = shape.getHoleData();
         this.polygonsInFacetData = shape.getPolygonsInFacetData();
