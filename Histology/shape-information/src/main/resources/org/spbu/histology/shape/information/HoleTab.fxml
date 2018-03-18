@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<VBox fx:id="holeVBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.HoleTabController">
+    <children>
+        <HBox fx:id="headerHBox">
+            <children>
+                <Label fx:id="numberOfHolesLabel" text="Number of holes"/>
+                <TextField fx:id="numberOfHolesField" text="0"/>
+                <Button fx:id="button" text="Update" onAction="#updateAction"/>
+            </children>
+        </HBox>
+        <TableView fx:id="table" prefHeight="500.0" prefWidth="680.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="60.0" minWidth="60.0" text="#">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="id" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="xColumn" prefWidth="200.0" text="X">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="x" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="yColumn" prefWidth="200.0" text="Y">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="y" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="zColumn" prefWidth="200.0" text="Z">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="z" />
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </children>
+</VBox>

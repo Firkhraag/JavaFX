@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+
+<TabPane fx:id="tabPane" fx:controller="org.spbu.histology.shape.information.FacetTabController" 
+         xmlns:fx="http://javafx.com/fxml" tabClosingPolicy="UNAVAILABLE">
+    <tabs>
+        <Tab fx:id="polygonTab" text="Polygons">
+            <fx:include fx:id="PolygonsInFacetTab" source="PolygonsInFacetTab.fxml"/>
+        </Tab>
+        <Tab fx:id="holeTab" text="Holes">
+            <fx:include fx:id="HolesInFacetTab" source="HolesInFacetTab.fxml"/>
+        </Tab>
+    </tabs>
+</TabPane>
