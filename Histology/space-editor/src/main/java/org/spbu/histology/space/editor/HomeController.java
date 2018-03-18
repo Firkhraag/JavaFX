@@ -81,7 +81,9 @@ public class HomeController implements Initializable {
         count = 0;
         ArrayList<Label> labels = new ArrayList<Label>();
         sm.getAllShapes().forEach(s -> {
-            labels.add(new Label(s.getName()));
+            Label label = new Label(s.getName());
+            label.setTextFill(s.getDiffuseColor());
+            labels.add(label);
             Button editButton = new Button();
             Button copyButton = new Button();
             Button deleteButton = new Button();
