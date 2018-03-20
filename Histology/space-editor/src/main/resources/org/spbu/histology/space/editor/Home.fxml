@@ -15,14 +15,12 @@
             <content>
                 <VBox fx:id="vBox">
                     <children>
-                        <GridPane fx:id="gridPane">
-                            <Button fx:id="addButton" text=""
-                                GridPane.columnIndex="0" GridPane.rowIndex="0"
-                                onAction="#addShape"/>
-                            <Button fx:id="pasteButton" text=""
-                                GridPane.columnIndex="1" GridPane.rowIndex="0" disable="true"
-                                onAction="#pasteShape"/>
-                        </GridPane>
+                        <HBox fx:id="hBox">
+                            <Button fx:id="addButton" text="" onAction="#addShape"/>
+                            <Button fx:id="pasteButton" text="" onAction="#pasteShape"/>
+                        </HBox>
+                        <VBox fx:id="shapeBox">
+                        </VBox>
                     </children>
                 </VBox>
             </content>
