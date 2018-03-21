@@ -78,30 +78,30 @@ public class CameraViewController implements Initializable  {
     private boolean change = true;
     
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                xRotation.setText(newValue + "");
+        if (change)
+            xRotation.setText(newValue + "");
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                yRotation.setText(newValue + "");
+        if (change)
+            yRotation.setText(newValue + "");
     };
     
     ChangeListener xPositionChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                xPosition.setText(newValue + "");
+        if (change)
+            xPosition.setText(newValue + "");
     };
     ChangeListener yPositionChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                yPosition.setText(newValue + "");
+        if (change)
+            yPosition.setText(newValue + "");
     };
     ChangeListener zPositionChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                zPosition.setText(newValue + "");
+        if (change)
+            zPosition.setText(newValue + "");
     };
     
     ChangeListener FOVChangeListener = (v, oldValue, newValue) -> {
-            if (change)
-                FOV.setText(newValue + "");
+        if (change)
+            FOV.setText(newValue + "");
     };
     
     private final double camPosLim = 2000;

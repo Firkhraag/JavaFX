@@ -88,8 +88,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     private Box crossSectionPlane;
     
-    ArrayList<PhongMaterial> phongMaterials = new ArrayList<>();
-    
     private double mousePosX;
     private double mousePosY;
     private double mouseOldX;
@@ -137,7 +135,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final MapChangeListener<Long, Shape> shapeListener =
             (change) -> {
                 if (change.wasRemoved()) {  
-                    System.out.println("Removed");
                     Shape removedShape = (Shape)change.getValueRemoved();
                     shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
                     shapeMap.remove(removedShape.getId());
@@ -147,7 +144,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     colorsList.remove(removedShape.getId());
                 }
                 if (change.wasAdded()) {
-                    System.out.println("Add");
                     Shape addedShape = (Shape)change.getValueAdded();
                     addShape(addedShape);
                 }    
@@ -498,11 +494,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
         double xTran = s.getXCoordinate();
         double yTran = s.getYCoordinate();
         double zTran = s.getZCoordinate();
-        DecimalFormat df = new DecimalFormat("#.########");
+        
+        ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+        ObservableList<TetgenPoint> holeData = FXCollections.observableArrayList();
+        ObservableList<TetgenFacetHole> holesInFacetData = FXCollections.observableArrayList();
         
         double ang, tempVal;
         for (int i = 0; i < s.getPointData().size(); i++) {
-            TetgenPoint pd = s.getPointData().get(i);
+            TetgenPoint pd = new TetgenPoint(s.getPointData().get(i));
             
             ang = Math.toRadians(xRot);
             tempVal = pd.getY();
@@ -514,14 +513,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
             pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
             pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
             
-            pd.setX(Double.parseDouble(df.format(pd.getX() + xTran)));
-            pd.setY(Double.parseDouble(df.format(pd.getY() + yTran)));
-            pd.setZ(Double.parseDouble(df.format(pd.getZ() + zTran)));
+            pd.setX(pd.getX() + xTran);
+            pd.setY(pd.getY() + yTran);
+            pd.setZ(pd.getZ() + zTran);
             
-            s.getPointData().set(i, pd);
+            pointData.add(pd);
         }
         for (int i = 0; i < s.getHoleData().size(); i++) {
-            TetgenPoint pd = s.getHoleData().get(i);
+            TetgenPoint pd = new TetgenPoint(s.getHoleData().get(i));
             
             ang = Math.toRadians(xRot);
             tempVal = pd.getY();
@@ -533,14 +532,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
             pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
             pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
             
-            pd.setX(Double.parseDouble(df.format(pd.getX() + xTran)));
-            pd.setY(Double.parseDouble(df.format(pd.getY() + yTran)));
-            pd.setZ(Double.parseDouble(df.format(pd.getZ() + zTran)));
+            pd.setX(pd.getX() + xTran);
+            pd.setY(pd.getY() + yTran);
+            pd.setZ(pd.getZ() + zTran);
             
-            s.getHoleData().set(i, pd);
+            holeData.add(pd);
         }
         for (int i = 0; i < s.getHolesInFacetData().size(); i++) {
-            TetgenFacetHole pd = s.getHolesInFacetData().get(i);
+            TetgenFacetHole pd = new TetgenFacetHole(s.getHolesInFacetData().get(i));
             
             ang = Math.toRadians(xRot);
             tempVal = pd.getY();
@@ -552,22 +551,22 @@ public final class SpaceViewerTopComponent extends TopComponent {
             pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
             pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
             
-            pd.setX(Double.parseDouble(df.format(pd.getX() + xTran)));
-            pd.setY(Double.parseDouble(df.format(pd.getY() + yTran)));
-            pd.setZ(Double.parseDouble(df.format(pd.getZ() + zTran)));
+            pd.setX(pd.getX() + xTran);
+            pd.setY(pd.getY() + yTran);
+            pd.setZ(pd.getZ() + zTran);
             
-            s.getHolesInFacetData().set(i, pd);
+            holesInFacetData.add(pd);
         }
         
-        int numberOfNodes = s.getPointData().size();
+        int numberOfNodes = pointData.size();
         double[] nodeList = new double[numberOfNodes * 3];
         int count = 0;
         for (int i = 0; i < numberOfNodes; i++) {
-            nodeList[count] = s.getPointData().get(i).getX();
-            nodeList[count + 1] = s.getPointData().get(i).getY();
-            nodeList[count + 2] = s.getPointData().get(i).getZ();
+            nodeList[count] = pointData.get(i).getX();
+            nodeList[count + 1] = pointData.get(i).getY();
+            nodeList[count + 2] = pointData.get(i).getZ();
             count += 3;
-        }   
+        }
         
         int numberOfFacets = s.getFacetNumber();
         
@@ -604,7 +603,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         int[] numberOfHolesInFacet = new int[numberOfFacets];
         for (int i = 0; i < numberOfFacets; i++)
             numberOfHolesInFacet[i] = 0;
-        ObservableList<TetgenFacetHole> holesDataSorted = s.getHolesInFacetData(); 
+        ObservableList<TetgenFacetHole> holesDataSorted = holesInFacetData; 
         FXCollections.sort(holesDataSorted, new TetgenFacetHoleComparator());
         double[] holeListInFacet = new double[holesDataSorted.size() * 3];
         count = 0;
@@ -616,15 +615,16 @@ public final class SpaceViewerTopComponent extends TopComponent {
             count += 3;
         }
         
-        int numberOfHoles = s.getHoleData().size();
+        int numberOfHoles = holeData.size();
         double[] holeList = new double[numberOfHoles * 3];
         count = 0;
         for (int i = 0; i < numberOfHoles; i++) {
-            holeList[count] = s.getHoleData().get(i).getX();
-            holeList[count + 1] = s.getHoleData().get(i).getY();
-            holeList[count + 2] = s.getHoleData().get(i).getZ();
+            holeList[count] = holeData.get(i).getX();
+            holeList[count + 1] = holeData.get(i).getY();
+            holeList[count + 2] = holeData.get(i).getZ();
             count += 3;
         }
+        
         int numberOfRegions = 0;
         double[] regionList = new double[numberOfRegions * 5]; 
         
@@ -889,11 +889,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     private void handleMouseEvents() {
         
-        Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
+        /*Rotate rotateX = new Rotate(0, Rotate.X_AXIS);
         Rotate rotateY = new Rotate(0, Rotate.Y_AXIS);
         if (shapeGroup != null)
             shapeGroup.getTransforms().addAll(rotateX, rotateY);
-        axisGroup.getTransforms().addAll(rotateX, rotateY);
+        axisGroup.getTransforms().addAll(rotateX, rotateY);*/
         
         camera.getTransforms().clear();
         camera.getTransforms().addAll(rotateYCam, rotateXCam);

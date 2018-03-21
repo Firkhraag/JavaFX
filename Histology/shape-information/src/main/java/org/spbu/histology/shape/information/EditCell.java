@@ -110,15 +110,6 @@ public class EditCell < S, T > extends TextFieldTableCell < S, T > {
                 commitEdit(getConverter().fromString(textField.getText()));
             }
         });
-        /*textField.focusedProperty().addListener(new ChangeListener < Boolean > () {
-            @Override
-            public void changed(ObservableValue << ? extends Boolean > observable,
-                Boolean oldValue, Boolean newValue) {
-                if (!newValue) {
-                    commitEdit(getConverter().fromString(textField.getText()));
-                }
-            }
-        });*/
         textField.setOnKeyPressed(t -> {
             if (t.getCode() == KeyCode.ESCAPE)
                 escapePressed = true;
@@ -182,8 +173,7 @@ public class EditCell < S, T > extends TextFieldTableCell < S, T > {
         setText(null);
         setGraphic(textField);
         textField.selectAll();
-        // requesting focus so that key input can immediately go into the
-        // TextField
+        // requesting focus so that key input can immediately go into the TextField
         textField.requestFocus();
     }
 }

@@ -16,8 +16,6 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.Node;
 import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
-import org.spbu.histology.model.TetgenFacetHole;
-import org.spbu.histology.model.TetgenPoint;
 
 public class GeneralTabController implements Initializable {
     
@@ -227,7 +225,6 @@ public class GeneralTabController implements Initializable {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        
         if (ShapeInformationInitialization.mode.equals("Edit"))
             sm.updateShape(new Shape(ShapeInformationInitialization.getShape().getId(), 
                 nameField.getText(), xRot, yRot, xTran, yTran, zTran,
@@ -246,6 +243,11 @@ public class GeneralTabController implements Initializable {
     public void doUpdate() {
         createButton.setText("Update");
         nameField.setText(ShapeInformationInitialization.getShape().getName());
+        xRotationField.setText(String.valueOf(ShapeInformationInitialization.getShape().getXRotate()));
+        yRotationField.setText(String.valueOf(ShapeInformationInitialization.getShape().getYRotate()));
+        xPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getXCoordinate()));
+        yPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getYCoordinate()));
+        zPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getZCoordinate()));
         diffuseColorPicker.setValue(ShapeInformationInitialization.getShape().getDiffuseColor());
         specularColorPicker.setValue(ShapeInformationInitialization.getShape().getSpecularColor());
     }

@@ -1,30 +1,22 @@
 package org.spbu.histology.shape.information;
 
 import org.spbu.histology.model.Shape;
-import org.spbu.histology.model.TetgenPoint;
 import java.net.URL;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
-import org.openide.util.Lookup;
 
 public class ShapeInformationInitialization {
     
     public static Stage stage;
     public static String mode;
     private static Shape theShape;
-    private static Collection<? extends Shape> allShapes = null;
-    private static Lookup.Result<Shape> lookupResult = null;
     private static Parent root;
-    private static ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
     
     public static void setShape(Shape s) {
         theShape = s;

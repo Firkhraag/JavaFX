@@ -244,11 +244,11 @@ public class Shape {
     public Shape(Shape shape) { 
         this.id = count++;
         this.name.set(shape.getName());
-        this.xRotate.set(0);
-        this.yRotate.set(0);
-        this.xCoordinate.set(0);
-        this.yCoordinate.set(0);
-        this.zCoordinate.set(0);
+        this.xRotate.set(shape.getXRotate());
+        this.yRotate.set(shape.getYRotate());
+        this.xCoordinate.set(shape.getXCoordinate());
+        this.yCoordinate.set(shape.getYCoordinate());
+        this.zCoordinate.set(shape.getZCoordinate());
         for (int i = 0; i < shape.getPointData().size(); i++)
             this.pointData.add(new TetgenPoint(shape.getPointData().get(i)));
         for (int i = 0; i < shape.getHoleData().size(); i++)
