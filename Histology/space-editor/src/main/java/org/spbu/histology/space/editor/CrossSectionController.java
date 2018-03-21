@@ -76,6 +76,8 @@ public class CrossSectionController implements Initializable  {
     @FXML
     private Slider opaquenessSlider;
     
+    private boolean change = true;
+    
     private final double EPS = 0.000001;
     
     Node p1;
@@ -85,47 +87,29 @@ public class CrossSectionController implements Initializable  {
     private final double crossSectPosLim = 900;
     
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                xRotation.setText("");
-                return;
-            }
+        if (change)
             xRotation.setText(newValue + "");
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                yRotation.setText("");
-                return;
-            }
+        if (change)    
             yRotation.setText(newValue + "");
     };
     
     ChangeListener xPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                xPosition.setText("");
-                return;
-            }
+        if (change)
             xPosition.setText(newValue + "");
     };
     ChangeListener yPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                yPosition.setText("");
-                return;
-            }
+        if (change)
             yPosition.setText(newValue + "");
     };
     ChangeListener zPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                zPosition.setText("");
-                return;
-            }
+        if (change)
             zPosition.setText(newValue + "");
     };
     
     ChangeListener opaquenessChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                opaqueness.setText("");
-                return;
-            }
+        if (change)
             opaqueness.setText(newValue + "");
     };
     
@@ -137,9 +121,9 @@ public class CrossSectionController implements Initializable  {
             try {
                 double ang = Double.parseDouble(newValue);
                 if ((ang >= 0) && (ang <= 90)) {
-                    xRotSlider.valueProperty().removeListener(xRotationChangeListener);
+                    change = false;
                     xRotSlider.setValue(ang);
-                    xRotSlider.valueProperty().addListener(xRotationChangeListener);
+                    change = true;
                     CrossSection.setXRotate(newValue);
                     findCoordinates();
                     findPlane(p1, p2, p3);
@@ -154,9 +138,9 @@ public class CrossSectionController implements Initializable  {
                 double ang = Double.parseDouble(newValue);
                 if ((ang > 360) || (ang < -360))
                     ang %= 360;
-                yRotSlider.valueProperty().removeListener(yRotationChangeListener);
+                change = false;
                 yRotSlider.setValue(ang);
-                yRotSlider.valueProperty().addListener(yRotationChangeListener);
+                change = true;
                 CrossSection.setYRotate(newValue);
                 findCoordinates();
                 findPlane(p1, p2, p3);
@@ -169,9 +153,9 @@ public class CrossSectionController implements Initializable  {
             try {
                 double pos = Double.parseDouble(newValue);
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
-                    xPosSlider.valueProperty().removeListener(xPositionChangeListener);
+                    change = false;
                     xPosSlider.setValue(pos);
-                    xPosSlider.valueProperty().addListener(xPositionChangeListener);
+                    change = true;
                     CrossSection.setXCoordinate(newValue);
                     findCoordinates();
                     findPlane(p1, p2, p3);
@@ -185,9 +169,9 @@ public class CrossSectionController implements Initializable  {
             try {
                 double pos = Double.parseDouble(yPosition.getText());
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
-                    yPosSlider.valueProperty().removeListener(yPositionChangeListener);
+                    change = false;
                     yPosSlider.setValue(pos);
-                    yPosSlider.valueProperty().addListener(yPositionChangeListener);
+                    change = true;
                     CrossSection.setYCoordinate(newValue);
                     findCoordinates();
                     findPlane(p1, p2, p3);
@@ -201,9 +185,9 @@ public class CrossSectionController implements Initializable  {
             try {
                 double pos = Double.parseDouble(zPosition.getText());
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
-                    zPosSlider.valueProperty().removeListener(zPositionChangeListener);
+                    change = false;
                     zPosSlider.setValue(pos);
-                    zPosSlider.valueProperty().addListener(zPositionChangeListener);
+                    change = true;
                     CrossSection.setZCoordinate(newValue);
                     findCoordinates();
                     findPlane(p1, p2, p3);
@@ -217,9 +201,9 @@ public class CrossSectionController implements Initializable  {
             try {
                 double opq = Double.parseDouble(opaqueness.getText());
                 if ((opq <= 1) && (opq >= 0)) {
-                    opaquenessSlider.valueProperty().removeListener(opaquenessChangeListener);
+                    change = false;
                     opaquenessSlider.setValue(opq);
-                    opaquenessSlider.valueProperty().addListener(opaquenessChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
