@@ -137,6 +137,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final MapChangeListener<Long, Shape> shapeListener =
             (change) -> {
                 if (change.wasRemoved()) {  
+                    System.out.println("Removed");
                     Shape removedShape = (Shape)change.getValueRemoved();
                     shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
                     shapeMap.remove(removedShape.getId());
@@ -144,15 +145,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     tetrahedronsList.remove(removedShape.getId());
                     facesList.remove(removedShape.getId());
                     colorsList.remove(removedShape.getId());
-                    if (change.wasAdded()) {
-                        Shape addedShape = (Shape)change.getValueAdded();
-                        addShape(addedShape);
-                    }
                 }
-                else if (change.wasAdded()) {
+                if (change.wasAdded()) {
+                    System.out.println("Add");
                     Shape addedShape = (Shape)change.getValueAdded();
                     addShape(addedShape);
-                }      
+                }    
             };
     
     public static class Grid extends Pane {
@@ -286,10 +284,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
             if (!intersectionNodes.contains(p2))
                 intersectionNodes.add(new Node(p2));
         } else if (firstEquation * secondEquation < 0) {
-            double t = 1 / (CrossSection.getA() * (p2.x - p1.x) + CrossSection.getB() * (p2.y - p1.y) + CrossSection.getC() * (p2.z - p1.z)) * (-1) * firstEquation;
-            double x = (p2.x - p1.x) * t + p1.x;
-            double y = (p2.y - p1.y) * t + p1.y;
-            double z = (p2.z - p1.z) * t + p1.z;
+            double a1 = p2.x - p1.x;
+            double a2 = p2.y - p1.y;
+            double a3 = p2.z - p1.z;
+            double t = 1 / (CrossSection.getA() * a1 + CrossSection.getB() * a2 +
+                    CrossSection.getC() * a3) * (-1) * firstEquation;
+            double x = a1 * t + p1.x;
+            double y = a2 * t + p1.y;
+            double z = a3 * t + p1.z;
             intersectionNodes.add(new Node(x, y, z));
         } 
     }
@@ -624,7 +626,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
             count += 3;
         }
         int numberOfRegions = 0;
-        double[] regionList = new double[numberOfRegions * 5];  
+        double[] regionList = new double[numberOfRegions * 5]; 
         
         TetgenResult tr = Tetgen.tetrahedralization(numberOfNodes, nodeList, 
                 numberOfFacets, numberOfPolygonsInFacet, numberOfHolesInFacet, 
@@ -655,6 +657,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         shape.setMaterial(phongMaterial);
         shapeGroup.getChildren().add(shape);
         shapeMap.put(s.getId(), shape);
+        
         try {
             CrossSectionViewerTopComponent.setUpdateViewer(true);
         } catch (Exception ex) {
@@ -918,12 +921,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 
                 mouseOldX = mousePosX;
                 mouseOldY = mousePosY;
-                CameraView.setCamera(String.valueOf(angX), 
-                        String.valueOf(angY), 
-                        String.valueOf(camera.getTranslateX()), 
-                        String.valueOf(camera.getTranslateY()), 
-                        String.valueOf(camera.getTranslateZ()), 
-                        String.valueOf(camera.getFieldOfView()));
+                CameraView.setXRotate(String.valueOf(angX));
+                CameraView.setYRotate(String.valueOf(angY));
             }
         });
         
@@ -932,18 +931,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 if (dy < 0) {
                     if (camera.getFieldOfView() >= 80)
                         return;
-                    camera.setFieldOfView(camera.getFieldOfView() + 0.5);
+                    CameraView.setFOV(String.valueOf(camera.getFieldOfView() + 0.5));
                 } else {
                     if (camera.getFieldOfView() <= 1)
                         return;
-                    camera.setFieldOfView(camera.getFieldOfView() - 0.5);
+                    CameraView.setFOV(String.valueOf(camera.getFieldOfView() - 0.5));
                 }
-                CameraView.setCamera(String.valueOf(rotateXCam.getAngle()), 
-                        String.valueOf(rotateYCam.getAngle()), 
-                        String.valueOf(camera.getTranslateX()), 
-                        String.valueOf(camera.getTranslateY()), 
-                        String.valueOf(camera.getTranslateZ()), 
-                        String.valueOf(camera.getFieldOfView()));
             });
     }
     
@@ -951,58 +944,38 @@ public final class SpaceViewerTopComponent extends TopComponent {
         scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent event) {
-                double value;
-
                 switch (event.getCode()) {
                     case A:
-                        value = camera.getTranslateZ() + Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateZ(value);
-                        value = camera.getTranslateX() - Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateX(value); 
+                        CameraView.setZCoordinate(String.valueOf(
+                                camera.getTranslateZ() + Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12));
+                        CameraView.setXCoordinate(String.valueOf(
+                                camera.getTranslateX() - Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12));
                         break;
                     case D:
-                        value = camera.getTranslateZ() - Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateZ(value);
-                        value = camera.getTranslateX() + Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateX(value); 
+                        CameraView.setZCoordinate(String.valueOf(
+                                camera.getTranslateZ() - Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12));
+                        CameraView.setXCoordinate(String.valueOf(
+                                camera.getTranslateX() + Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12));
                         break;
                     case W:
-                        value = camera.getTranslateZ() + Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateZ(value);
-                        value = camera.getTranslateX() + Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateX(value);  
+                        CameraView.setZCoordinate(String.valueOf(
+                                camera.getTranslateZ() + Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12));
+                        CameraView.setXCoordinate(String.valueOf(
+                                camera.getTranslateX() + Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12));
                         break;
                     case S:
-                        value = camera.getTranslateZ() - Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateZ(value);
-                        value = camera.getTranslateX() - Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12;
-                        if ((value <= camPosLim) && (value >= -camPosLim))
-                            camera.setTranslateX(value);
+                        CameraView.setZCoordinate(String.valueOf(
+                                camera.getTranslateZ() - Math.cos(Math.toRadians(rotateYCam.getAngle())) * 12));
+                        CameraView.setXCoordinate(String.valueOf(
+                                camera.getTranslateX() - Math.sin(Math.toRadians(rotateYCam.getAngle())) * 12));
                         break;
                     case SHIFT:
-                        value = camera.getTranslateY() + 10;
-                        if (value <= camPosLim)
-                            camera.setTranslateY(value);
+                        CameraView.setYCoordinate(String.valueOf(camera.getTranslateY() + 10));
                         break;
                     case SPACE:
-                        value = camera.getTranslateY() - 10;
-                        if (value >= -camPosLim)
-                            camera.setTranslateY(value);
+                        CameraView.setYCoordinate(String.valueOf(camera.getTranslateY() - 10));
                         break;
                 }
-                CameraView.setCamera(String.valueOf(rotateXCam.getAngle()), 
-                        String.valueOf(rotateYCam.getAngle()), 
-                        String.valueOf(camera.getTranslateX()), 
-                        String.valueOf(camera.getTranslateY()), 
-                        String.valueOf(camera.getTranslateZ()), 
-                        String.valueOf(camera.getFieldOfView()));
             }
         });
     }
