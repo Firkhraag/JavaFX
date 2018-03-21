@@ -36,7 +36,6 @@ public class CameraViewController implements Initializable  {
     @FXML
     private Slider yRotSlider;
     
-    
     @FXML
     private Label xPositionLabel;
     
@@ -76,49 +75,33 @@ public class CameraViewController implements Initializable  {
     @FXML
     private ScrollPane scrollPane;
     
+    private boolean change = true;
+    
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                xRotation.setText("");
-                return;
-            }
-            xRotation.setText(newValue + "");
+            if (change)
+                xRotation.setText(newValue + "");
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                yRotation.setText("");
-                return;
-            }
-            yRotation.setText(newValue + "");
+            if (change)
+                yRotation.setText(newValue + "");
     };
     
     ChangeListener xPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                xPosition.setText("");
-                return;
-            }
-            xPosition.setText(newValue + "");
+            if (change)
+                xPosition.setText(newValue + "");
     };
     ChangeListener yPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                yPosition.setText("");
-                return;
-            }
-            yPosition.setText(newValue + "");
+            if (change)
+                yPosition.setText(newValue + "");
     };
     ChangeListener zPositionChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                zPosition.setText("");
-                return;
-            }
-            zPosition.setText(newValue + "");
+            if (change)
+                zPosition.setText(newValue + "");
     };
     
     ChangeListener FOVChangeListener = (v, oldValue, newValue) -> {
-            if (newValue == null) {
-                FOV.setText("");
-                return;
-            }
-            FOV.setText(newValue + "");
+            if (change)
+                FOV.setText(newValue + "");
     };
     
     private final double camPosLim = 2000;
@@ -130,9 +113,9 @@ public class CameraViewController implements Initializable  {
             try {
                 double ang = Double.parseDouble(xRotation.getText());
                 if ((ang <= 90) && (ang >= -90)) {
-                    xRotSlider.valueProperty().removeListener(xRotationChangeListener);
+                    change = false;
                     xRotSlider.setValue(ang);
-                    xRotSlider.valueProperty().addListener(xRotationChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
@@ -144,9 +127,9 @@ public class CameraViewController implements Initializable  {
                 double ang = Double.parseDouble(yRotation.getText());
                 if ((ang > 360) || (ang < -360))
                     ang %= 360;
-                yRotSlider.valueProperty().removeListener(yRotationChangeListener);
+                change = false;
                 yRotSlider.setValue(ang);
-                yRotSlider.valueProperty().addListener(yRotationChangeListener);
+                change = true;
             } catch (Exception ex) {
                 
             }
@@ -157,9 +140,9 @@ public class CameraViewController implements Initializable  {
             try {
                 double pos = Double.parseDouble(xPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                    xPosSlider.valueProperty().removeListener(xPositionChangeListener);
+                    change = false;
                     xPosSlider.setValue(pos);
-                    xPosSlider.valueProperty().addListener(xPositionChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
@@ -170,9 +153,9 @@ public class CameraViewController implements Initializable  {
             try {
                 double pos = Double.parseDouble(yPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                    yPosSlider.valueProperty().removeListener(yPositionChangeListener);
+                    change = false;
                     yPosSlider.setValue(pos);
-                    yPosSlider.valueProperty().addListener(yPositionChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
@@ -183,9 +166,9 @@ public class CameraViewController implements Initializable  {
             try {
                 double pos = Double.parseDouble(zPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                    zPosSlider.valueProperty().removeListener(zPositionChangeListener);
+                    change = false;
                     zPosSlider.setValue(pos);
-                    zPosSlider.valueProperty().addListener(zPositionChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
@@ -197,9 +180,9 @@ public class CameraViewController implements Initializable  {
             try {
                 double fov = Double.parseDouble(FOV.getText());
                 if ((fov <= 80) && (fov >= 1)) {
-                    FOVSlider.valueProperty().removeListener(FOVChangeListener);
+                    change = false;
                     FOVSlider.setValue(fov);
-                    FOVSlider.valueProperty().addListener(FOVChangeListener);
+                    change = true;
                 }
             } catch (Exception ex) {
                 
