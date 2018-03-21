@@ -39,12 +39,12 @@ public class ShapeManagerImpl implements ShapeManager {
 
     @Override
     public void addShape(Shape s) {
-        observableMap.put(s.getId(), s);
+        observableMap.put(s.getId(), new Shape(s.getId(), s));
     }
 
     @Override
     public void updateShape(Shape s, Long shapeId) {
-        observableMap.put(shapeId, s);
+        observableMap.put(shapeId, new Shape(shapeId, s));
     }
 
     @Override
