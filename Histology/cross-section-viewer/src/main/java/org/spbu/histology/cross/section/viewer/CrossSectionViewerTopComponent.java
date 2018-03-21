@@ -3,6 +3,7 @@ package org.spbu.histology.cross.section.viewer;
 import org.spbu.histology.model.Node;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
+import java.util.Collections;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -102,14 +103,33 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
     
     public static void show(ArrayList<Node> intersectionNodes, Color color) {
         if (fxPanel == null)
-            return;
+            return;  
         if (intersectionNodes.size() == 4) {
+            
+            Collections.sort(intersectionNodes, (Node o1, Node o2) -> {
+                if(o1.y == o2.y)
+                    return 0;
+                return o1.y < o2.y ? -1 : 1;
+            }); 
+            
+            Node temp;
+            if (intersectionNodes.get(1).x < intersectionNodes.get(0).x) {
+                temp = intersectionNodes.get(1);
+                intersectionNodes.set(1, intersectionNodes.get(0));
+                intersectionNodes.set(0, temp);
+            }
+            if (intersectionNodes.get(3).x < intersectionNodes.get(2).x) {
+                temp = intersectionNodes.get(3);
+                intersectionNodes.set(3, intersectionNodes.get(2));
+                intersectionNodes.set(2, temp);
+            }
+            
             Polygon polygon = new Polygon();
             polygon.getPoints().addAll(new Double[]{
                 intersectionNodes.get(0).x, intersectionNodes.get(0).z,
                 intersectionNodes.get(1).x, intersectionNodes.get(1).z,
-                intersectionNodes.get(2).x, intersectionNodes.get(2).z,
-                intersectionNodes.get(3).x, intersectionNodes.get(3).z
+                intersectionNodes.get(3).x, intersectionNodes.get(3).z,
+                intersectionNodes.get(2).x, intersectionNodes.get(2).z
             });
             polygon.setFill(color);
             polygon.setTranslateX(paneSize / 2);
