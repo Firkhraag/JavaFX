@@ -219,6 +219,28 @@ public class Shape {
         this.specularColor.set(specCol);
     }
     
+    public Shape(Long id, Shape shape) { 
+        this.id = id;
+        this.name.set(shape.getName());
+        this.xRotate.set(shape.getXRotate());
+        this.yRotate.set(shape.getYRotate());
+        this.xCoordinate.set(shape.getXCoordinate());
+        this.yCoordinate.set(shape.getYCoordinate());
+        this.zCoordinate.set(shape.getZCoordinate());
+        for (int i = 0; i < shape.getPointData().size(); i++)
+            this.pointData.add(new TetgenPoint(shape.getPointData().get(i)));
+        for (int i = 0; i < shape.getHoleData().size(); i++)
+            this.holeData.add(new TetgenPoint(shape.getHoleData().get(i)));
+        for (int i = 0; i < shape.getPolygonsInFacetData().size(); i++)
+            this.polygonsInFacetData.add(new TetgenFacetPolygon(shape.getPolygonsInFacetData().get(i)));
+        for (int i = 0; i < shape.getHolesInFacetData().size(); i++)
+            this.holesInFacetData.add(new TetgenFacetHole(shape.getHolesInFacetData().get(i)));
+        this.facetNumber = shape.getFacetNumber();
+        this.maxNumberOfPoints = shape.getMaxNumberOfPoints();
+        this.diffuseColor.set(shape.getDiffuseColor());
+        this.specularColor.set(shape.getSpecularColor());
+    }
+    
     public Shape(Shape shape) { 
         this.id = count++;
         this.name.set(shape.getName());
