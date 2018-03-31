@@ -66,6 +66,7 @@
         <module>toolbar</module>
         <module>tetgen</module>
         <module>cross-section-viewer</module>
+        <module>histion-manager-impl</module>
     </modules>
 
     <properties>

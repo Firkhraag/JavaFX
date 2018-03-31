@@ -123,7 +123,7 @@ public final class SpaceEditorTopComponent extends TopComponent {
             }
             switch (toolNum) {
                 case 0:
-                    homeController.setScrollPanel(getWidth(), getHeight());
+                    homeController.setTreeViewSize(getWidth(), getHeight());
                     break;
                 case 1:
                     cameraViewController.setScrollPanel(getWidth(), getHeight());
@@ -132,15 +132,15 @@ public final class SpaceEditorTopComponent extends TopComponent {
                     crossSectionController.setScrollPanel(getWidth(), getHeight());
                     break;
                 default:
-                    homeController.setScrollPanel(getWidth(), getHeight());
+                    homeController.setTreeViewSize(getWidth(), getHeight());
                     break;
             }
-            homeController.setScrollPanel(getWidth(), getHeight());
+            homeController.setTreeViewSize(getWidth(), getHeight());
             fxPanel.addComponentListener(new ComponentAdapter() {
                 public void componentResized(ComponentEvent e) {
                     switch (toolNum) {
                         case 0:
-                            homeController.setScrollPanel(getWidth(), getHeight());
+                            homeController.setTreeViewSize(getWidth(), getHeight());
                             break;
                         case 1:
                             cameraViewController.setScrollPanel(getWidth(), getHeight());
@@ -149,7 +149,7 @@ public final class SpaceEditorTopComponent extends TopComponent {
                             crossSectionController.setScrollPanel(getWidth(), getHeight());
                             break;
                         default:
-                            homeController.setScrollPanel(getWidth(), getHeight());
+                            homeController.setTreeViewSize(getWidth(), getHeight());
                             break;
                     }
                 }

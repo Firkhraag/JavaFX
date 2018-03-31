@@ -1,6 +1,5 @@
 package org.spbu.histology.shape.information;
 
-import org.spbu.histology.model.Shape;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -11,32 +10,38 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class ShapeInformationInitialization {
+public class ShapeStructureInformationInitialization {
     
-    public static void createScene(Shape s) {
+    public static void createScene(long histionId, long cellId, long partId) {
         Parent root;
         try {
-            URL location = ShapeInformationInitialization.class.getResource("Main.fxml");
+            URL location = ShapeInformationInitialization.class.getResource("ShapeStructureInformation.fxml");
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(location);
             fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 
             root = (Parent)fxmlLoader.load(location.openStream());
-            MainController mainController = (MainController)fxmlLoader.getController();
-            mainController.setShape(s);
+            ShapeStructureInformationController shapeStructureInformationController = (ShapeStructureInformationController)fxmlLoader.getController();
+            shapeStructureInformationController.setInformation(histionId, cellId, partId);          
         } catch (Exception ex) {
             Logger.getLogger(ShapeInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }
-        displayScene(root);
+        displayScene(root, histionId, cellId, partId);
     }
     
-    private static void displayScene(Parent root) {
+    private static void displayScene(Parent root, long histionId, long cellId, long partId) {
         Stage stage = new Stage();
         stage.getIcons().add(new Image(ShapeInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
-        Scene scene = new Scene(root, 1000, 700);
+        Scene scene = new Scene(root, 480, 420);
         stage.setScene(scene);
-        stage.setTitle("Shape information");
+        if (partId != -1) {
+            stage.setTitle("Part information");
+        } else if (cellId != -1) {
+            stage.setTitle("Cell information");
+        } else {
+            stage.setTitle("Histion information");
+        }
         stage.show();
     }
     

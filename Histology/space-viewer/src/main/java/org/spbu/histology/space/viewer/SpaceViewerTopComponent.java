@@ -6,7 +6,6 @@ import org.spbu.histology.model.CameraView;
 import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
 import java.awt.BorderLayout;
-import java.text.DecimalFormat;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
@@ -16,15 +15,11 @@ import javafx.scene.Scene;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.paint.Paint;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.DrawMode;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
 import javafx.scene.transform.Rotate;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -34,18 +29,25 @@ import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import org.openide.LifecycleManager;
 import org.spbu.histology.cross.section.viewer.CrossSectionViewerTopComponent;
+import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.CrossSection;
+import org.spbu.histology.model.Histion;
+import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Node;
+import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenFacetHole;
 import org.spbu.histology.model.TetgenFacetHoleComparator;
 import org.spbu.histology.model.TetgenFacetPolygon;
@@ -79,10 +81,8 @@ import org.spbu.histology.model.TetgenPoint;
 
 public final class SpaceViewerTopComponent extends TopComponent {
     
-    private final ObservableMap<Long, Object> shapeMap = 
-            FXCollections.observableMap(new ConcurrentHashMap());
-    
     private ShapeManager sm = null;
+    private HistionManager hm = null;
     
     private final Group axisGroup = new Group();
     
@@ -108,7 +108,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final double nearClip = 0.1;
     private final double farClip = 4000.0;  
     private final double axisLen = 1900.0;
-    private final double gridSize = 2000;
     private final double camPosLim = 2000;
     private final double crossSectSize = 3000;
     private final double crossSectPosLim = 900;
@@ -119,6 +118,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private Box crossSectionXAxis;
     private Box crossSectionYAxis;
     
+    private final ObservableMap<Long, MeshView> shapeMap = 
+            FXCollections.observableMap(new ConcurrentHashMap());
     private final ObservableMap<Long, Color> colorsList = 
             FXCollections.observableMap(new ConcurrentHashMap());
     private final ObservableMap<Long, double[]> nodesList = 
@@ -127,29 +128,72 @@ public final class SpaceViewerTopComponent extends TopComponent {
             FXCollections.observableMap(new ConcurrentHashMap());
     private final ObservableMap<Long, int[]> facesList = 
             FXCollections.observableMap(new ConcurrentHashMap());
+    private final ObservableMap<Long, ArrayList<Polygon>> polygonList = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    /*private final ObservableMap<Long, Rotate> xRotateList = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    private final ObservableMap<Long, Rotate> yRotateList = 
+            FXCollections.observableMap(new ConcurrentHashMap());*/
 
-    private ArrayList<Node> intersectionNodes = new ArrayList();
+    private final ArrayList<Node> intersectionNodes = new ArrayList();
     
     private final double EPS = 0.0000001;
     
+    private void returnNodeListToOriginal(Shape s) {
+        double angX = -Math.toRadians(s.getXRotate());
+        double tempVal;
+        double angY = -Math.toRadians(s.getYRotate());
+        
+        for (int i = 0; i < nodesList.get(s.getId()).length; i+=3) {
+            nodesList.get(s.getId())[i] -= s.getXCoordinate();
+            nodesList.get(s.getId())[i + 1] -= s.getYCoordinate();
+            nodesList.get(s.getId())[i + 2] -= s.getZCoordinate();
+            
+            tempVal = nodesList.get(s.getId())[i];
+            nodesList.get(s.getId())[i] = tempVal * Math.cos(angY) + nodesList.get(s.getId())[i + 2] * Math.sin(angY);
+            nodesList.get(s.getId())[i + 2] = -tempVal * Math.sin(angY) + nodesList.get(s.getId())[i + 2] * Math.cos(angY);
+            
+            tempVal = nodesList.get(s.getId())[i + 1];
+            nodesList.get(s.getId())[i + 1] = tempVal * Math.cos(angX) - nodesList.get(s.getId())[i + 2] * Math.sin(angX);
+            nodesList.get(s.getId())[i + 2] = tempVal * Math.sin(angX) + nodesList.get(s.getId())[i + 2] * Math.cos(angX);
+        }
+    }
+    
     private final MapChangeListener<Long, Shape> shapeListener =
             (change) -> {
-                if (change.wasRemoved()) {  
+                if (change.wasRemoved() && change.wasAdded()) {
+                    Shape s = (Shape)change.getValueAdded();
                     Shape removedShape = (Shape)change.getValueRemoved();
+                    CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(s.getId()));
+                    /*if (s.getCopiedId() == -2) {
+                        returnNodeListToOriginal(removedShape);
+                    }
+                    else {
+                        shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
+                    }*/
                     shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
-                    shapeMap.remove(removedShape.getId());
-                    nodesList.remove(removedShape.getId());
-                    tetrahedronsList.remove(removedShape.getId());
-                    facesList.remove(removedShape.getId());
-                    colorsList.remove(removedShape.getId());
+                    addShape(s);
+                    intersectionsWithEdges(change.getKey());
                 }
-                if (change.wasAdded()) {
+                else if (change.wasRemoved()) {  
+                    Long removedShapeId = ((Shape)change.getValueRemoved()).getId();
+                    shapeGroup.getChildren().remove(shapeMap.get(removedShapeId));
+                    shapeMap.remove(removedShapeId);
+                    nodesList.remove(removedShapeId);
+                    tetrahedronsList.remove(removedShapeId);
+                    facesList.remove(removedShapeId);
+                    colorsList.remove(removedShapeId);
+                    CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(removedShapeId));
+                    polygonList.remove(removedShapeId);
+                }
+                else if (change.wasAdded()) {
                     Shape addedShape = (Shape)change.getValueAdded();
                     addShape(addedShape);
-                }    
+                    intersectionsWithEdges(change.getKey());
+                }
             };
     
-    public static class Grid extends Pane {
+    /*public static class Grid extends Pane {
 
         Rectangle wall;
 
@@ -183,8 +227,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
         public void setFill(Paint paint) {
             wall.setFill(paint);
         }
-    }
+    }*/
 
+    /*public static void changeDrawMode(int id) {
+        shapeMap.get(id).setDrawMode(DrawMode.LINE);
+    }*/
+    
     public SpaceViewerTopComponent() {
         initComponents();
         setName(Bundle.CTL_SpaceTopComponent());
@@ -229,6 +277,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
         if (sm == null) {
             LifecycleManager.getDefault().exit();
         }
+        
+        hm = Lookup.getDefault().lookup(HistionManager.class);
+        if (hm == null) {
+            LifecycleManager.getDefault().exit();
+        }
+        
         sm.addListener(shapeListener);        
         buildData();        
         if (!sm.getAllShapes().isEmpty())
@@ -238,15 +292,58 @@ public final class SpaceViewerTopComponent extends TopComponent {
         fxPanel.setScene(scene);  
     }
 
-    private void intersectionsWithEdges() {
-        double[] nl;
-        int[] tl;
-        if ((tetrahedronsList == null) || (nodesList == null))
-            return;
-        CrossSectionViewerTopComponent.clear();
-        for (long k = 0; k < shapeMap.size(); k++) {
-            nl = nodesList.get(k);
-            tl = tetrahedronsList.get(k);
+    private Polygon findPolygons(ArrayList<Node> intersectionNodes, Color color) {
+        if (intersectionNodes.size() == 4) {
+            double avgX = (intersectionNodes.get(0).x + intersectionNodes.get(1).x +
+                    intersectionNodes.get(2).x + intersectionNodes.get(3).x) / 4;
+            
+            double avgZ = (intersectionNodes.get(0).z + intersectionNodes.get(1).z +
+                    intersectionNodes.get(2).z + intersectionNodes.get(3).z) / 4;
+            
+            Collections.sort(intersectionNodes, (Node o1, Node o2) -> {
+                double temp1 = Math.atan2(o1.z - avgZ, o1.x - avgX);
+                double temp2 = Math.atan2(o2.z - avgZ, o2.x - avgX);
+                if(temp1 == temp2)
+                    return 0;
+                return temp1 < temp2 ? -1 : 1;
+            }); 
+            
+            Polygon polygon = new Polygon();
+            polygon.getPoints().addAll(new Double[]{
+                intersectionNodes.get(0).x, intersectionNodes.get(0).z,
+                intersectionNodes.get(1).x, intersectionNodes.get(1).z,
+                intersectionNodes.get(2).x, intersectionNodes.get(2).z,
+                intersectionNodes.get(3).x, intersectionNodes.get(3).z
+            });
+            
+            polygon.setFill(color);
+            /*polygon.setTranslateX(paneSize / 2);
+            polygon.setTranslateY(paneSize / 2);
+            root.getChildren().add(polygon);*/
+            return polygon;
+        }
+        Polygon polygon = new Polygon();
+        polygon.getPoints().addAll(new Double[]{
+            intersectionNodes.get(0).x, intersectionNodes.get(0).z,
+            intersectionNodes.get(1).x, intersectionNodes.get(1).z,
+            intersectionNodes.get(2).x, intersectionNodes.get(2).z
+        });
+        polygon.setFill(color);
+        /*polygon.setTranslateX(paneSize / 2);
+        polygon.setTranslateY(paneSize / 2);
+        root.getChildren().add(polygon);*/
+        return polygon;
+    }
+    
+    private void intersectionsWithEdges(long id) {
+        /*if ((tetrahedronsList == null) || (nodesList == null))
+            return;*/
+        
+        //CrossSectionViewerTopComponent.clear();
+        /*sm.getAllShapes().forEach(s -> {
+            //polygonList.put()
+            double[] nl = nodesList.get(s.getId());
+            int[] tl = tetrahedronsList.get(s.getId());
             for (int i = 0; i < tl.length; i += 4) {
                 intersectionNodes.clear();
                 findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
@@ -257,10 +354,28 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 findIntersection(new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]), new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]));
                 if (intersectionNodes.size() > 2) {
                     rotateTillHorizontalPanel();
-                    CrossSectionViewerTopComponent.show(intersectionNodes, colorsList.get(k));
+                    CrossSectionViewerTopComponent.show(intersectionNodes, colorsList.get(s.getId()));
                 }
             }
+        });*/
+        polygonList.put(id, new ArrayList<>());
+        double[] nl = nodesList.get(id);
+        int[] tl = tetrahedronsList.get(id);
+        for (int i = 0; i < tl.length; i += 4) {
+            intersectionNodes.clear();
+            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
+            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]));
+            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]));
+            findIntersection(new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
+            findIntersection(new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
+            findIntersection(new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]), new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]));
+            if (intersectionNodes.size() > 2) {
+                rotateTillHorizontalPanel();
+                //polygonList.get(id).add(CrossSectionViewerTopComponent.show(intersectionNodes, colorsList.get(id)));
+                polygonList.get(id).add(findPolygons(intersectionNodes, colorsList.get(id)));
+            }
         }
+        CrossSectionViewerTopComponent.show(polygonList.get(id));
     }
     
     private void findIntersection(Node p1, Node p2) {
@@ -375,6 +490,20 @@ public final class SpaceViewerTopComponent extends TopComponent {
         pointData.add(new TetgenPoint(43,-120,-120,-100));
         pointData.add(new TetgenPoint(44,-100,-90,-100));
         
+        int pointSize = pointData.size();
+        Node nodeAvg = new Node(0,0,0);
+        for (int i = 0; i < pointSize; i++) {
+            Node n = new Node(pointData.get(i).getX(), 
+                    pointData.get(i).getY(),
+                    pointData.get(i).getZ());
+            nodeAvg.x += n.x;
+            nodeAvg.y += n.y;
+            nodeAvg.z += n.z;
+        }
+        nodeAvg.x /= pointSize;
+        nodeAvg.y /= pointSize;
+        nodeAvg.z /= pointSize;
+        
         int facetNumber = 24;
         
         ObservableList<TetgenFacetPolygon> polygonsInFacetData = FXCollections.observableArrayList();
@@ -433,7 +562,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         int maxNumberOfVertices = 22;
 
-        sm.addShape(new Shape("Shape1", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE));
+        hm.addHistion(new Histion("Histion <1>",0,0,0,0,0));
+        //hm.getAllHistions().get(0).addChild(new Cell("Cell <1>"));
+        hm.getHistionMap().get((long)0).addChild(new Cell("Cell <1>",0,0,0,0,0));
+        hm.getHistionMap().get((long)0).getItemMap().get((long)0).addChild(new Part("Part <1>",0,0,0,0,0));
+        sm.addShape(new Shape("1", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, nodeAvg, -1, 0, 0));
+        //hm.getAllHistions().get(0).getItems().get(0).addChild(new Part("Part <1>"));
+        //sm.addShape(new Shape("Shape3", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE));
+        //System.out.println("----");
         
         pointData = FXCollections.observableArrayList();
         pointData.add(new TetgenPoint(1,100,90,100));
@@ -453,6 +589,20 @@ public final class SpaceViewerTopComponent extends TopComponent {
         pointData.add(new TetgenPoint(14,180,-120,-100));
         pointData.add(new TetgenPoint(15,120,-120,-100));
         pointData.add(new TetgenPoint(16,100,-90,-100));
+        
+        pointSize = pointData.size();
+        nodeAvg = new Node(0,0,0);
+        for (int i = 0; i < pointSize; i++) {
+            Node n = new Node(pointData.get(i).getX(), 
+                    pointData.get(i).getY(),
+                    pointData.get(i).getZ());
+            nodeAvg.x += n.x;
+            nodeAvg.y += n.y;
+            nodeAvg.z += n.z;
+        }
+        nodeAvg.x /= pointSize;
+        nodeAvg.y /= pointSize;
+        nodeAvg.z /= pointSize;
         
         facetNumber = 10;
         
@@ -484,79 +634,208 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         maxNumberOfVertices = 8;
         
-        sm.addShape(new Shape("Shape2", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.DARKRED, Color.RED));
+        hm.getHistionMap().get((long)0).addChild(new Cell("Cell <2>",0,0,0,0,0));
+        hm.getHistionMap().get((long)0).getItemMap().get((long)1).addChild(new Part("Part <2>",0,0,0,0,0));
+        sm.addShape(new Shape("2", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.DARKRED, Color.RED, nodeAvg, -1, 0, 1));
+        hm.addHistion(new Histion("Histion <2>",0,0,0,0,0));
+        hm.deleteHistion(1);
     }
     
+    private void applyTransformations(Shape s, double xRot, double yRot, 
+            double xTran, double yTran, double zTran, Node nodeAvg,
+            ObservableList<TetgenPoint> pointData,
+            ObservableList<TetgenPoint> holeData,
+            ObservableList<TetgenFacetHole> holesInFacetData) {
+        double ang, tempVal;
+        for (int i = 0; i < s.getPointData().size(); i++) {
+            //TetgenPoint pd = new TetgenPoint(s.getPointData().get(i));
+            TetgenPoint pd = new TetgenPoint(pointData.get(i));
+            
+            pd.setX(pd.getX() - nodeAvg.x);
+            pd.setY(pd.getY() - nodeAvg.y);
+            pd.setZ(pd.getZ() - nodeAvg.z);
+            
+            ang = Math.toRadians(xRot);
+            tempVal = pd.getY();
+            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
+            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            ang = Math.toRadians(yRot);
+            tempVal = pd.getX();
+            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
+            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            pd.setX(pd.getX() + xTran + nodeAvg.x);
+            pd.setY(pd.getY() + yTran + nodeAvg.y);
+            pd.setZ(pd.getZ() + zTran + nodeAvg.z);
+            
+            //pointData.add(pd);
+            pointData.set(i, pd);
+        }
+        for (int i = 0; i < s.getHoleData().size(); i++) {
+            //TetgenPoint pd = new TetgenPoint(s.getHoleData().get(i));
+            TetgenPoint pd = new TetgenPoint(holeData.get(i));
+            
+            pd.setX(pd.getX() - nodeAvg.x);
+            pd.setY(pd.getY() - nodeAvg.y);
+            pd.setZ(pd.getZ() - nodeAvg.z);
+            
+            ang = Math.toRadians(xRot);
+            tempVal = pd.getY();
+            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
+            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            ang = Math.toRadians(yRot);
+            tempVal = pd.getX();
+            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
+            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            pd.setX(pd.getX() + xTran + nodeAvg.x);
+            pd.setY(pd.getY() + yTran + nodeAvg.y);
+            pd.setZ(pd.getZ() + zTran + nodeAvg.z);
+            
+            //holeData.add(pd);
+            holeData.set(i, pd);
+        }
+        for (int i = 0; i < s.getHolesInFacetData().size(); i++) {
+            //TetgenFacetHole pd = new TetgenFacetHole(s.getHolesInFacetData().get(i));
+            TetgenFacetHole pd = new TetgenFacetHole(holesInFacetData.get(i));
+            
+            pd.setX(pd.getX() - nodeAvg.x);
+            pd.setY(pd.getY() - nodeAvg.y);
+            pd.setZ(pd.getZ() - nodeAvg.z);
+            
+            ang = Math.toRadians(xRot);
+            tempVal = pd.getY();
+            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
+            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            ang = Math.toRadians(yRot);
+            tempVal = pd.getX();
+            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
+            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
+            
+            pd.setX(pd.getX() + xTran + nodeAvg.x);
+            pd.setY(pd.getY() + yTran + nodeAvg.y);
+            pd.setZ(pd.getZ() + zTran + nodeAvg.z);
+            
+            //holesInFacetData.add(pd);
+            holesInFacetData.set(i, pd);
+        }
+    }
+    
+    int dataSize;
+    Node nodeAvg;
+    
     private void addShape(Shape s) {
+        
+        if (s.getCopiedId() > -1) {
+            nodesList.put(s.getId(), new double[nodesList.get(s.getCopiedId()).length]);
+            tetrahedronsList.put(s.getId(), new int[tetrahedronsList.get(s.getCopiedId()).length]);
+            facesList.put(s.getId(), new int[facesList.get(s.getCopiedId()).length]);
+            System.arraycopy(nodesList.get(s.getCopiedId()), 0, nodesList.get(s.getId()), 0, nodesList.get(s.getCopiedId()).length);
+            System.arraycopy(tetrahedronsList.get(s.getCopiedId()), 0, tetrahedronsList.get(s.getId()), 0, tetrahedronsList.get(s.getCopiedId()).length);
+            System.arraycopy(facesList.get(s.getCopiedId()), 0, facesList.get(s.getId()), 0, facesList.get(s.getCopiedId()).length);
+            colorsList.put(s.getId(), s.getDiffuseColor());
+            MeshView newMeshView = new MeshView(shapeMap.get(s.getCopiedId()).getMesh());
+            final PhongMaterial phongMaterial = new PhongMaterial();
+            phongMaterial.setDiffuseColor(s.getDiffuseColor());
+            phongMaterial.setSpecularColor(s.getSpecularColor());
+            newMeshView.setMaterial(phongMaterial);
+            shapeGroup.getChildren().add(newMeshView);
+            shapeMap.put(s.getId(), newMeshView);
+            s.setCopiedId((long)-1);
+            return;
+        }
+        /*} else if (s.getCopiedId() == -2) {
+            shapeMap.get(s.getId()).setTranslateX(s.getXCoordinate());
+            shapeMap.get(s.getId()).setTranslateY(s.getYCoordinate());
+            shapeMap.get(s.getId()).setTranslateZ(s.getZCoordinate());
+            
+            double angX = Math.toRadians(s.getXRotate());
+            double tempVal;
+            double angY = Math.toRadians(s.getYRotate());
+            
+            for (int i = 0; i < nodesList.get(s.getId()).length; i+=3) {
+                
+                tempVal = nodesList.get(s.getId())[i + 1];
+                nodesList.get(s.getId())[i + 1] = tempVal * Math.cos(angX) - nodesList.get(s.getId())[i + 2] * Math.sin(angX);
+                nodesList.get(s.getId())[i + 2] = tempVal * Math.sin(angX) + nodesList.get(s.getId())[i + 2] * Math.cos(angX);
+                
+                tempVal = nodesList.get(s.getId())[i];
+                nodesList.get(s.getId())[i] = tempVal * Math.cos(angY) + nodesList.get(s.getId())[i + 2] * Math.sin(angY);
+                nodesList.get(s.getId())[i + 2] = -tempVal * Math.sin(angY) + nodesList.get(s.getId())[i + 2] * Math.cos(angY);
+                
+                nodesList.get(s.getId())[i] += s.getXCoordinate();
+                nodesList.get(s.getId())[i + 1] += s.getYCoordinate();
+                nodesList.get(s.getId())[i + 2] += s.getZCoordinate();
+            }
+            return;
+        }*/
+        
+        ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+        ObservableList<TetgenPoint> holeData = FXCollections.observableArrayList();
+        ObservableList<TetgenFacetHole> holesInFacetData = FXCollections.observableArrayList();
+        
+        for (int i = 0; i < s.getPointData().size(); i++)
+            pointData.add(new TetgenPoint(s.getPointData().get(i)));
+        for (int i = 0; i < s.getHoleData().size(); i++)
+            holeData.add(new TetgenPoint(s.getHoleData().get(i)));
+        for (int i = 0; i < s.getHolesInFacetData().size(); i++)
+            holesInFacetData.add(new TetgenFacetHole(s.getHolesInFacetData().get(i)));
         
         double xRot = s.getXRotate();
         double yRot = s.getYRotate();
         double xTran = s.getXCoordinate();
         double yTran = s.getYCoordinate();
         double zTran = s.getZCoordinate();
+        applyTransformations(s, xRot, yRot, xTran, yTran, zTran, s.getNodeAvg(), pointData, holeData, holesInFacetData);
         
-        ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-        ObservableList<TetgenPoint> holeData = FXCollections.observableArrayList();
-        ObservableList<TetgenFacetHole> holesInFacetData = FXCollections.observableArrayList();
+        dataSize = 0;
+        nodeAvg = new Node(0,0,0);
+        Cell c = hm.getHistionMap().get(s.getHistionId()).getItemMap().get(s.getCellId());
+        c.getItems().forEach(p -> {
+            ObservableList<TetgenPoint> data = sm.getShapeMap().get(p.getId()).getPointData();
+            dataSize += data.size();
+            for (int i = 0; i < data.size(); i++) {
+                nodeAvg.x += data.get(i).getX() + p.getXCoordinate();
+                nodeAvg.y += data.get(i).getY() + p.getYCoordinate();
+                nodeAvg.z += data.get(i).getZ() + p.getZCoordinate();
+            }
+        });
+        nodeAvg.x /= dataSize;
+        nodeAvg.y /= dataSize;
+        nodeAvg.z /= dataSize;
+        xRot = c.getXRotate();
+        yRot = c.getYRotate();
+        xTran = c.getXCoordinate();
+        yTran = c.getYCoordinate();
+        zTran = c.getZCoordinate();
+        applyTransformations(s, xRot, yRot, xTran, yTran, zTran, nodeAvg, pointData, holeData, holesInFacetData);
         
-        double ang, tempVal;
-        for (int i = 0; i < s.getPointData().size(); i++) {
-            TetgenPoint pd = new TetgenPoint(s.getPointData().get(i));
-            
-            ang = Math.toRadians(xRot);
-            tempVal = pd.getY();
-            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
-            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            ang = Math.toRadians(yRot);
-            tempVal = pd.getX();
-            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
-            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            pd.setX(pd.getX() + xTran);
-            pd.setY(pd.getY() + yTran);
-            pd.setZ(pd.getZ() + zTran);
-            
-            pointData.add(pd);
-        }
-        for (int i = 0; i < s.getHoleData().size(); i++) {
-            TetgenPoint pd = new TetgenPoint(s.getHoleData().get(i));
-            
-            ang = Math.toRadians(xRot);
-            tempVal = pd.getY();
-            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
-            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            ang = Math.toRadians(yRot);
-            tempVal = pd.getX();
-            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
-            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            pd.setX(pd.getX() + xTran);
-            pd.setY(pd.getY() + yTran);
-            pd.setZ(pd.getZ() + zTran);
-            
-            holeData.add(pd);
-        }
-        for (int i = 0; i < s.getHolesInFacetData().size(); i++) {
-            TetgenFacetHole pd = new TetgenFacetHole(s.getHolesInFacetData().get(i));
-            
-            ang = Math.toRadians(xRot);
-            tempVal = pd.getY();
-            pd.setY(pd.getY() * Math.cos(ang) - pd.getZ() * Math.sin(ang));
-            pd.setZ(tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            ang = Math.toRadians(yRot);
-            tempVal = pd.getX();
-            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
-            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));
-            
-            pd.setX(pd.getX() + xTran);
-            pd.setY(pd.getY() + yTran);
-            pd.setZ(pd.getZ() + zTran);
-            
-            holesInFacetData.add(pd);
-        }
+        dataSize = 0;
+        nodeAvg = new Node(0,0,0);
+        Histion h = hm.getHistionMap().get(s.getHistionId());
+        h.getItems().forEach(cell -> {
+            cell.getItems().forEach(p -> {
+                ObservableList<TetgenPoint> data = sm.getShapeMap().get(p.getId()).getPointData();
+                dataSize += data.size();
+                for (int i = 0; i < data.size(); i++) {
+                    nodeAvg.x += data.get(i).getX() + p.getXCoordinate();
+                    nodeAvg.y += data.get(i).getY() + p.getYCoordinate();
+                    nodeAvg.z += data.get(i).getZ() + p.getZCoordinate();
+                }
+            });
+        });
+        nodeAvg.x /= dataSize;
+        nodeAvg.y /= dataSize;
+        nodeAvg.z /= dataSize;
+        xRot = h.getXRotate();
+        yRot = h.getYRotate();
+        xTran = h.getXCoordinate();
+        yTran = h.getYCoordinate();
+        zTran = h.getZCoordinate();
+        applyTransformations(s, xRot, yRot, xTran, yTran, zTran, new Node(0, 0, 0), pointData, holeData, holesInFacetData);
         
         int numberOfNodes = pointData.size();
         double[] nodeList = new double[numberOfNodes * 3];
@@ -655,76 +934,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
         MeshView shape= new MeshView(shapeMesh);
         shape.setDrawMode(DrawMode.FILL);
         shape.setMaterial(phongMaterial);
+        //xRotateList.put(s.getId(), new Rotate(0, Rotate.X_AXIS));
+        //yRotateList.put(s.getId(), new Rotate(0, Rotate.Y_AXIS));
+
         shapeGroup.getChildren().add(shape);
         shapeMap.put(s.getId(), shape);
-        
-        try {
-            CrossSectionViewerTopComponent.setUpdateViewer(true);
-        } catch (Exception ex) {
-            
-        }
-    }
-    
-    private void buildGrid() {
-        Group cubeFaces = new Group();
-        //bottom face
-        Grid r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(-0.5 * gridSize);
-        r.setTranslateY(0);
-        r.setRotationAxis(Rotate.X_AXIS);
-        r.setRotate(90);
-        
-        cubeFaces.getChildren().add(r);
-        
-        // back face
-        r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(-0.5 * gridSize);
-        r.setTranslateY(-0.5 * gridSize);
-        r.setTranslateZ(0.5 * gridSize);
-        
-        cubeFaces.getChildren().add(r);
-        
-        // left face
-        r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(-1 * gridSize);
-        r.setTranslateY(-0.5 * gridSize);
-        r.setRotationAxis(Rotate.Y_AXIS);
-        r.setRotate(90);
-        
-        //cubeFaces.getChildren().add(r);
-        
-        // right face
-        r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(0);
-        r.setTranslateY(-0.5 * gridSize);
-        r.setRotationAxis(Rotate.Y_AXIS);
-        r.setRotate(90);
-        
-        cubeFaces.getChildren().add(r);
-        
-        // top face
-        r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(-0.5 * gridSize);
-        r.setTranslateY(-1 * gridSize);
-        r.setRotationAxis(Rotate.X_AXIS);
-        r.setRotate(90);
-        
-        //cubeFaces.getChildren().add(r);
-        
-        // front face
-        r = new Grid(gridSize);
-        r.setFill(Color.WHITE);
-        r.setTranslateX(-0.5 * gridSize);
-        r.setTranslateY(-0.5 * gridSize);
-        r.setTranslateZ(-0.5 * gridSize);
-
-        //cubeFaces.getChildren().add(r);
-        root.getChildren().add(cubeFaces);
     }
     
     private void buildCrossSectionPlane() {
@@ -1065,6 +1279,20 @@ public final class SpaceViewerTopComponent extends TopComponent {
         }
     };
     
+    ListChangeListener<Long> hideShapeListChangeListener = (change) -> {
+        while (change.next()) {
+            if (change.wasAdded()) {
+                for(Long id : change.getAddedSubList()) {
+                    shapeGroup.getChildren().remove(shapeMap.get(id));
+                }
+            } else {
+                for(Long id : change.getRemoved()) {
+                    shapeGroup.getChildren().add(shapeMap.get(id));
+                }
+            }
+        }
+    };
+    
     private void addCameraViewListener() {
         CameraView.xRotateProperty().addListener(xRotListener);
         CameraView.yRotateProperty().addListener(yRotListener);
@@ -1072,6 +1300,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CameraView.yCoordinateProperty().addListener(yPosListener);
         CameraView.zCoordinateProperty().addListener(zPosListener);
         CameraView.FOVProperty().addListener(FOVListener); 
+        CameraView.getShapeIdToHideList().addListener(hideShapeListChangeListener);
     }
     
     private void removeCameraViewListener() {
@@ -1081,6 +1310,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CameraView.yCoordinateProperty().removeListener(yPosListener);
         CameraView.zCoordinateProperty().removeListener(zPosListener);
         CameraView.FOVProperty().removeListener(FOVListener); 
+        CameraView.getShapeIdToHideList().removeListener(hideShapeListChangeListener);
     }
     
     ChangeListener<String> crossSectionXRotListener = (v, oldValue, newValue) -> {
@@ -1174,15 +1404,16 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     ChangeListener<Boolean> changeListener = (v, oldValue, newValue) -> {
         if (newValue) {
-            intersectionsWithEdges();
+            CrossSectionViewerTopComponent.clear();
+            sm.getAllShapes().forEach(s -> intersectionsWithEdges(s.getId()));
             CrossSection.setChanged(false);
         }
     };
     
     ChangeListener<Boolean> updateListener = (v, oldValue, newValue) -> {
         if (newValue) {
-            intersectionsWithEdges();
-            CrossSectionViewerTopComponent.setUpdateViewer(false);
+            CrossSectionViewerTopComponent.clear();
+            sm.getAllShapes().forEach(s -> intersectionsWithEdges(s.getId()));
         }
     };
     
@@ -1194,7 +1425,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CrossSection.zCoordinateProperty().addListener(crossSectionZPosListener);
         CrossSection.opaquenessProperty().addListener(opaquenessListener);
         CrossSection.changedProperty().addListener(changeListener);
-        CrossSectionViewerTopComponent.updateViewerProperty().addListener(updateListener);
+        CrossSectionViewerTopComponent.initialized.addListener(updateListener);
     }
     
     private void removeCrossSectionListener() {
@@ -1205,16 +1436,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CrossSection.zCoordinateProperty().removeListener(crossSectionZPosListener);
         CrossSection.opaquenessProperty().removeListener(opaquenessListener);
         CrossSection.changedProperty().removeListener(changeListener);
-        CrossSectionViewerTopComponent.updateViewerProperty().removeListener(updateListener);
+        CrossSectionViewerTopComponent.initialized.removeListener(updateListener);
     }
     
     @Override
     public void componentOpened() {
         addCameraViewListener();
-        if (CrossSectionViewerTopComponent.getUpdateViewer()) {
-            CrossSectionViewerTopComponent.setUpdateViewer(false);
-            Platform.runLater(() -> intersectionsWithEdges());
-        }
         addCrossSectionListener();
     }
 

@@ -1,7 +1,7 @@
-package org.spbu.histology.shape.manager.impl;
+package org.spbu.histology.histion.manager.impl;
 
-import org.spbu.histology.model.Shape;
-import org.spbu.histology.model.ShapeManager;
+import org.spbu.histology.model.Histion;
+import org.spbu.histology.model.HistionManager;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,19 +11,19 @@ import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import org.openide.util.lookup.ServiceProvider;
 
-@ServiceProvider(service = ShapeManager.class)
-public class ShapeManagerImpl implements ShapeManager {
+@ServiceProvider(service = HistionManager.class)
+public class HistionManagerImpl implements HistionManager {
 
-    private final ObservableMap<Long, Shape> observableMap = 
+    private final ObservableMap<Long, Histion> observableMap = 
             FXCollections.observableMap(new ConcurrentHashMap<>());
     
     @Override
-    public void addListener(MapChangeListener<? super Long, ? super Shape> m1) {
+    public void addListener(MapChangeListener<? super Long, ? super Histion> m1) {
         observableMap.addListener(m1);
     }
 
     @Override
-    public void removeListener(MapChangeListener<? super Long, ? super Shape> m1) {
+    public void removeListener(MapChangeListener<? super Long, ? super Histion> m1) {
         observableMap.removeListener(m1);
     }
 
@@ -38,30 +38,30 @@ public class ShapeManagerImpl implements ShapeManager {
     }
 
     @Override
-    public void addShape(Shape s) {
-        observableMap.put(s.getId(), new Shape(s.getId(), s));
+    public void addHistion(Histion h) {
+        observableMap.put(h.getId(), new Histion(h.getId(), h));
     }
 
     @Override
-    public void updateShape(Shape s, Long shapeId) {
-        observableMap.put(shapeId, new Shape(shapeId, s));
+    public void updateHistion(Histion s, Long histionId) {
+        observableMap.put(histionId, new Histion(histionId, s));
     }
     
     @Override
-    public void deleteShape(long id) {
+    public void deleteHistion(long id) {
         observableMap.remove(id);
     }
 
     @Override
-    public List<Shape> getAllShapes() {
-        List<Shape> copyList = new ArrayList<>();
+    public List<Histion> getAllHistions() {
+        List<Histion> copyList = new ArrayList<>();
         observableMap.values().stream().forEach(s ->
             copyList.add(s));
         return copyList;
     }
     
     @Override
-    public ObservableMap<Long, Shape> getShapeMap() {
+    public ObservableMap<Long, Histion> getHistionMap() {
         return observableMap;
     }
     

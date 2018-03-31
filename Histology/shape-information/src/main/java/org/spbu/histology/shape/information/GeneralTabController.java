@@ -4,6 +4,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -11,11 +14,17 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Node;
+import org.spbu.histology.model.Part;
 import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
+import org.spbu.histology.model.TetgenFacetHole;
+import org.spbu.histology.model.TetgenFacetPolygon;
+import org.spbu.histology.model.TetgenPoint;
 
 public class GeneralTabController implements Initializable {
     
@@ -51,7 +60,42 @@ public class GeneralTabController implements Initializable {
     
     private ShapeManager sm = null;
     
-    private int shapeVertexSize = 30;
+    private HistionManager hm = null;
+    
+    private final int shapeVertexSize = 30;
+    
+    private long id;
+    
+    private long histionId;
+    private long cellId;
+    
+    private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+    private ObservableList<TetgenPoint> holeData = FXCollections.observableArrayList();
+    private ObservableList<TetgenFacetPolygon> facetPolygonData = FXCollections.observableArrayList();
+    private ObservableList<TetgenFacetHole> facetHoleData = FXCollections.observableArrayList();
+    
+    BooleanProperty change;
+    
+    public void setShape(Shape s, BooleanProperty c) {
+        change = c;
+        id = s.getId();
+        pointData = s.getPointData();
+        holeData = s.getHoleData();
+        facetPolygonData = s.getPolygonsInFacetData();
+        facetHoleData = s.getHolesInFacetData();
+        nameField.setText(s.getName());
+        if (!s.getName().equals(""))
+            createButton.setText("Update");
+        xRotationField.setText(String.valueOf(s.getXRotate()));
+        yRotationField.setText(String.valueOf(s.getYRotate()));
+        xPositionField.setText(String.valueOf(s.getXCoordinate()));
+        yPositionField.setText(String.valueOf(s.getYCoordinate()));
+        zPositionField.setText(String.valueOf(s.getZCoordinate()));
+        diffuseColorPicker.setValue(s.getDiffuseColor());
+        specularColorPicker.setValue(s.getSpecularColor());
+        histionId = s.getHistionId();
+        cellId = s.getCellId();
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -59,12 +103,15 @@ public class GeneralTabController implements Initializable {
         if (sm == null) {
             LifecycleManager.getDefault().exit();
         }
+        
+        hm = Lookup.getDefault().lookup(HistionManager.class);
+        if (hm == null) {
+            LifecycleManager.getDefault().exit();
+        }
         gridPane.setVgap(20);
         gridPane.setHgap(20);
         gridPane.setPadding(new Insets(20, 20, 20, 20));
         bindButtonDisabled();
-        if (ShapeInformationInitialization.mode.equals("Edit"))
-            doUpdate();
     }
     
     private void bindButtonDisabled() {
@@ -87,26 +134,33 @@ public class GeneralTabController implements Initializable {
         ArrayList<CheckFacetPolygonVertices> checkFacetPolygonVerticesList = new ArrayList();
         int verticesNumber;
         int maxNumberOfVertices = 0;
-        int pointSize = PointTabController.data.size();
+        int pointSize = pointData.size();
         if (pointSize < 3) {
             AlertBox.display("Error", "There should be at least 3 points");
             return;
         }
+        Node nodeAvg = new Node(0,0,0);
         for (int i = 0; i < pointSize; i++) {
-            Node n = new Node(PointTabController.data.get(i).getX(), 
-                    PointTabController.data.get(i).getY(),
-                    PointTabController.data.get(i).getZ());
+            Node n = new Node(pointData.get(i).getX(), 
+                    pointData.get(i).getY(),
+                    pointData.get(i).getZ());
+            nodeAvg.x += n.x;
+            nodeAvg.y += n.y;
+            nodeAvg.z += n.z;
             if (nodeList.contains(n)) {
                 AlertBox.display("Error", "There are two same points. \nPoint table record #" + (i + 1));
                 return;
             }
             nodeList.add(n);
         }
+        nodeAvg.x /= pointSize;
+        nodeAvg.y /= pointSize;
+        nodeAvg.z /= pointSize;
         
-        for (int i = 0; i < HoleTabController.data.size(); i++) {
-            Node n = new Node(HoleTabController.data.get(i).getX(), 
-                    HoleTabController.data.get(i).getY(),
-                    HoleTabController.data.get(i).getZ());
+        for (int i = 0; i < holeData.size(); i++) {
+            Node n = new Node(holeData.get(i).getX(), 
+                    holeData.get(i).getY(),
+                    holeData.get(i).getZ());
             if (holeList.contains(n)) {
                 AlertBox.display("Error", "There are two same holes. \nHole table record #" + (i + 1));
                 return;
@@ -114,12 +168,12 @@ public class GeneralTabController implements Initializable {
             holeList.add(n);
         }
         
-        for (int i = 0; i < PolygonsInFacetTabController.data.size(); i++) {
+        for (int i = 0; i < facetPolygonData.size(); i++) {
             verticesNumber = 0;
             pointList = new ArrayList();
-            temp = PolygonsInFacetTabController.data.get(i).getFacetNumber();
+            temp = facetPolygonData.get(i).getFacetNumber();
             
-            CheckFacetPolygons cfp = new CheckFacetPolygons(temp, PolygonsInFacetTabController.data.get(i).getPolygonNumber());
+            CheckFacetPolygons cfp = new CheckFacetPolygons(temp, facetPolygonData.get(i).getPolygonNumber());
             if (checkFacetPolygonsList.contains(cfp)) {
                 AlertBox.display("Error", "There are two same polygon numbers in facet. \nFacet table record #" + (i + 1));
                 return;
@@ -127,36 +181,36 @@ public class GeneralTabController implements Initializable {
             checkFacetPolygonsList.add(cfp);
             
             CheckFacetPolygonVertices cfpv = new CheckFacetPolygonVertices(
-                    PolygonsInFacetTabController.data.get(i).getVertex1(),
-                    PolygonsInFacetTabController.data.get(i).getVertex2(),
-                    PolygonsInFacetTabController.data.get(i).getVertex3(),
-                    PolygonsInFacetTabController.data.get(i).getVertex4(),
-                    PolygonsInFacetTabController.data.get(i).getVertex5(),
-                    PolygonsInFacetTabController.data.get(i).getVertex6(),
-                    PolygonsInFacetTabController.data.get(i).getVertex7(),
-                    PolygonsInFacetTabController.data.get(i).getVertex8(),
-                    PolygonsInFacetTabController.data.get(i).getVertex9(),
-                    PolygonsInFacetTabController.data.get(i).getVertex10(),
-                    PolygonsInFacetTabController.data.get(i).getVertex11(),
-                    PolygonsInFacetTabController.data.get(i).getVertex12(),
-                    PolygonsInFacetTabController.data.get(i).getVertex13(),
-                    PolygonsInFacetTabController.data.get(i).getVertex14(),
-                    PolygonsInFacetTabController.data.get(i).getVertex15(),
-                    PolygonsInFacetTabController.data.get(i).getVertex16(),
-                    PolygonsInFacetTabController.data.get(i).getVertex17(),
-                    PolygonsInFacetTabController.data.get(i).getVertex18(),
-                    PolygonsInFacetTabController.data.get(i).getVertex19(),
-                    PolygonsInFacetTabController.data.get(i).getVertex20(),
-                    PolygonsInFacetTabController.data.get(i).getVertex21(),
-                    PolygonsInFacetTabController.data.get(i).getVertex22(),
-                    PolygonsInFacetTabController.data.get(i).getVertex23(),
-                    PolygonsInFacetTabController.data.get(i).getVertex24(),
-                    PolygonsInFacetTabController.data.get(i).getVertex25(),
-                    PolygonsInFacetTabController.data.get(i).getVertex26(),
-                    PolygonsInFacetTabController.data.get(i).getVertex27(),
-                    PolygonsInFacetTabController.data.get(i).getVertex28(),
-                    PolygonsInFacetTabController.data.get(i).getVertex29(),
-                    PolygonsInFacetTabController.data.get(i).getVertex30()
+                    facetPolygonData.get(i).getVertex1(),
+                    facetPolygonData.get(i).getVertex2(),
+                    facetPolygonData.get(i).getVertex3(),
+                    facetPolygonData.get(i).getVertex4(),
+                    facetPolygonData.get(i).getVertex5(),
+                    facetPolygonData.get(i).getVertex6(),
+                    facetPolygonData.get(i).getVertex7(),
+                    facetPolygonData.get(i).getVertex8(),
+                    facetPolygonData.get(i).getVertex9(),
+                    facetPolygonData.get(i).getVertex10(),
+                    facetPolygonData.get(i).getVertex11(),
+                    facetPolygonData.get(i).getVertex12(),
+                    facetPolygonData.get(i).getVertex13(),
+                    facetPolygonData.get(i).getVertex14(),
+                    facetPolygonData.get(i).getVertex15(),
+                    facetPolygonData.get(i).getVertex16(),
+                    facetPolygonData.get(i).getVertex17(),
+                    facetPolygonData.get(i).getVertex18(),
+                    facetPolygonData.get(i).getVertex19(),
+                    facetPolygonData.get(i).getVertex20(),
+                    facetPolygonData.get(i).getVertex21(),
+                    facetPolygonData.get(i).getVertex22(),
+                    facetPolygonData.get(i).getVertex23(),
+                    facetPolygonData.get(i).getVertex24(),
+                    facetPolygonData.get(i).getVertex25(),
+                    facetPolygonData.get(i).getVertex26(),
+                    facetPolygonData.get(i).getVertex27(),
+                    facetPolygonData.get(i).getVertex28(),
+                    facetPolygonData.get(i).getVertex29(),
+                    facetPolygonData.get(i).getVertex30()
             );
             if (checkFacetPolygonVerticesList.contains(cfpv)) {
                 AlertBox.display("Error", "There are two same polygons in facet. \nFacet table record #" + (i + 1));
@@ -164,12 +218,9 @@ public class GeneralTabController implements Initializable {
             }
             checkFacetPolygonVerticesList.add(cfpv);
             
-            if (!facetList.contains(temp))
-                facetList.add(temp);
-            
             int max = 0;
             for (int j = 0; j < shapeVertexSize; j++) {
-                temp = PolygonsInFacetTabController.data.get(i).getVertex(j + 1);
+                temp = facetPolygonData.get(i).getVertex(j + 1);
                 if (temp == 0)
                     break;
                 
@@ -196,7 +247,7 @@ public class GeneralTabController implements Initializable {
                 return;
             }
             
-            temp = PolygonsInFacetTabController.data.get(i).getFacetNumber();
+            temp = facetPolygonData.get(i).getFacetNumber();
             if (!facetList.contains(temp))
                 facetList.add(temp);
         }
@@ -205,8 +256,8 @@ public class GeneralTabController implements Initializable {
             return;
         }
         
-        for (int i = 0; i < HolesInFacetTabController.data.size(); i++) {
-            temp = HolesInFacetTabController.data.get(i).getFacetNumber();
+        for (int i = 0; i < facetHoleData.size(); i++) {
+            temp = facetHoleData.get(i).getFacetNumber();
             if (!facetList.contains(temp)) {
                 AlertBox.display("Error", "There is no such facet as a facet #" + temp + ". \nFacet holes table record #" + (i + 1));
                 return;
@@ -225,30 +276,34 @@ public class GeneralTabController implements Initializable {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        if (ShapeInformationInitialization.mode.equals("Edit"))
-            sm.updateShape(new Shape(ShapeInformationInitialization.getShape().getId(), 
-                nameField.getText(), xRot, yRot, xTran, yTran, zTran,
-                PointTabController.data, HoleTabController.data, PolygonsInFacetTabController.data, 
-                HolesInFacetTabController.data, facetList.size(), maxNumberOfVertices, 
-                diffuseColorPicker.getValue(), specularColorPicker.getValue()),
-                    ShapeInformationInitialization.getShape().getId());
-        else
+        if (createButton.getText().equals("Update")) {
+            /*if (!change.get())
+                sm.updateShape(new Shape(id, nameField.getText(), xRot, yRot, xTran, yTran, zTran,
+                    pointData, holeData, facetPolygonData, 
+                    facetHoleData, facetList.size(), maxNumberOfVertices, 
+                    diffuseColorPicker.getValue(), specularColorPicker.getValue(), -2, histionId, cellId), id);
+            else*/
+                sm.updateShape(new Shape(id, nameField.getText(), xRot, yRot, xTran, yTran, zTran,
+                    pointData, holeData, facetPolygonData, 
+                    facetHoleData, facetList.size(), maxNumberOfVertices, 
+                    diffuseColorPicker.getValue(), specularColorPicker.getValue(), nodeAvg, -1, histionId, cellId), id);
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setXRotate(xRot);
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setYRotate(yRot);
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setXCoordinate(xTran);
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setYCoordinate(yTran);
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setZCoordinate(zTran);
+            if (!hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).getName().equals(nameField.getText()))
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(id).setName("Part <" + nameField.getText() + ">");
+        } else {
             sm.addShape(new Shape(nameField.getText(), xRot, yRot, xTran, yTran, zTran,
-                PointTabController.data, HoleTabController.data, PolygonsInFacetTabController.data, 
-                HolesInFacetTabController.data, facetList.size(), maxNumberOfVertices,
-                diffuseColorPicker.getValue(), specularColorPicker.getValue()));
-        ShapeInformationInitialization.stage.close();
-    }
-    
-    public void doUpdate() {
-        createButton.setText("Update");
-        nameField.setText(ShapeInformationInitialization.getShape().getName());
-        xRotationField.setText(String.valueOf(ShapeInformationInitialization.getShape().getXRotate()));
-        yRotationField.setText(String.valueOf(ShapeInformationInitialization.getShape().getYRotate()));
-        xPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getXCoordinate()));
-        yPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getYCoordinate()));
-        zPositionField.setText(String.valueOf(ShapeInformationInitialization.getShape().getZCoordinate()));
-        diffuseColorPicker.setValue(ShapeInformationInitialization.getShape().getDiffuseColor());
-        specularColorPicker.setValue(ShapeInformationInitialization.getShape().getSpecularColor());
+                pointData, holeData, facetPolygonData, 
+                facetHoleData, facetList.size(), maxNumberOfVertices,
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), nodeAvg, -1, histionId, cellId));
+            //hm.getAllHistions().get(histionId).getItems().get(cellId).createAndAddChild("Part <" + nameField.getText() + ">");
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(
+                    new Part("Part <" + nameField.getText() + ">", xRot, yRot, xTran, yTran, zTran));
+        }
+        Stage stage = (Stage) createButton.getScene().getWindow();
+        stage.close();
     }
 }

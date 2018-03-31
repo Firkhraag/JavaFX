@@ -2,6 +2,7 @@ package org.spbu.histology.shape.information;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.TetgenPoint;
 
 
@@ -43,7 +45,17 @@ public class PointTabController implements Initializable {
     @FXML
     private TableColumn < TetgenPoint, Integer > idColumn;
     
-    public static ObservableList<TetgenPoint> data;
+    private ObservableList<TetgenPoint> data;
+    
+    BooleanProperty change;
+    
+    public void setShape(Shape s, BooleanProperty c) {
+        change = c;
+        data = FXCollections.observableArrayList();
+        this.data = s.getPointData();
+        numberOfPointsField.setText(String.valueOf(data.size()));
+        table.setItems(data);
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -54,13 +66,6 @@ public class PointTabController implements Initializable {
         setupYColumn();
         setupZColumn();
         setTableEditable();
-        
-        data = FXCollections.observableArrayList();
-        if (ShapeInformationInitialization.mode.equals("Edit")) {
-            data = ShapeInformationInitialization.getShape().getPointData();
-            numberOfPointsField.setText(String.valueOf(data.size()));
-        }
-        table.setItems(data);
     }
     
     @FXML
@@ -105,6 +110,7 @@ public class PointTabController implements Initializable {
             EditCell. <TetgenPoint, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         xColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenPoint) event.getTableView().getItems()
@@ -118,6 +124,7 @@ public class PointTabController implements Initializable {
             EditCell. <TetgenPoint, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         yColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenPoint) event.getTableView().getItems()
@@ -131,6 +138,7 @@ public class PointTabController implements Initializable {
             EditCell. <TetgenPoint, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         zColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenPoint) event.getTableView().getItems()

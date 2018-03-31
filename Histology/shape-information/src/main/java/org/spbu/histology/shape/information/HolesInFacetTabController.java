@@ -2,6 +2,7 @@ package org.spbu.histology.shape.information;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -14,6 +15,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.TetgenFacetHole;
 
 public class HolesInFacetTabController implements Initializable {
@@ -45,26 +47,27 @@ public class HolesInFacetTabController implements Initializable {
     @FXML
     private TableColumn idColumn;
     
-    public static ObservableList<TetgenFacetHole> data;
+    private ObservableList<TetgenFacetHole> data = FXCollections.observableArrayList();
+    
+    BooleanProperty change;
+    
+    public void setShape(Shape s, BooleanProperty c) {
+        change = c;
+        data = s.getHolesInFacetData();
+        numberOfHolesField.setText(String.valueOf(data.size()));
+        table.setItems(data);
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         headerHBox.setSpacing(20);
         holeVBox.setSpacing(10);
         headerHBox.setPadding(new Insets(10, 10, 10, 10));
-        table.setItems(data);
         setupXColumn();
         setupYColumn();
         setupZColumn();
         setupFacetNumberColumn();
         setTableEditable();
-        
-        data = FXCollections.observableArrayList();
-        if (ShapeInformationInitialization.mode.equals("Edit")) {
-            data = ShapeInformationInitialization.getShape().getHolesInFacetData();
-            numberOfHolesField.setText(String.valueOf(data.size()));
-        }
-        table.setItems(data);
     }
     
     @FXML
@@ -121,6 +124,7 @@ public class HolesInFacetTabController implements Initializable {
             EditCell. <TetgenFacetHole, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         xColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetHole) event.getTableView().getItems()
@@ -134,6 +138,7 @@ public class HolesInFacetTabController implements Initializable {
             EditCell. <TetgenFacetHole, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         yColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetHole) event.getTableView().getItems()
@@ -147,6 +152,7 @@ public class HolesInFacetTabController implements Initializable {
             EditCell. <TetgenFacetHole, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         zColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetHole) event.getTableView().getItems()

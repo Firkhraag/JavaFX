@@ -13,16 +13,7 @@
     <children>
         <ScrollPane fx:id="scrollPane">
             <content>
-                <VBox fx:id="vBox">
-                    <children>
-                        <HBox fx:id="hBox">
-                            <Button fx:id="addButton" text="" onAction="#addShape"/>
-                            <Button fx:id="pasteButton" text="" onAction="#pasteShape"/>
-                        </HBox>
-                        <VBox fx:id="shapeBox">
-                        </VBox>
-                    </children>
-                </VBox>
+                <TreeView fx:id="shapeTreeView" layoutX="0" layoutY="0"/>
             </content>
         </ScrollPane>  
     </children>

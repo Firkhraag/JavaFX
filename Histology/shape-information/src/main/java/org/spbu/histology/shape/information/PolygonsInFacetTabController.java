@@ -2,6 +2,7 @@ package org.spbu.histology.shape.information;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.property.BooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -16,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.TetgenFacetPolygon;
 
 
@@ -48,15 +50,26 @@ public class PolygonsInFacetTabController implements Initializable {
     @FXML
     private TableColumn < TetgenFacetPolygon, Integer > vertex3Column;
     
-    private int vertSize = 3;
-    
     @FXML
     private TableColumn < TetgenFacetPolygon, Integer > facetNumberColumn;
     
     @FXML
     private TableColumn < TetgenFacetPolygon, Integer > polygonNumberColumn;
     
-    public static ObservableList<TetgenFacetPolygon> data;
+    private int vertSize = 3;
+    
+    private ObservableList<TetgenFacetPolygon> data = FXCollections.observableArrayList();
+    
+    BooleanProperty change;
+    
+    public void setShape(Shape s, BooleanProperty c) {
+        change = c;
+        data = s.getPolygonsInFacetData();
+        numberOfRowsField.setText(String.valueOf(data.size()));
+        numberOfVerticesField.setText(String.valueOf(s.getMaxNumberOfPoints()));
+        table.setItems(data);
+        button.fire();
+    }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -69,15 +82,13 @@ public class PolygonsInFacetTabController implements Initializable {
         setupFacetNumberColumn();
         setupPolygonNumberColumn();
         setTableEditable();
-        
-        data = FXCollections.observableArrayList();
-        if (ShapeInformationInitialization.mode.equals("Edit")) {
-            data = ShapeInformationInitialization.getShape().getPolygonsInFacetData();
-            numberOfRowsField.setText(String.valueOf(data.size()));
-            numberOfVerticesField.setText(String.valueOf(ShapeInformationInitialization.getShape().getMaxNumberOfPoints()));
-            button.fire();
-        }
-        table.setItems(data);
+    }
+    
+    public void doUpdate(Shape theShape) {
+        data = theShape.getPolygonsInFacetData();
+        numberOfRowsField.setText(String.valueOf(data.size()));
+        numberOfVerticesField.setText(String.valueOf(theShape.getMaxNumberOfPoints()));
+        button.fire();
     }
     
     @FXML
@@ -96,7 +107,7 @@ public class PolygonsInFacetTabController implements Initializable {
                 for (int i = vertSize; i < colNum; i++) {
                     TableColumn < TetgenFacetPolygon, Integer > vertexColumn = new TableColumn("Vertex " + (i + 1));
                     vertexColumn.setPrefWidth(100);
-                    vertexColumn.setCellValueFactory(new PropertyValueFactory<TetgenFacetPolygon,Integer>("vertex" + (i + 1)));
+                    vertexColumn.setCellValueFactory(new PropertyValueFactory<>("vertex" + (i + 1)));
                     setupVertexColumn(vertexColumn, i + 1);
                     table.getColumns().add(vertexColumn);
                     vertSize++;
@@ -117,7 +128,8 @@ public class PolygonsInFacetTabController implements Initializable {
                 }
             } else if (num > size) {
                 for (int i = size; i < num; i++) {
-                    TetgenFacetPolygon n = new TetgenFacetPolygon(i + 1,i + 1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+                    TetgenFacetPolygon n = new TetgenFacetPolygon(i + 1,i + 1,
+                            1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
                     data.add(n);
                 }
             }
@@ -147,6 +159,7 @@ public class PolygonsInFacetTabController implements Initializable {
         facetNumberColumn.setCellFactory(EditCell. <TetgenFacetPolygon, Integer > forTableColumn(
                 new MyIntegerStringConverter()));
         facetNumberColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Integer value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetPolygon) event.getTableView().getItems()
@@ -159,6 +172,7 @@ public class PolygonsInFacetTabController implements Initializable {
         polygonNumberColumn.setCellFactory(EditCell. <TetgenFacetPolygon, Integer > forTableColumn(
                 new MyIntegerStringConverter()));
         polygonNumberColumn.setOnEditCommit(event -> {
+            change.set(true);
             final Integer value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetPolygon) event.getTableView().getItems()
@@ -171,6 +185,7 @@ public class PolygonsInFacetTabController implements Initializable {
         col.setCellFactory(EditCell. <TetgenFacetPolygon, Integer > forTableColumn(
                 new MyIntegerStringConverter()));
         col.setOnEditCommit(event -> {
+            change.set(true);
             final Integer value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenFacetPolygon) event.getTableView().getItems()

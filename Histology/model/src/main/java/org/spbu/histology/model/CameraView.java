@@ -2,6 +2,8 @@ package org.spbu.histology.model;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class CameraView {
     
@@ -91,6 +93,20 @@ public class CameraView {
         yCoordinateProperty().set(yCoordinate);
         zCoordinateProperty().set(zCoordinate);
         FOVProperty().set(FOV);
+    }
+    
+    private static ObservableList<Long> shapeIdToHideList = FXCollections.observableArrayList();
+    
+    public static ObservableList<Long> getShapeIdToHideList() {
+        return shapeIdToHideList;
+    }
+    
+    public static void addShapeIdToHide(Long id) {
+        shapeIdToHideList.add(id);
+    }
+    
+    public static void removeShapeIdToHide(Long id) {
+        shapeIdToHideList.remove(id);
     }
     
 }

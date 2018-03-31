@@ -1,18 +1,17 @@
 package org.spbu.histology.cross.section.viewer;
 
-import org.spbu.histology.model.Node;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
-import java.util.Collections;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.embed.swing.JFXPanel;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Polygon;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
@@ -48,18 +47,9 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
     
     private static JFXPanel fxPanel;
     private static Group root = new Group();
-    private static BooleanProperty updateViewer = new SimpleBooleanProperty(false);
+    public static BooleanProperty initialized = new SimpleBooleanProperty(false);
     private static final double paneSize = 4000;
-    
-    public static BooleanProperty updateViewerProperty() {
-        return updateViewer;
-    }
-    public static void setUpdateViewer(boolean v) {
-        updateViewer.set(v);
-    }
-    public static boolean getUpdateViewer() {
-        return updateViewer.get();
-    }
+    private double scale = 1.0;
 
     public CrossSectionViewerTopComponent() {
         initComponents();
@@ -84,6 +74,24 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         drawingPane.getChildren().add(root);
         drawingPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         ScrollPane scrollPane = new ScrollPane(drawingPane);
+        scrollPane.addEventFilter(ScrollEvent.ANY, new EventHandler<ScrollEvent>() {
+            @Override
+            public void handle(ScrollEvent event) {
+                if (event.getDeltaY() > 0) {
+                    if (scale < 2.45) {
+                        scale += 0.05;
+                        root.setScaleX(scale);
+                        root.setScaleY(scale);
+                    }
+                } else {
+                    if (scale > 0.05) {
+                        scale -= 0.05;
+                        root.setScaleX(scale);
+                        root.setScaleY(scale);
+                    }
+                }
+                event.consume();
+        }});
         scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -94,72 +102,25 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         scrollPane.setVvalue(0.5);
         Scene scene = new Scene(scrollPane);
         fxPanel.setScene(scene);
-        setUpdateViewer(true);
+        initialized.set(true);
     }
     
     public static void clear() {
         root.getChildren().clear();
     }
     
-    private static double findAngle(double x, double y) {
-        double angle;
-        if (x > 0) {
-            if (y >= 0)
-                angle = Math.atan(y/x);
-            else
-                angle = Math.atan(y/x) + 2* Math.PI;
-        } else if (x == 0) {
-            if (y >= 0)
-                angle = 0;
-            else 
-                angle = 3* Math.PI/2;
-        } else
-            angle = Math.atan(y/x) + Math.PI;
-        return angle;
+    public static void clearPolygonArray(ArrayList<Polygon> polygons) {
+        polygons.forEach(p -> root.getChildren().remove(p));
     }
     
-    public static void show(ArrayList<Node> intersectionNodes, Color color) {
+    public static void show(ArrayList<Polygon> polygons) {
         if (fxPanel == null)
             return;  
-        if (intersectionNodes.size() == 4) {
-            double avgX = (intersectionNodes.get(0).x + intersectionNodes.get(1).x +
-                    intersectionNodes.get(2).x + intersectionNodes.get(3).x) / 4;
-            
-            double avgZ = (intersectionNodes.get(0).z + intersectionNodes.get(1).z +
-                    intersectionNodes.get(2).z + intersectionNodes.get(3).z) / 4;
-            
-            Collections.sort(intersectionNodes, (Node o1, Node o2) -> {
-                double temp1 = Math.atan2(o1.z - avgZ, o1.x - avgX);
-                double temp2 = Math.atan2(o2.z - avgZ, o2.x - avgX);
-                if(temp1 == temp2)
-                    return 0;
-                return temp1 < temp2 ? -1 : 1;
-            }); 
-            
-            Polygon polygon = new Polygon();
-            polygon.getPoints().addAll(new Double[]{
-                intersectionNodes.get(0).x, intersectionNodes.get(0).z,
-                intersectionNodes.get(1).x, intersectionNodes.get(1).z,
-                intersectionNodes.get(2).x, intersectionNodes.get(2).z,
-                intersectionNodes.get(3).x, intersectionNodes.get(3).z
-            });
-            
-            polygon.setFill(color);
+        polygons.forEach(polygon -> {
             polygon.setTranslateX(paneSize / 2);
             polygon.setTranslateY(paneSize / 2);
             root.getChildren().add(polygon);
-            return;
-        }
-        Polygon polygon = new Polygon();
-        polygon.getPoints().addAll(new Double[]{
-            intersectionNodes.get(0).x, intersectionNodes.get(0).z,
-            intersectionNodes.get(1).x, intersectionNodes.get(1).z,
-            intersectionNodes.get(2).x, intersectionNodes.get(2).z
         });
-        polygon.setFill(color);
-        polygon.setTranslateX(paneSize / 2);
-        polygon.setTranslateY(paneSize / 2);
-        root.getChildren().add(polygon);
     }
     
 
