@@ -37,7 +37,7 @@ public class CellInformationInitialization {
         stage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
         Scene scene = new Scene(root, 1000, 700);
         stage.setScene(scene);
-        stage.setTitle("Shape information");
+        stage.setTitle("Cell");
         stage.showAndWait();
     }
     

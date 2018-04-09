@@ -35,7 +35,7 @@ public class HistionInformationInitialization {
         stage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
         Scene scene = new Scene(root, 480, 420);
         stage.setScene(scene);
-        stage.setTitle("Histion information");
+        stage.setTitle("Histion");
         stage.showAndWait();
     }
     

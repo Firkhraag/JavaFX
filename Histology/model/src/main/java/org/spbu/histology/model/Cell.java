@@ -141,7 +141,7 @@ public class Cell extends HistologyObject<Part> {
         this.specularColorProperty().set(specularColor);
     }
     
-    private Integer copiedId;
+    /*private Integer copiedId;
     
     public Integer getCopiedId() {
         return this.copiedId;
@@ -149,7 +149,7 @@ public class Cell extends HistologyObject<Part> {
     
     public void setCopiedId(Integer copiedId) {
         this.copiedId = copiedId;
-    }
+    }*/
     
     private Integer histionId;
     
@@ -199,8 +199,8 @@ public class Cell extends HistologyObject<Part> {
     
     public Cell(String name, double xRot, double yRot, double x, double y, double z,
             ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
-            Color diffCol, Color specCol, Integer copiedId, Integer histionId, boolean show, ObservableMap<Integer, Part> itemMap) {  
-        super(count++, name, itemMap);
+            Color diffCol, Color specCol, Integer histionId, boolean show) {  
+        super(count++, name);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
         this.xCoordinate.set(x);
@@ -214,15 +214,14 @@ public class Cell extends HistologyObject<Part> {
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
-        this.copiedId = copiedId;
         this.histionId = histionId;
         this.show = show;
     }
     
     public Cell(Integer id, String name, double xRot, double yRot, double x, double y, double z,
             ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
-            Color diffCol, Color specCol, Integer copiedId, Integer histionId, boolean show, ObservableMap<Integer, Part> itemMap) {  
-        super(id, name, itemMap);
+            Color diffCol, Color specCol, Integer histionId, boolean show) {  
+        super(id, name);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
         this.xCoordinate.set(x);
@@ -236,13 +235,12 @@ public class Cell extends HistologyObject<Part> {
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
-        this.copiedId = copiedId;
         this.histionId = histionId;
         this.show = show;
     }
     
     public Cell(Integer id, Cell с) { 
-        super(id, с.getName(), с.getItemMap());
+        super(id, с.getName());
         this.xRotate.set(с.getXRotate());
         this.yRotate.set(с.getYRotate());
         this.xCoordinate.set(с.getXCoordinate());
@@ -256,13 +254,15 @@ public class Cell extends HistologyObject<Part> {
         this.diffuseColor.set(с.getDiffuseColor());
         this.specularColor.set(с.getSpecularColor());
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
-        this.copiedId = с.getCopiedId();
         this.histionId = с.getHistionId();
         this.show = с.getShow();
+        /*с.getItems().forEach(p -> {
+            addChild(p);
+        });*/
     }
     
     public Cell(Cell с, Integer histionId) { 
-        super(count++, с.getName(), с.getItemMap());
+        super(count++, с.getName());
         this.xRotate.set(с.getXRotate());
         this.yRotate.set(с.getYRotate());
         this.xCoordinate.set(с.getXCoordinate());
@@ -276,9 +276,11 @@ public class Cell extends HistologyObject<Part> {
         this.diffuseColor.set(с.getDiffuseColor());
         this.specularColor.set(с.getSpecularColor());
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
-        this.copiedId = с.getCopiedId();
         this.histionId = histionId;
         this.show = с.getShow();
+        /*с.getItems().forEach(p -> {
+            addChild(p);
+        });*/
     }
     
     /*private static long count = 0;
@@ -388,7 +390,8 @@ public class Cell extends HistologyObject<Part> {
     
     @Override
     public void addChild(Part p) {
-        getItemMap().put(p.getId(), new Part(p.getId(), p));
+        //getItemMap().put(p.getId(), new Part(p.getId(), p));
+        getItemMap().put(p.getId(), p);
     }
     
     @Override

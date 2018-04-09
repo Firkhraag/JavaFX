@@ -63,7 +63,7 @@ public class HomeController implements Initializable {
     
     private void updateTree() {
         shapeTreeView.setRoot(null);
-            HistologyObject<?> root = new HistologyObject<Histion>(-1, "Tissue", FXCollections.emptyObservableMap()) {
+            HistologyObject<?> root = new HistologyObject<Histion>(-1, "Tissue") {
 
                 @Override
                 public ObservableList<Histion> getItems() {
@@ -175,20 +175,26 @@ public class HomeController implements Initializable {
             pasteHistion.setText("Paste histion");
             pasteHistion.setOnAction(event -> {
                 Histion newHistion = new Histion(hm.getHistionMap().get(histionId));
-                hm.addHistion(newHistion);
                 hm.getHistionMap().get(histionId).getItems().forEach(c -> {
                     Cell newCell = new Cell(c, newHistion.getId());
+                    c.getItems().forEach(p -> {
+                        newCell.addChild(new Part(p));
+                    });
+                    newHistion.addChild(newCell);
+                });
+                hm.addHistion(newHistion);
+                /*hm.getHistionMap().get(histionId).getItems().forEach(c -> {
+                    Cell newCell = new Cell(c, newHistion.getId());
+                    boolean sh = newCell.getShow();
                     newCell.setCopiedId(c.getId());
+                    newCell.setShow(false);
                     hm.getHistionMap().get(newHistion.getId()).addChild(newCell);
-                    /*Shape newShape = new Shape(sm.getShapeMap().get(c.getId()), 
-                            newHistion.getId());
-                    newShape.setCopiedId(c.getId());
-                    sm.addShape(newShape);*/
                     c.getItems().forEach(p -> {
                         hm.getHistionMap().get(newHistion.getId()).getItemMap().
                                 get(newCell.getId()).addChild(new Part(p));
                     });
-                });
+                    newCell.setShow(sh);
+                });*/
                 updateTree();
             });
             pasteHistion.disableProperty().bind(pasteHistionDisabledProperty);
@@ -253,12 +259,18 @@ public class HomeController implements Initializable {
                 newShape.setCopiedId(cellId);
                 sm.addShape(newShape);*/
                 Cell newCell = new Cell(hm.getHistionMap().get(histionId).getItemMap().get(cellId), newHistionId);
-                newCell.setCopiedId(cellId);
-                hm.getHistionMap().get(cell.getTreeItem().getValue().getId()).addChild(newCell);
+                //boolean sh = newCell.getShow();
+                //newCell.setCopiedId(cellId);
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> {
+                    newCell.addChild(new Part(p));
+                });
+                //newCell.setShow(false);
+                hm.getHistionMap().get(cell.getTreeItem().getValue().getId()).addChild(newCell);
+                /*hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> {
                     //hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).addChild(new Part(p));
                     hm.getHistionMap().get(newHistionId).getItemMap().get(newCell.getId()).addChild(new Part(p));
                 });
+                newCell.setShow(sh);*/
                 updateTree();
             });
             pasteCell.disableProperty().bind(pasteCellDisabledProperty);

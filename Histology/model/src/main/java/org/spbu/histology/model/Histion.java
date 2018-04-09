@@ -9,8 +9,8 @@ public class Histion extends HistologyObject<Cell> {
     private static int count = 0;
 
     public Histion(String name, double xRot, double yRot, double xPos, 
-            double yPos, double zPos, ObservableMap<Integer, Cell> itemMap) {
-        super(count++, name, itemMap);
+            double yPos, double zPos) {
+        super(count++, name);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
         this.xCoordinate.set(xPos);
@@ -19,8 +19,8 @@ public class Histion extends HistologyObject<Cell> {
     }
     
     public Histion(Integer id, String name, double xRot, double yRot, double xPos,
-            double yPos, double zPos, ObservableMap<Integer, Cell> itemMap) {
-        super(id, name, itemMap);
+            double yPos, double zPos) {
+        super(id, name);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
         this.xCoordinate.set(xPos);
@@ -29,21 +29,28 @@ public class Histion extends HistologyObject<Cell> {
     }
     
     public Histion(Histion h) {
-        super(count++, h.getName(), h.getItemMap());
+        super(count++, h.getName());
         this.xRotate.set(h.getXRotate());
         this.yRotate.set(h.getYRotate());
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
+        /*h.getItems().forEach(c -> {
+            addChild(c);
+            //addChild(new Cell(c));
+        });*/
     }
     
     public Histion(Integer id, Histion h) {
-        super(id, h.getName(), h.getItemMap());
+        super(id, h.getName());
         this.xRotate.set(h.getXRotate());
         this.yRotate.set(h.getYRotate());
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
+        /*h.getItems().forEach(c -> {
+            addChild(c);
+        });*/
     }
     
     private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
@@ -113,7 +120,8 @@ public class Histion extends HistologyObject<Cell> {
 
     @Override
     public void addChild(Cell c) {
-        getItemMap().put(c.getId(), new Cell(c.getId(), c));
+        //getItemMap().put(c.getId(), new Cell(c.getId(), c));
+        getItemMap().put(c.getId(), c);
     }
     
     @Override

@@ -15,6 +15,7 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.Part;
 import org.spbu.histology.model.ShapeManager;
 
 public class HistionInformationController implements Initializable  {
@@ -106,7 +107,11 @@ public class HistionInformationController implements Initializable  {
         hm.getHistionMap().get(hId).setYCoordinate(yTran);
         hm.getHistionMap().get(hId).setZCoordinate(zTran);
         hm.getHistionMap().get(hId).getItems().forEach(c -> {
-            hm.getHistionMap().get(hId).addChild(new Cell(c.getId(), c));
+            Cell newCell = new Cell(c.getId(), c);
+            c.getItems().forEach(p -> {
+                newCell.addChild(new Part(p.getId(), p));
+            });
+            hm.getHistionMap().get(hId).addChild(newCell);
         });
         Stage stage = (Stage) updateButton.getScene().getWindow();
         stage.close();

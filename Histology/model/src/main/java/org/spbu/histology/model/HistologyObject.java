@@ -11,13 +11,14 @@ import javafx.collections.ObservableMap;
 
 public abstract class HistologyObject<T extends HistologyObject<?>> {
 
-    public HistologyObject(Integer id, String name, ObservableMap<Integer, T> itemMap) {
+    //public HistologyObject(Integer id, String name, ObservableMap<Integer, T> itemMap) {
+    public HistologyObject(Integer id, String name) {
         //System.out.println(itemMap.size());
         setName(name);
         this.id = id;
-        itemMap.forEach((i, t) -> {
+        /*itemMap.forEach((i, t) -> {
             this.itemMap.put(i, t);
-        });
+        });*/
     }
 
     private final StringProperty name = new SimpleStringProperty();

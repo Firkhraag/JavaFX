@@ -36,7 +36,7 @@ public class PartInformationInitialization {
         final int width = 1200;
         final int height = 800;
         Stage primaryStage = new Stage();
-        primaryStage.setTitle("Create part");
+        primaryStage.setTitle("Part");
         BorderPane borderPane = new BorderPane();
         Group root = new Group();
         Parent leftPart;

@@ -145,10 +145,13 @@ public class GeneralTabController implements Initializable {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        hm.getHistionMap().get(histionId).addChild(new Cell(cellId, nameField.getText(),
+        Cell c = new Cell(cellId, nameField.getText(),
                 xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),
-                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId, true,
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap()));
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), histionId, true);
+        hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> {
+            c.addChild(new Part(p));
+        });
+        hm.getHistionMap().get(histionId).addChild(c);
         /*if (createButton.getText().equals("Update"))
             hm.getHistionMap().get(histionId).addChild(new Cell(id, nameField.getText(),
                 xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),

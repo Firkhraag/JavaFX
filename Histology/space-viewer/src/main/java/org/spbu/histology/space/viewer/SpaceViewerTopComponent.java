@@ -222,6 +222,13 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 }
                 else if (change.wasAdded()) {
                     Histion addedHistion = (Histion)change.getValueAdded();
+                    /*for (Cell c : addedHistion.getItems()) {
+                        if (c.getShow()) {
+                            //System.out.println(addedCell.getFacetData().size());
+                            addCell(c);
+                            //intersectionsWithEdges(change.getKey());
+                        }
+                    }*/
                     addedHistion.getItemMap().addListener(cellListener);
                 }
             };
@@ -594,12 +601,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         int maxNumberOfVertices = 22;
 
-        hm.addHistion(new Histion("Histion <1>",0,0,0,0,0, FXCollections.emptyObservableMap()));
+        hm.addHistion(new Histion("Histion <1>",0,0,0,0,0));
         //hm.getAllHistions().get(0).addChild(new Cell("Cell <1>"));
-        Cell c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
-        //Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0);
-        hm.getHistionMap().get(0).addChild(c);
+        //Cell c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
+        //                Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
+        Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, 0, true);
         
         ObservableList<TetgenPoint> tempData1 = FXCollections.observableArrayList();
         ObservableList<TetgenPoint> tempData2 = FXCollections.observableArrayList();
@@ -608,10 +614,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
         for (int i = 22; i < 44; i++)
             tempData2.add(new TetgenPoint(i + 1 - 22, pointData.get(i)));
         
-        hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <1>",tempData1));
-        hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <2>",tempData2));
-        c = new Cell(c.getId(), "Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(0).getItemMap());
+        c.addChild(new Part("Part <1>",tempData1));
+        c.addChild(new Part("Part <2>",tempData2));
         hm.getHistionMap().get(0).addChild(c);
+        
+        //hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <1>",tempData1));
+        //hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <2>",tempData2));
+        //c = new Cell(c.getId(), "Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(0).getItemMap());
+        //m.getHistionMap().get(0).addChild(c);
         //sm.addShape(new Shape("1", 0, 0, 0, 0, 0, pointData, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, nodeAvg, -1, 0));
         //hm.getAllHistions().get(0).getItems().get(0).addChild(new Part("Part <1>"));
         //sm.addShape(new Shape("Shape3", 0, 0, 0, 0, 0, pointData, holeData, polygonsInFacetData, holesInFacetData, facetNumber, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE));
@@ -674,11 +684,10 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         maxNumberOfVertices = 8;
         
-        c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
+        //c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
+        //                Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
         
-        //c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0);
-        hm.getHistionMap().get(0).addChild(c);
+        c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, 0, true);
         
         tempData1 = FXCollections.observableArrayList();
         tempData2 = FXCollections.observableArrayList();
@@ -687,12 +696,18 @@ public final class SpaceViewerTopComponent extends TopComponent {
         for (int i = 8; i < 16; i++)
             tempData2.add(new TetgenPoint(i + 1 - 8, pointData.get(i)));
         
-        hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <1>",tempData1));
-        hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <2>",tempData2));
-        c = new Cell(c.getId(), "Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(1).getItemMap());
+        c.addChild(new Part("Part <1>",tempData1));
+        c.addChild(new Part("Part <2>",tempData2));
         hm.getHistionMap().get(0).addChild(c);
+        
+        //hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <1>",tempData1));
+        //hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <2>",tempData2));
+        
+        
+        //c = new Cell(c.getId(), "Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(1).getItemMap());
+        //hm.getHistionMap().get(0).addChild(c);
         //sm.addShape(new Shape("2", 0, 0, 0, 0, 0, pointData, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, nodeAvg, -1, 0));
-        hm.addHistion(new Histion("Histion <2>",0,0,0,0,0, FXCollections.emptyObservableMap()));
+        hm.addHistion(new Histion("Histion <2>",0,0,0,0,0));
         hm.deleteHistion(1);
         //addCell(c);
         //intersectionsWithEdges(c.getId());
@@ -732,7 +747,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     private void addCell(Cell c) {
         
-        if (c.getCopiedId() > -1) {
+        /*if (c.getCopiedId() > -1) {
             nodesList.put(c.getId(), new double[nodesList.get(c.getCopiedId()).length]);
             tetrahedronsList.put(c.getId(), new int[tetrahedronsList.get(c.getCopiedId()).length]);
             facesList.put(c.getId(), new int[facesList.get(c.getCopiedId()).length]);
@@ -749,7 +764,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
             shapeMap.put(c.getId(), newMeshView);
             c.setCopiedId(-1);
             return;
-        }
+        }*/
+        
         /*} else if (s.getCopiedId() == -2) {
             shapeMap.get(s.getId()).setTranslateX(s.getXCoordinate());
             shapeMap.get(s.getId()).setTranslateY(s.getYCoordinate());

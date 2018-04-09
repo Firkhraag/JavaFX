@@ -43,12 +43,14 @@ public class HistionManagerImpl implements HistionManager {
 
     @Override
     public void addHistion(Histion h) {
-        observableMap.put(h.getId(), new Histion(h.getId(), h));
+        //observableMap.put(h.getId(), new Histion(h.getId(), h));
+        observableMap.put(h.getId(), h);
     }
 
     @Override
-    public void updateHistion(Histion s, Integer histionId) {
-        observableMap.put(histionId, new Histion(histionId, s));
+    public void updateHistion(Histion h, Integer histionId) {
+        //observableMap.put(histionId, new Histion(histionId, h));
+        observableMap.put(histionId, h);
     }
     
     @Override

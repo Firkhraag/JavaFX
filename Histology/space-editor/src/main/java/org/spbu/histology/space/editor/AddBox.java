@@ -1,5 +1,6 @@
 package org.spbu.histology.space.editor;
 
+import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.stage.*;
 import javafx.scene.*;
@@ -42,14 +43,15 @@ public class AddBox {
         closeButton.setOnAction(e -> {
             //hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
             if (histionId == -1)
-                hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0, FXCollections.emptyObservableMap()));
+                hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
             else {
                 hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
                         0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, histionId, false, FXCollections.emptyObservableMap()));
+                        Color.RED, Color.RED, histionId, false));
             }
             window.close();
         });
+        closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));
 
         VBox layout = new VBox(10);
         layout.getChildren().addAll(hBox, closeButton);
