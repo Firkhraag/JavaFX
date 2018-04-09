@@ -1,6 +1,5 @@
 package org.spbu.histology.shape.manager.impl;
 
-import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,20 +9,21 @@ import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
 import org.openide.util.lookup.ServiceProvider;
+import org.spbu.histology.model.Cell;
 
 @ServiceProvider(service = ShapeManager.class)
 public class ShapeManagerImpl implements ShapeManager {
 
-    private final ObservableMap<Long, Shape> observableMap = 
+    private final ObservableMap<Long, Cell> observableMap = 
             FXCollections.observableMap(new ConcurrentHashMap<>());
     
     @Override
-    public void addListener(MapChangeListener<? super Long, ? super Shape> m1) {
+    public void addListener(MapChangeListener<? super Long, ? super Cell> m1) {
         observableMap.addListener(m1);
     }
 
     @Override
-    public void removeListener(MapChangeListener<? super Long, ? super Shape> m1) {
+    public void removeListener(MapChangeListener<? super Long, ? super Cell> m1) {
         observableMap.removeListener(m1);
     }
 
@@ -38,13 +38,13 @@ public class ShapeManagerImpl implements ShapeManager {
     }
 
     @Override
-    public void addShape(Shape s) {
-        observableMap.put(s.getId(), new Shape(s.getId(), s));
+    public void addShape(Cell s) {
+        observableMap.put(s.getId(), new Cell(s.getId(), s));
     }
 
     @Override
-    public void updateShape(Shape s, Long shapeId) {
-        observableMap.put(shapeId, new Shape(shapeId, s));
+    public void updateShape(Cell s, Long shapeId) {
+        observableMap.put(shapeId, new Cell(shapeId, s));
     }
     
     @Override
@@ -53,15 +53,15 @@ public class ShapeManagerImpl implements ShapeManager {
     }
 
     @Override
-    public List<Shape> getAllShapes() {
-        List<Shape> copyList = new ArrayList<>();
+    public List<Cell> getAllShapes() {
+        List<Cell> copyList = new ArrayList<>();
         observableMap.values().stream().forEach(s ->
             copyList.add(s));
         return copyList;
     }
     
     @Override
-    public ObservableMap<Long, Shape> getShapeMap() {
+    public ObservableMap<Long, Cell> getShapeMap() {
         return observableMap;
     }
     

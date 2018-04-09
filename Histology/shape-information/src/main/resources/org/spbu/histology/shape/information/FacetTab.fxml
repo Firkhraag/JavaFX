@@ -1,16 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TabPane?>
-<?import javafx.scene.control.Tab?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<TabPane fx:id="tabPane" fx:controller="org.spbu.histology.shape.information.FacetTabController" 
-         xmlns:fx="http://javafx.com/fxml" tabClosingPolicy="UNAVAILABLE">
-    <tabs>
-        <Tab fx:id="polygonTab" text="Polygons">
-            <fx:include fx:id="PolygonsInFacetTab" source="PolygonsInFacetTab.fxml"/>
-        </Tab>
-        <Tab fx:id="holeTab" text="Holes">
-            <fx:include fx:id="HolesInFacetTab" source="HolesInFacetTab.fxml"/>
-        </Tab>
-    </tabs>
-</TabPane>
+<VBox fx:id="polygonVBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.FacetTabController">
+    <children>
+        <HBox fx:id="headerHBox">
+            <children>
+                <Button fx:id="addFacet" text="Add new facet" onAction="#addAction"/>
+                <Label fx:id="numberOfVerticesLabel" text="Max number of vertices"/>
+                <TextField fx:id="numberOfVerticesField" text="3"/>
+                <Button fx:id="button" text="Update" onAction="#updateAction"/>
+            </children>
+        </HBox>
+        <TableView fx:id="table" prefHeight="500.0" prefWidth="380.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="60.0" minWidth="60.0" text="#">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="id" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="vertex1Column" prefWidth="100.0" text="Vertex 1">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="vertex1" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="vertex2Column" prefWidth="100.0" text="Vertex 2">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="vertex2" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="vertex3Column" prefWidth="100.0" text="Vertex 3">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="vertex3" />
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </children>
+</VBox>

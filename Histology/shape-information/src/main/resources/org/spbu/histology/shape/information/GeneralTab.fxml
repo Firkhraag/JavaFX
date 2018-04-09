@@ -51,7 +51,7 @@
                     <Color blue="0.0" green="0.0" red="1.0" />
                 </value>
             </ColorPicker>
-            <Button fx:id="createButton" text="Create" 
+            <Button fx:id="createButton" text="Done" 
                     GridPane.columnIndex="0" GridPane.rowIndex="8" onAction="#buttonAction"/>
         </GridPane>
     </children>

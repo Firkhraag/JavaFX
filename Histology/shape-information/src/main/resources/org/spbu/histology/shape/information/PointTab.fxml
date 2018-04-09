@@ -12,29 +12,28 @@
     <children>
         <HBox fx:id="headerHBox">
             <children>
-                <Label fx:id="numberOfPointsLabel" text="Number of points"/>
-                <TextField fx:id="numberOfPointsField" text="3"/>
-                <Button fx:id="button" text="Update" onAction="#updateAction"/>
+                <TextField fx:id="nameField" prefWidth="165.0" promptText="Part name"/>
+                <Button fx:id="doneButton" text="Done" onAction="#doneAction"/>
             </children>
         </HBox>
-        <TableView fx:id="table" prefHeight="500.0" prefWidth="680.0">
+        <TableView fx:id="table" prefHeight="750.0" prefWidth="252.0">
             <columns>
-                <TableColumn fx:id="idColumn" prefWidth="60.0" minWidth="60.0" text="#">
+                <TableColumn fx:id="idColumn" prefWidth="40.0" minWidth="40.0" text="#">
                     <cellValueFactory>
                       <PropertyValueFactory property="id" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="xColumn" prefWidth="200.0" text="X">
+                <TableColumn fx:id="xColumn" prefWidth="70.0" text="X">
                     <cellValueFactory>
                       <PropertyValueFactory property="x" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="yColumn" prefWidth="200.0" text="Y">
+                <TableColumn fx:id="yColumn" prefWidth="70.0" text="Y">
                     <cellValueFactory>
                       <PropertyValueFactory property="y" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="zColumn" prefWidth="200.0" text="Z">
+                <TableColumn fx:id="zColumn" prefWidth="70.0" text="Z">
                     <cellValueFactory>
                       <PropertyValueFactory property="z" />
                     </cellValueFactory>

@@ -12,22 +12,22 @@ import org.spbu.histology.model.ShapeManager;
 
 public class ConfirmBox {
 
-    public static void display(String title, String message, long histionId, long cellId, long partId) {
+    public static void display(String title, String message, Integer histionId, Integer cellId, Integer partId) {
         
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
         
-        ShapeManager sm = Lookup.getDefault().lookup(ShapeManager.class);
+        /*ShapeManager sm = Lookup.getDefault().lookup(ShapeManager.class);
         if (sm == null) {
             LifecycleManager.getDefault().exit();
-        }
+        }*/
         
         Stage window = new Stage();
-        window.initStyle(StageStyle.UTILITY);
+        //window.initStyle(StageStyle.UTILITY);
 
-        window.initModality(Modality.APPLICATION_MODAL);
+        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
 
         Label label = new Label();
@@ -40,15 +40,16 @@ public class ConfirmBox {
         confirmButton.setOnAction(e -> {
             if (partId != -1) {
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).deleteChild(partId);
-                sm.deleteShape(partId);
             } else if (cellId != -1) {
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> 
-                        sm.deleteShape(p.getId()));
+                //sm.deleteShape(cellId);
                 hm.getHistionMap().get(histionId).deleteChild(cellId);
             } else {
-                hm.getHistionMap().get(histionId).getItems().forEach(c -> {
-                    c.getItems().forEach(p -> sm.deleteShape(p.getId()));
-                });
+                /*hm.getAllHistions().forEach(h -> {
+                    h.deleteChild(cellId);
+                });*/
+                /*hm.getHistionMap().get(histionId).getItems().forEach(c -> {
+                    sm.deleteShape(c.getId());
+                });*/
                 hm.deleteHistion(histionId);
             }
             window.close();

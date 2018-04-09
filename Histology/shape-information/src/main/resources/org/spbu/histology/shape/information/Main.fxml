@@ -6,14 +6,10 @@
 <TabPane fx:id="tabPane" fx:controller="org.spbu.histology.shape.information.MainController" 
          xmlns:fx="http://javafx.com/fxml" tabClosingPolicy="UNAVAILABLE">
     <tabs>
-        <Tab fx:id="pointTab" text="Points">
-            <fx:include fx:id="PointTab" source="PointTab.fxml"/>
+        <Tab fx:id="viewTab" text="3D View">
         </Tab>
         <Tab fx:id="facetTab" text="Facets">
             <fx:include fx:id="FacetTab" source="FacetTab.fxml"/>
-        </Tab>
-        <Tab fx:id="holeTab" text="Holes">
-            <fx:include fx:id="HoleTab" source="HoleTab.fxml"/>
         </Tab>
         <Tab fx:id="generalTab" text="General">
             <fx:include fx:id="GeneralTab" source="GeneralTab.fxml"/>

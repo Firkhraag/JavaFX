@@ -67,6 +67,8 @@
         <module>tetgen</module>
         <module>cross-section-viewer</module>
         <module>histion-manager-impl</module>
+        <module>mavenproject1/database</module>
+        <module>fxyz</module>
     </modules>
 
     <properties>

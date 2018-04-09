@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javafx.beans.InvalidationListener;
+//import javafx.beans.property.BooleanProperty;
+//import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -14,16 +16,18 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = HistionManager.class)
 public class HistionManagerImpl implements HistionManager {
 
-    private final ObservableMap<Long, Histion> observableMap = 
+    private final ObservableMap<Integer, Histion> observableMap = 
             FXCollections.observableMap(new ConcurrentHashMap<>());
+    /*private final BooleanProperty childListChanged = 
+            new SimpleBooleanProperty(false);*/
     
     @Override
-    public void addListener(MapChangeListener<? super Long, ? super Histion> m1) {
+    public void addListener(MapChangeListener<? super Integer, ? super Histion> m1) {
         observableMap.addListener(m1);
     }
 
     @Override
-    public void removeListener(MapChangeListener<? super Long, ? super Histion> m1) {
+    public void removeListener(MapChangeListener<? super Integer, ? super Histion> m1) {
         observableMap.removeListener(m1);
     }
 
@@ -43,13 +47,15 @@ public class HistionManagerImpl implements HistionManager {
     }
 
     @Override
-    public void updateHistion(Histion s, Long histionId) {
+    public void updateHistion(Histion s, Integer histionId) {
         observableMap.put(histionId, new Histion(histionId, s));
     }
     
     @Override
-    public void deleteHistion(long id) {
+    public void deleteHistion(Integer id) {
+        //observableMap.get(id).getItemMap().clear();
         observableMap.remove(id);
+        
     }
 
     @Override
@@ -61,7 +67,7 @@ public class HistionManagerImpl implements HistionManager {
     }
     
     @Override
-    public ObservableMap<Long, Histion> getHistionMap() {
+    public ObservableMap<Integer, Histion> getHistionMap() {
         return observableMap;
     }
     

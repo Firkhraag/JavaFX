@@ -2,12 +2,20 @@ package org.spbu.histology.shape.information;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.scene.Group;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
@@ -15,23 +23,26 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import org.spbu.histology.model.Shape;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.stage.Stage;
+import org.openide.LifecycleManager;
+import org.openide.util.Lookup;
+import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
-
+import org.spbu.histology.toolbar.ChosenTool;
 
 public class PointTabController implements Initializable {
     
     @FXML
     private VBox pointVBox;
-      
+    
     @FXML
     private HBox headerHBox;
     
     @FXML
     private TableView<TetgenPoint> table;
-    
-    @FXML
-    private TextField numberOfPointsField;
     
     @FXML
     private TableColumn < TetgenPoint, Double > xColumn;
@@ -43,49 +54,127 @@ public class PointTabController implements Initializable {
     private TableColumn < TetgenPoint, Double > zColumn;
     
     @FXML
-    private TableColumn < TetgenPoint, Integer > idColumn;
+    private Button doneButton;
+    
+    @FXML
+    private TextField nameField;
     
     private ObservableList<TetgenPoint> data;
     
-    BooleanProperty change;
+    private HistionManager hm = null;
     
-    public void setShape(Shape s, BooleanProperty c) {
-        change = c;
-        data = FXCollections.observableArrayList();
-        this.data = s.getPointData();
-        numberOfPointsField.setText(String.valueOf(data.size()));
-        table.setItems(data);
+    BooleanProperty change = new SimpleBooleanProperty(false);
+    
+    Group root;
+    ObservableList<Rectangle> rectangleList = FXCollections.observableArrayList();
+    double width, height;
+    IntegerProperty count;
+    Integer histionId, cellId, partId;
+    
+    public void setIds(Integer histionId, Integer cellId, Integer partId) {
+        this.histionId = histionId;
+        this.cellId = cellId;
+        this.partId = partId;
+        if (partId != -1) {
+            String name = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getName();
+            nameField.setText(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+        }
+    }
+    
+    public void setCount(IntegerProperty count) {
+        this.count = count;
+    }
+    
+    public void setRoot(Group root) {
+        this.root = root;
+    }
+    
+    public void setPaneSize(double width, double height) {
+        this.width = width;
+        this.height = height;
+    }
+    
+    public void setRectangleList(ObservableList<Rectangle> rectangleList) {
+        this.rectangleList = rectangleList;
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        headerHBox.setSpacing(20);
+        
+        hm = Lookup.getDefault().lookup(HistionManager.class);
+        if (hm == null) {
+            LifecycleManager.getDefault().exit();
+        }
+        
         pointVBox.setSpacing(10);
+        headerHBox.setSpacing(10);
         headerHBox.setPadding(new Insets(10, 10, 10, 10));
         setupXColumn();
         setupYColumn();
         setupZColumn();
         setTableEditable();
+        data = FXCollections.observableArrayList();
+        table.setItems(data);
+        table.setOnKeyPressed(e -> {
+            if (e.getCode() == KeyCode.ESCAPE) {
+                table.getSelectionModel().clearSelection();
+            }
+        });
+        table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (oldSelection != null) {
+                rectangleList.get(oldSelection.getId() - 1).setStroke(Color.BLACK);
+            }
+            
+            if (newSelection != null) {
+                rectangleList.get(newSelection.getId() - 1).setStroke(Color.RED);
+            }
+        });
+        MenuItem deletePoint = new MenuItem("Delete point");
+        deletePoint.setOnAction((ActionEvent event) -> {
+            TetgenPoint item = table.getSelectionModel().getSelectedItem();
+            data.remove(item.getId() - 1);
+            root.getChildren().remove(rectangleList.get(item.getId() - 1));
+            rectangleList.remove(item.getId() - 1);
+            count.set(count.get() - 1);
+            for (int i = 0; i < data.size(); i++)
+                data.get(i).setId(i + 1);
+            table.getSelectionModel().clearSelection();
+        });
+
+        ContextMenu menu = new ContextMenu();
+        menu.getItems().add(deletePoint);
+        table.setContextMenu(menu);
+        table.setStyle("-fx-focus-color: transparent;\n" +
+            "    -fx-faint-focus-color: transparent;");
+        doneButton.disableProperty().bind(Bindings.isEmpty(nameField.textProperty()));
     }
     
-    @FXML
-    private void updateAction() {
-        try {
-            int num = Integer.parseInt(numberOfPointsField.getText());
-            int size = data.size();
-            if (num < size) {
-                for (int i = num; i < size; i++) {
-                    data.remove(num);
-                }
-            } else if (num > size) {
-                for (int i = size; i < num; i++) {
-                    TetgenPoint n = new TetgenPoint(i + 1,0,0,0);
-                    data.add(n);
-                }
-            }
-        } catch (Exception ex) {
-            
+    public void addPoint(TetgenPoint p) {
+        data.add(p);
+    }
+    
+    /*@FXML
+    private void clearAction() {
+        for (TetgenPoint p : data) {
+            root.getChildren().remove(1);
+            rectangleList.remove(0);
         }
+        count.set(1);
+        data.clear();
+    }*/
+    
+    @FXML
+    private void doneAction() {
+        if (partId == - 1)
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data));
+        else
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part(partId, "Part <" + nameField.getText() + ">", data));
+        /*if (ChosenTool.getToolNumber() == -1)
+            ChosenTool.setToolNumber(-2);
+        else
+            ChosenTool.setToolNumber(-1);*/
+        Stage stage = (Stage) doneButton.getScene().getWindow();
+        stage.close();
     }
     
     private void setTableEditable() {
@@ -110,11 +199,13 @@ public class PointTabController implements Initializable {
             EditCell. <TetgenPoint, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         xColumn.setOnEditCommit(event -> {
+            TetgenPoint item = table.getSelectionModel().getSelectedItem();
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenPoint) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow())).setX(value);
+            rectangleList.get(item.getId() - 1).setX(value + width / 2 - 2);
             table.refresh();
         });
     }
@@ -127,8 +218,9 @@ public class PointTabController implements Initializable {
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
-            ((TetgenPoint) event.getTableView().getItems()
-                .get(event.getTablePosition().getRow())).setY(value);
+            for (TetgenPoint p : data) {
+                p.setY(value);
+            }
             table.refresh();
         });
     }
@@ -138,11 +230,13 @@ public class PointTabController implements Initializable {
             EditCell. <TetgenPoint, Double > forTableColumn(
                 new MyDoubleStringConverter()));
         zColumn.setOnEditCommit(event -> {
+            TetgenPoint item = table.getSelectionModel().getSelectedItem();
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
             ((TetgenPoint) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow())).setZ(value);
+            rectangleList.get(item.getId() - 1).setY((-1) * (value - height / 2) - 2);
             table.refresh();
         });
     }

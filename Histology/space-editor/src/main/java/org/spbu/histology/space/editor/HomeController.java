@@ -1,6 +1,5 @@
 package org.spbu.histology.space.editor;
 
-import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -9,7 +8,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import org.spbu.histology.shape.information.ShapeInformationInitialization;
+import org.spbu.histology.shape.information.CellInformationInitialization;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ContextMenu;
@@ -28,11 +27,12 @@ import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.HistologyObject;
 import org.spbu.histology.model.Part;
-import org.spbu.histology.shape.information.ShapeStructureInformationInitialization;
+import org.spbu.histology.shape.information.PartInformationInitialization;
+import org.spbu.histology.shape.information.HistionInformationInitialization;
 
 public class HomeController implements Initializable {
     
-    private ShapeManager sm = null;
+    //private ShapeManager sm = null;
     
     private HistionManager hm = null;
     
@@ -41,21 +41,29 @@ public class HomeController implements Initializable {
     
     private TreeItem<String> rootNode;
     
-    private final MapChangeListener<Long, Histion> histionListener =
+    private final MapChangeListener<Integer, Histion> histionListener =
         (change) -> {
             updateTree();
         };
     
-    private long histionId;
-    private long cellId;
-    private long partId;
+    /*private static BooleanProperty update = new SimpleBooleanProperty(false);
+    public static boolean getUpdate() {
+        return update.get();
+    }
+    public static void setUpdate(boolean upd) {
+        update.set(upd);
+    }*/
+    
+    private Integer histionId;
+    private Integer cellId;
+    private Integer partId;
     private BooleanProperty pasteHistionDisabledProperty = new SimpleBooleanProperty(true);
     private BooleanProperty pasteCellDisabledProperty = new SimpleBooleanProperty(true);
     private BooleanProperty pastePartDisabledProperty = new SimpleBooleanProperty(true);
     
     private void updateTree() {
         shapeTreeView.setRoot(null);
-            HistologyObject<?> root = new HistologyObject<Histion>((long)-1, "Tissue", 0, 0, 0, 0, 0) {
+            HistologyObject<?> root = new HistologyObject<Histion>(-1, "Tissue", FXCollections.emptyObservableMap()) {
 
                 @Override
                 public ObservableList<Histion> getItems() {
@@ -68,7 +76,7 @@ public class HomeController implements Initializable {
                 }
                 
                 @Override
-                public void deleteChild(long id) {
+                public void deleteChild(Integer id) {
                     getItemMap().remove(id);
                 }
 
@@ -116,10 +124,18 @@ public class HomeController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        sm = Lookup.getDefault().lookup(ShapeManager.class);
+        
+        /*update.addListener((o, ov, nv) -> {
+            if (nv) {
+                updateTree();
+                update.set(false);
+            }
+        });*/
+        
+        /*sm = Lookup.getDefault().lookup(ShapeManager.class);
         if (sm == null) {
             LifecycleManager.getDefault().exit();
-        }
+        }*/
         
         hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -158,19 +174,19 @@ public class HomeController implements Initializable {
             MenuItem pasteHistion = new MenuItem();
             pasteHistion.setText("Paste histion");
             pasteHistion.setOnAction(event -> {
-                
                 Histion newHistion = new Histion(hm.getHistionMap().get(histionId));
                 hm.addHistion(newHistion);
                 hm.getHistionMap().get(histionId).getItems().forEach(c -> {
-                    Cell newCell = new Cell(c);
+                    Cell newCell = new Cell(c, newHistion.getId());
+                    newCell.setCopiedId(c.getId());
                     hm.getHistionMap().get(newHistion.getId()).addChild(newCell);
+                    /*Shape newShape = new Shape(sm.getShapeMap().get(c.getId()), 
+                            newHistion.getId());
+                    newShape.setCopiedId(c.getId());
+                    sm.addShape(newShape);*/
                     c.getItems().forEach(p -> {
                         hm.getHistionMap().get(newHistion.getId()).getItemMap().
                                 get(newCell.getId()).addChild(new Part(p));
-                        Shape newShape = new Shape(sm.getShapeMap().get(p.getId()), 
-                                newHistion.getId(), newCell.getId());
-                        newShape.setCopiedId(p.getId());
-                        sm.addShape(newShape);
                     });
                 });
                 updateTree();
@@ -181,12 +197,17 @@ public class HomeController implements Initializable {
             MenuItem editHistion = new MenuItem();
             editHistion.setText("Edit histion");
             editHistion.setOnAction(event -> {
-                ShapeStructureInformationInitialization.createScene(cell.getTreeItem().getValue().getId(), -1, -1);
+                HistionInformationInitialization.createScene(cell.getTreeItem().getValue().getId());
             });
             MenuItem addCell = new MenuItem();
             addCell.setText("Add cell");
             addCell.setOnAction(event -> {
-                AddBox.display("Add Cell", "Cell name", cell.getTreeItem().getValue().getId());
+                //AddBox.display("Add Cell", "Cell name", cell.getTreeItem().getValue().getId());
+                /*HistionInformationInitialization.createScene(cell.
+                        getTreeItem().getParent().getValue().getId(), 
+                        cell.getTreeItem().getValue().getId(), -1);*/
+                AddBox.display("Add Cell", "Cell name", cell.
+                        getTreeItem().getValue().getId());
                 updateTree();
             });
             MenuItem copyHistion = new MenuItem();
@@ -199,18 +220,44 @@ public class HomeController implements Initializable {
                 cellId = -1;
                 partId = -1;
             });
+            /*MenuItem fillHorizontal = new MenuItem();
+            fillHorizontal.setText("Fill horizontal");
+            fillHorizontal.setOnAction(event -> {
+                histionId = cell.getTreeItem().getValue().getId();
+                cellId = -1;
+                partId = -1;
+                Histion newHistion = new Histion(hm.getHistionMap().get(histionId));
+                hm.addHistion(newHistion);
+                hm.getHistionMap().get(histionId).getItems().forEach(c -> {
+                    Cell newCell = new Cell(c);
+                    hm.getHistionMap().get(newHistion.getId()).addChild(newCell);
+                    c.getItems().forEach(p -> {
+                        //for (int i = 0;sm.getShapeMap().get(p.getId()).getPointData();
+                        /*hm.getHistionMap().get(newHistion.getId()).getItemMap().
+                                get(newCell.getId()).addChild(new Part(p));
+                        Shape newShape = new Shape(sm.getShapeMap().get(p.getId()), 
+                                newHistion.getId(), newCell.getId());
+                        newShape.setCopiedId(p.getId());
+                        sm.addShape(newShape);*/
+                    /*});
+                });
+                updateTree();
+            });*/
             MenuItem pasteCell = new MenuItem();
             pasteCell.setText("Paste cell");
             pasteCell.setOnAction(event -> {
-                Cell newCell = new Cell(hm.getHistionMap().get(histionId).getItemMap().get(cellId));
+                //long newHistionId = cell.getTreeItem().getParent().getValue().getId();
+                //long newCellId = cell.getTreeItem().getValue().getId();
+                Integer newHistionId = cell.getTreeItem().getValue().getId();
+                /*Shape newShape = new Shape(sm.getShapeMap().get(cellId), newHistionId);
+                newShape.setCopiedId(cellId);
+                sm.addShape(newShape);*/
+                Cell newCell = new Cell(hm.getHistionMap().get(histionId).getItemMap().get(cellId), newHistionId);
+                newCell.setCopiedId(cellId);
                 hm.getHistionMap().get(cell.getTreeItem().getValue().getId()).addChild(newCell);
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> {
-                    long newHistionId = cell.getTreeItem().getValue().getId();
-                    long newCellId = newCell.getId();
-                    hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).addChild(new Part(p));
-                    Shape newShape = new Shape(sm.getShapeMap().get(p.getId()), newHistionId, newCellId);
-                    newShape.setCopiedId(p.getId());
-                    sm.addShape(newShape);
+                    //hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).addChild(new Part(p));
+                    hm.getHistionMap().get(newHistionId).getItemMap().get(newCell.getId()).addChild(new Part(p));
                 });
                 updateTree();
             });
@@ -230,15 +277,24 @@ public class HomeController implements Initializable {
             MenuItem editCell = new MenuItem();
             editCell.setText("Edit cell");
             editCell.setOnAction(event -> {
-                ShapeStructureInformationInitialization.createScene(cell.
+                /*HistionInformationInitialization.createScene(cell.
                         getTreeItem().getParent().getValue().getId(), 
-                        cell.getTreeItem().getValue().getId(), -1);
+                        cell.getTreeItem().getValue().getId(), -1);*/
+                /*CellInformationInitialization.createScene(sm.getShapeMap().
+                        get(cell.getTreeItem().getValue().getId()));*/
+                CellInformationInitialization.createScene(hm.getHistionMap().
+                        get(cell.getTreeItem().getParent().getValue().getId()).getItemMap().
+                        get(cell.getTreeItem().getValue().getId()));
+                updateTree();
             });
             MenuItem addPart = new MenuItem();
             addPart.setText("Add part");
             addPart.setOnAction(event -> {
-                ShapeInformationInitialization.createScene(new Shape(cell.getTreeItem().
-                        getParent().getValue().getId(), cell.getTreeItem().getValue().getId()));
+                /*CellInformationInitialization.createScene(new Shape(cell.getTreeItem().
+                        getParent().getValue().getId(), cell.getTreeItem().getValue().getId()));*/
+                //PartInformationInitialization.show(null);
+                PartInformationInitialization.show(cell.getTreeItem().getParent().getValue().getId(),
+                        cell.getTreeItem().getValue().getId(), -1);
                 updateTree();
             });
             MenuItem copyCell = new MenuItem();
@@ -254,18 +310,27 @@ public class HomeController implements Initializable {
             MenuItem pastePart = new MenuItem();
             pastePart.setText("Paste part");
             pastePart.setOnAction(event -> {
-                System.out.println("Pasted");
-                long newHistionId = cell.getTreeItem().getParent().getValue().getId();
-                long newCellId = cell.getTreeItem().getValue().getId();
-                Shape newShape = new Shape(sm.getShapeMap().get(partId), newHistionId, newCellId);
-                newShape.setCopiedId(partId);
+                Integer newHistionId = cell.getTreeItem().getParent().getValue().getId();
+                Integer newCellId = cell.getTreeItem().getValue().getId();
                 hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).
                         addChild(new Part(hm.getHistionMap().get(histionId).
                                 getItemMap().get(cellId).getItemMap().get(partId)));
-                sm.addShape(newShape);
                 updateTree();
             });
             pastePart.disableProperty().bind(pastePartDisabledProperty);
+            CheckMenuItem hideCell = new CheckMenuItem();
+            hideCell.setText("Hide cell");
+            hideCell.setOnAction(event -> {
+                if (hm.getHistionMap().get(cell.getTreeItem().getParent().
+                        getValue().getId()).getItemMap().get(cell.getTreeItem().getValue().getId()).getFacetData().size() > 0) {
+                    if (hideCell.isSelected()) {
+                        CameraView.addShapeIdToHide(cell.getTreeItem().getValue().getId());
+                    } else {
+                        CameraView.removeShapeIdToHide(cell.getTreeItem().getValue().getId());
+                    }
+                } else if (hideCell.isSelected())
+                    hideCell.setSelected(false);
+            });
             MenuItem deleteCell = new MenuItem();
             deleteCell.setText("Delete cell");
             deleteCell.setOnAction(event -> {
@@ -278,13 +343,21 @@ public class HomeController implements Initializable {
                         cell.getTreeItem().getValue().getId(), -1);
                 updateTree();
             });
-            cellContextMenu.getItems().addAll(editCell, addPart, copyCell, pastePart, deleteCell);
+            cellContextMenu.getItems().addAll(editCell, addPart, copyCell, pastePart, hideCell, deleteCell);
             
             MenuItem editPart = new MenuItem();
             editPart.setText("Edit part");
             editPart.setOnAction(event -> {
-                ShapeInformationInitialization.createScene(sm.getShapeMap().
-                        get(cell.getTreeItem().getValue().getId()));
+                /*CellInformationInitialization.createScene(sm.getShapeMap().
+                        get(cell.getTreeItem().getValue().getId()));*/
+                
+                /*PartInformationInitialization.show(hm.getHistionMap().get(cell.
+                        getTreeItem().getParent().getParent().getValue().getId()).
+                        getItemMap().get(cell.getTreeItem().getParent().getValue().getId()).
+                        getItemMap().get(cell.getTreeItem().getValue().getId()).getPointData());*/
+                PartInformationInitialization.show(cell.getTreeItem().getParent().getParent().getValue().getId(),
+                        cell.getTreeItem().getParent().getValue().getId(), cell.getTreeItem().getValue().getId());
+                updateTree();
                 
             });
             MenuItem copyPart = new MenuItem();
@@ -296,15 +369,6 @@ public class HomeController implements Initializable {
                 histionId = cell.getTreeItem().getParent().getParent().getValue().getId();
                 cellId = cell.getTreeItem().getParent().getValue().getId();
                 partId = cell.getTreeItem().getValue().getId();
-            });
-            CheckMenuItem hidePart = new CheckMenuItem();
-            hidePart.setText("Hide part");
-            hidePart.setOnAction(event -> {
-                if (hidePart.isSelected()) {
-                    CameraView.addShapeIdToHide(cell.getTreeItem().getValue().getId());
-                } else {
-                    CameraView.removeShapeIdToHide(cell.getTreeItem().getValue().getId());
-                }
             });
             MenuItem deletePart = new MenuItem();
             deletePart.setText("Delete part");
@@ -318,7 +382,7 @@ public class HomeController implements Initializable {
                         cell.getTreeItem().getParent().getValue().getId(), cell.getTreeItem().getValue().getId());
                 updateTree();
             });
-            shapeContextMenu.getItems().addAll(editPart, copyPart, hidePart, deletePart);
+            shapeContextMenu.getItems().addAll(editPart, copyPart, deletePart);
             cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
                 if (isNowEmpty) {
                     cell.setContextMenu(null);

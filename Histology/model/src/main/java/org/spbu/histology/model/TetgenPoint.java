@@ -17,6 +17,13 @@ public class TetgenPoint {
         this.z = new SimpleDoubleProperty(z);
     }
     
+    public TetgenPoint(int i, TetgenPoint p) {
+        this.id = new SimpleIntegerProperty(i);
+        this.x = new SimpleDoubleProperty(p.getX());
+        this.y = new SimpleDoubleProperty(p.getY());
+        this.z = new SimpleDoubleProperty(p.getZ());
+    }
+    
     public TetgenPoint(TetgenPoint p) {
         this.id = new SimpleIntegerProperty(p.getId());
         this.x = new SimpleDoubleProperty(p.getX());

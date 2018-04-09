@@ -42,6 +42,7 @@ public class EditCell < S, T > extends TextFieldTableCell < S, T > {
             !getTableColumn().isEditable()) {
             return;
         }
+        //System.out.println(getTableView().editingCellProperty().get().getRow());
         super.startEdit();
         if (isEditing()) {
             if (textField == null) {

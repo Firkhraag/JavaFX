@@ -19,6 +19,7 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.spbu.histology.model.DigitMeshes;
 
 /**
  * Top component which displays something.
@@ -67,6 +68,9 @@ public final class SpaceEditorTopComponent extends TopComponent {
         Platform.runLater(() -> {
             createScene(0);
         });
+        
+        /*for (int i = 0; i < 10; i++)
+            DigitMeshes.getMeshList(i);*/
     }
     
     ChangeListener<Integer> cl = (v, oldValue, newValue) -> {

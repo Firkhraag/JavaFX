@@ -95,17 +95,17 @@ public class CameraView {
         FOVProperty().set(FOV);
     }
     
-    private static ObservableList<Long> shapeIdToHideList = FXCollections.observableArrayList();
+    private static ObservableList<Integer> shapeIdToHideList = FXCollections.observableArrayList();
     
-    public static ObservableList<Long> getShapeIdToHideList() {
+    public static ObservableList<Integer> getShapeIdToHideList() {
         return shapeIdToHideList;
     }
     
-    public static void addShapeIdToHide(Long id) {
+    public static void addShapeIdToHide(Integer id) {
         shapeIdToHideList.add(id);
     }
     
-    public static void removeShapeIdToHide(Long id) {
+    public static void removeShapeIdToHide(Integer id) {
         shapeIdToHideList.remove(id);
     }
     

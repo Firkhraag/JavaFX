@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,13 +18,12 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Node;
 import org.spbu.histology.model.Part;
-import org.spbu.histology.model.Shape;
 import org.spbu.histology.model.ShapeManager;
-import org.spbu.histology.model.TetgenFacetHole;
-import org.spbu.histology.model.TetgenFacetPolygon;
+import org.spbu.histology.model.TetgenFacet;
 import org.spbu.histology.model.TetgenPoint;
 
 public class GeneralTabController implements Initializable {
@@ -58,31 +58,24 @@ public class GeneralTabController implements Initializable {
     @FXML
     private Button createButton;
     
-    private ShapeManager sm = null;
+    //private ShapeManager sm = null;
     
     private HistionManager hm = null;
     
     private final int shapeVertexSize = 30;
     
-    private long id;
-    
-    private long histionId;
-    private long cellId;
-    
-    private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-    private ObservableList<TetgenPoint> holeData = FXCollections.observableArrayList();
-    private ObservableList<TetgenFacetPolygon> facetPolygonData = FXCollections.observableArrayList();
-    private ObservableList<TetgenFacetHole> facetHoleData = FXCollections.observableArrayList();
+    private Integer cellId;
+    private Integer histionId;
+
+    private ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
     
     BooleanProperty change;
+    IntegerProperty maxNumOfVertices;
     
-    public void setShape(Shape s, BooleanProperty c) {
+    /*public void setShape(Shape s, BooleanProperty c) {
         change = c;
         id = s.getId();
-        pointData = s.getPointData();
-        holeData = s.getHoleData();
-        facetPolygonData = s.getPolygonsInFacetData();
-        facetHoleData = s.getHolesInFacetData();
+        facetData = s.getFacetData();
         nameField.setText(s.getName());
         if (!s.getName().equals(""))
             createButton.setText("Update");
@@ -94,15 +87,30 @@ public class GeneralTabController implements Initializable {
         diffuseColorPicker.setValue(s.getDiffuseColor());
         specularColorPicker.setValue(s.getSpecularColor());
         histionId = s.getHistionId();
-        cellId = s.getCellId();
+    }*/
+    
+    public void setCell(Cell c, BooleanProperty change, IntegerProperty maxNumOfVertices) {
+        this.change = change;
+        this.maxNumOfVertices = maxNumOfVertices;
+        cellId = c.getId();
+        facetData = c.getFacetData();
+        nameField.setText(c.getName());
+        xRotationField.setText(String.valueOf(c.getXRotate()));
+        yRotationField.setText(String.valueOf(c.getYRotate()));
+        xPositionField.setText(String.valueOf(c.getXCoordinate()));
+        yPositionField.setText(String.valueOf(c.getYCoordinate()));
+        zPositionField.setText(String.valueOf(c.getZCoordinate()));
+        diffuseColorPicker.setValue(c.getDiffuseColor());
+        specularColorPicker.setValue(c.getSpecularColor());
+        histionId = c.getHistionId();
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        sm = Lookup.getDefault().lookup(ShapeManager.class);
+        /*sm = Lookup.getDefault().lookup(ShapeManager.class);
         if (sm == null) {
             LifecycleManager.getDefault().exit();
-        }
+        }*/
         
         hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -125,7 +133,30 @@ public class GeneralTabController implements Initializable {
     
     @FXML
     private void buttonAction() {
-        Integer temp;
+        double xRot, yRot, xTran, yTran, zTran;
+        try {
+            xRot = Double.parseDouble(xRotationField.getText());
+            yRot = Double.parseDouble(yRotationField.getText());
+            xTran = Double.parseDouble(xPositionField.getText());
+            yTran = Double.parseDouble(yPositionField.getText());
+            zTran = Double.parseDouble(zPositionField.getText());
+        } catch (Exception ex) {
+            AlertBox.display("Error", "Please enter valid numbers in general tab");
+            return;
+        }
+        hm.getHistionMap().get(histionId).addChild(new Cell(cellId, nameField.getText(),
+                xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId,
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap()));
+        /*if (createButton.getText().equals("Update"))
+            hm.getHistionMap().get(histionId).addChild(new Cell(id, nameField.getText(),
+                xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId));
+        else
+            hm.getHistionMap().get(histionId).addChild(new Cell(nameField.getText(),
+                xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId));*/
+        /*Integer temp;
         ArrayList<Node> nodeList = new ArrayList();
         ArrayList<Node> holeList = new ArrayList();
         ArrayList<Integer> facetList = new ArrayList();
@@ -283,6 +314,8 @@ public class GeneralTabController implements Initializable {
                     facetHoleData, facetList.size(), maxNumberOfVertices, 
                     diffuseColorPicker.getValue(), specularColorPicker.getValue(), -2, histionId, cellId), id);
             else*/
+        
+        /*
                 sm.updateShape(new Shape(id, nameField.getText(), xRot, yRot, xTran, yTran, zTran,
                     pointData, holeData, facetPolygonData, 
                     facetHoleData, facetList.size(), maxNumberOfVertices, 
@@ -302,7 +335,7 @@ public class GeneralTabController implements Initializable {
             //hm.getAllHistions().get(histionId).getItems().get(cellId).createAndAddChild("Part <" + nameField.getText() + ">");
             hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(
                     new Part("Part <" + nameField.getText() + ">", xRot, yRot, xTran, yTran, zTran));
-        }
+        }*/
         Stage stage = (Stage) createButton.getScene().getWindow();
         stage.close();
     }

@@ -11,15 +11,13 @@ import javafx.collections.ObservableMap;
 
 public abstract class HistologyObject<T extends HistologyObject<?>> {
 
-    public HistologyObject(Long id, String name, double xRot, double yRot, 
-            double xPos, double yPos, double zPos) {
+    public HistologyObject(Integer id, String name, ObservableMap<Integer, T> itemMap) {
+        //System.out.println(itemMap.size());
         setName(name);
         this.id = id;
-        setXRotate(xRot);
-        setYRotate(yRot);
-        setXCoordinate(xPos);
-        setYCoordinate(yPos);
-        setZCoordinate(zPos);
+        itemMap.forEach((i, t) -> {
+            this.itemMap.put(i, t);
+        });
     }
 
     private final StringProperty name = new SimpleStringProperty();
@@ -38,85 +36,20 @@ public abstract class HistologyObject<T extends HistologyObject<?>> {
         this.nameProperty().set(name);
     }
 
-    private Long id;
+    private Integer id;
     
-    public Long getId() {
+    public Integer getId() {
         return this.id;
     }
     
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     
-    private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
-    public final DoubleProperty xRotateProperty() {
-        return this.xRotate;
-    }
-    
-    public final double getXRotate() {
-        return this.xRotateProperty().get();
-    }
-    
-    public final void setXRotate(double xRotate) {
-        this.xRotateProperty().set(xRotate);
-    }
-    
-    private final DoubleProperty yRotate = new SimpleDoubleProperty(0);
-    public final DoubleProperty yRotateProperty() {
-        return this.yRotate;
-    }
-    
-    public final double getYRotate() {
-        return this.yRotateProperty().get();
-    }
-    
-    public final void setYRotate(double yRotate) {
-        this.yRotateProperty().set(yRotate);
-    }
-    
-    private final DoubleProperty xCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty xCoordinateProperty() {
-        return this.xCoordinate;
-    }
-    
-    public final double getXCoordinate() {
-        return this.xCoordinateProperty().get();
-    }
-    
-    public final void setXCoordinate(double xCoordinate) {
-        this.xCoordinateProperty().set(xCoordinate);
-    }
-    
-    private final DoubleProperty yCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty yCoordinateProperty() {
-        return this.yCoordinate;
-    }
-    
-    public final double getYCoordinate() {
-        return this.yCoordinateProperty().get();
-    }
-    
-    public final void setYCoordinate(double yCoordinate) {
-        this.yCoordinateProperty().set(yCoordinate);
-    }
-    
-    private final DoubleProperty zCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty zCoordinateProperty() {
-        return this.zCoordinate;
-    }
-    
-    public final double getZCoordinate() {
-        return this.zCoordinateProperty().get();
-    }
-    
-    public final void setZCoordinate(double zCoordinate) {
-        this.zCoordinateProperty().set(zCoordinate);
-    }
-    
-    private final ObservableMap<Long, T> itemMap = 
+    private final ObservableMap<Integer, T> itemMap = 
             FXCollections.observableMap(new ConcurrentHashMap());
 
-    public ObservableMap<Long, T> getItemMap() {
+    public ObservableMap<Integer, T> getItemMap() {
         return itemMap;
     }
     
@@ -128,5 +61,5 @@ public abstract class HistologyObject<T extends HistologyObject<?>> {
     }
     
     public abstract void addChild(T obj);
-    public abstract void deleteChild(long id);
+    public abstract void deleteChild(Integer id);
 }

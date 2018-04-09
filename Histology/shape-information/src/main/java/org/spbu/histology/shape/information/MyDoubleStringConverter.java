@@ -13,7 +13,11 @@ public class MyDoubleStringConverter extends DoubleStringConverter {
         int numOfPoints = 0;
         for (int i = 0; i < size; i++) {
             if (!Character.isDigit(value.charAt(i))) {
-                if (value.charAt(i) == '.') {
+                if (i == 0) {
+                    if (value.charAt(i) == '-')
+                        continue;
+                }
+                else if (value.charAt(i) == '.') {
                     if (numOfPoints == 0) {
                         numOfPoints++;
                         continue;
