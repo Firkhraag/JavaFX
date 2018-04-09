@@ -18,6 +18,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Node;
@@ -146,7 +147,7 @@ public class GeneralTabController implements Initializable {
         }
         hm.getHistionMap().get(histionId).addChild(new Cell(cellId, nameField.getText(),
                 xRot, yRot, xTran, yTran, zTran, facetData,  maxNumOfVertices.get(),
-                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId,
+                diffuseColorPicker.getValue(), specularColorPicker.getValue(), -1, histionId, true,
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap()));
         /*if (createButton.getText().equals("Update"))
             hm.getHistionMap().get(histionId).addChild(new Cell(id, nameField.getText(),

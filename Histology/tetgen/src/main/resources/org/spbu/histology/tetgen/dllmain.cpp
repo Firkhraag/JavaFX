@@ -100,16 +100,24 @@ JNIEXPORT jobject JNICALL Java_org_spbu_histology_tetgen_Tetgen_tetrahedralizati
 			in.holelist[i] = c_holeList[i];
 	}
 
-	tetrahedralize((char *)c_switchesStr, &in, &out);
-	jdoubleArray jPointList = (*env).NewDoubleArray(out.numberofpoints * 3);
-	jintArray jTetrahedronList = (*env).NewIntArray(out.numberoftetrahedra * 4);
-	jintArray jFaceList = (*env).NewIntArray(out.numberoftrifaces * 3);
-	(*env).SetDoubleArrayRegion(jPointList, 0, out.numberofpoints * 3, out.pointlist);
-	(*env).SetIntArrayRegion(jTetrahedronList, 0, out.numberoftetrahedra * 4, reinterpret_cast<jint*>(out.tetrahedronlist));
-	(*env).SetIntArrayRegion(jFaceList, 0, out.numberoftrifaces * 3, reinterpret_cast<jint*>(out.trifacelist));
-	jclass tetgenResultClass = (*env).FindClass("org/spbu/histology/tetgen/TetgenResult");
-	jmethodID midConstructor = (*env).GetMethodID(tetgenResultClass, "<init>", "([D[I[I)V");
-	jobject  tetgenResultObject = (*env).NewObject(tetgenResultClass, midConstructor, jPointList, jTetrahedronList, jFaceList);
+	jobject  tetgenResultObject;
+	try {
+		tetrahedralize((char *)c_switchesStr, &in, &out);
+		jdoubleArray jPointList = (*env).NewDoubleArray(out.numberofpoints * 3);
+		jintArray jTetrahedronList = (*env).NewIntArray(out.numberoftetrahedra * 4);
+		jintArray jFaceList = (*env).NewIntArray(out.numberoftrifaces * 3);
+		(*env).SetDoubleArrayRegion(jPointList, 0, out.numberofpoints * 3, out.pointlist);
+		(*env).SetIntArrayRegion(jTetrahedronList, 0, out.numberoftetrahedra * 4, reinterpret_cast<jint*>(out.tetrahedronlist));
+		(*env).SetIntArrayRegion(jFaceList, 0, out.numberoftrifaces * 3, reinterpret_cast<jint*>(out.trifacelist));
+		jclass tetgenResultClass = (*env).FindClass("org/spbu/histology/tetgen/TetgenResult");
+		jmethodID midConstructor = (*env).GetMethodID(tetgenResultClass, "<init>", "([D[I[I)V");
+		tetgenResultObject = (*env).NewObject(tetgenResultClass, midConstructor, jPointList, jTetrahedronList, jFaceList);
+	}
+	catch (...) {
+		jclass tetgenResultClass = (*env).FindClass("org/spbu/histology/tetgen/TetgenResult");
+		jmethodID midConstructor = (*env).GetMethodID(tetgenResultClass, "<init>", "([D[I[I)V");
+		tetgenResultObject = (*env).NewObject(tetgenResultClass, midConstructor, (*env).NewDoubleArray(0), (*env).NewIntArray(0), (*env).NewIntArray(0));
+	}
 
 	(*env).ReleaseDoubleArrayElements(nodeList, c_nodeList, 0);
 	(*env).ReleaseDoubleArrayElements(holeList, c_holeList, 0);

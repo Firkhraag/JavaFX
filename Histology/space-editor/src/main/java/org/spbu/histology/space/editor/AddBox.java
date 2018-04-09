@@ -46,7 +46,7 @@ public class AddBox {
             else {
                 hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
                         0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, histionId, FXCollections.emptyObservableMap()));
+                        Color.RED, Color.RED, -1, histionId, false, FXCollections.emptyObservableMap()));
             }
             window.close();
         });

@@ -52,6 +52,7 @@ import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenFacet;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.fxyz.Text3DMesh;
+import org.spbu.histology.model.AlertBox;
 
 /**
  * Top component which displays something.
@@ -165,7 +166,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
             (change) -> {
                 if (change.wasRemoved() && change.wasAdded()) {
                     Cell c = (Cell)change.getValueAdded();
-                    if (c.getFacetData().size() > 0) {
+                    //if (c.getFacetData().size() > 0) {
+                    if (c.getShow()) {
                         Cell removedShape = (Cell)change.getValueRemoved();
                         if (shapeMap.get(removedShape.getId()) != null) {
                             CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(c.getId()));
@@ -179,12 +181,13 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         }
                         //System.out.println(c.getItems().size());
                         addCell(c);
-                        intersectionsWithEdges(change.getKey());
+                        //intersectionsWithEdges(change.getKey());
                     }
                 }
                 else if (change.wasRemoved()) {  
                     Cell removedCell = (Cell)change.getValueAdded();
-                    if (removedCell.getFacetData().size() > 0) {
+                    //if (removedCell.getFacetData().size() > 0) {
+                    if (removedCell.getShow()) {
                         Integer removedCellId = removedCell.getId();
                         shapeGroup.getChildren().remove(shapeMap.get(removedCellId));
                         shapeMap.remove(removedCellId);
@@ -198,10 +201,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 }
                 else if (change.wasAdded()) {
                     Cell addedCell = (Cell)change.getValueAdded();
-                    if (addedCell.getFacetData().size() > 0) {
+                    //if (addedCell.getFacetData().size() > 0) {
+                    if (addedCell.getShow()) {
                         //System.out.println(addedCell.getFacetData().size());
                         addCell(addedCell);
-                        intersectionsWithEdges(change.getKey());
+                        //intersectionsWithEdges(change.getKey());
                     }
                 }
             };
@@ -593,7 +597,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         hm.addHistion(new Histion("Histion <1>",0,0,0,0,0, FXCollections.emptyObservableMap()));
         //hm.getAllHistions().get(0).addChild(new Cell("Cell <1>"));
         Cell c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, 0, FXCollections.emptyObservableMap());
+                        Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
         //Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0);
         hm.getHistionMap().get(0).addChild(c);
         
@@ -606,7 +610,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <1>",tempData1));
         hm.getHistionMap().get(0).getItemMap().get(0).addChild(new Part("Part <2>",tempData2));
-        c = new Cell(c.getId(), "Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0, hm.getHistionMap().get(0).getItemMap().get(0).getItemMap());
+        c = new Cell(c.getId(), "Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(0).getItemMap());
         hm.getHistionMap().get(0).addChild(c);
         //sm.addShape(new Shape("1", 0, 0, 0, 0, 0, pointData, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, nodeAvg, -1, 0));
         //hm.getAllHistions().get(0).getItems().get(0).addChild(new Part("Part <1>"));
@@ -671,7 +675,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         maxNumberOfVertices = 8;
         
         c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, -1, 0, FXCollections.emptyObservableMap());
+                        Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
         
         //c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0);
         hm.getHistionMap().get(0).addChild(c);
@@ -685,7 +689,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <1>",tempData1));
         hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <2>",tempData2));
-        c = new Cell(c.getId(), "Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0, hm.getHistionMap().get(0).getItemMap().get(1).getItemMap());
+        c = new Cell(c.getId(), "Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(1).getItemMap());
         hm.getHistionMap().get(0).addChild(c);
         //sm.addShape(new Shape("2", 0, 0, 0, 0, 0, pointData, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, nodeAvg, -1, 0));
         hm.addHistion(new Histion("Histion <2>",0,0,0,0,0, FXCollections.emptyObservableMap()));
@@ -900,6 +904,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 holeListInFacet, numberOfVerticesInPolygon, vertexList, 
                 numberOfHoles, holeList, numberOfRegions, regionList, "pq10000a1000000.0");
         
+        if (tr.getNodeList().length == 0) {
+            c.setShow(false);
+            AlertBox.display("Warning", "Cell can not be be created");
+            return;
+        }
+        
         nodesList.put(c.getId(), new double[tr.getNodeList().length]);
         tetrahedronsList.put(c.getId(), new int[tr.getTetrahedronList().length]);
         facesList.put(c.getId(), new int[tr.getFaceList().length]);
@@ -937,6 +947,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
 
         shapeGroup.getChildren().add(shape);
         shapeMap.put(c.getId(), shape);
+        intersectionsWithEdges(c.getId());
     }
     
     private void buildCrossSectionPlane() {
@@ -1626,7 +1637,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
             CrossSectionViewerTopComponent.clear();
             hm.getAllHistions().forEach(h -> {
                 h.getItems().forEach(c -> {
-                    if (c.getFacetData().size() > 0)
+                    //if (c.getFacetData().size() > 0)
+                    if (c.getShow())
                         intersectionsWithEdges(c.getId());
                 });
             });
@@ -1640,7 +1652,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
             CrossSectionViewerTopComponent.clear();
             hm.getAllHistions().forEach(h -> {
                 h.getItems().forEach(c -> {
-                    if (c.getFacetData().size() > 0)
+                    //if (c.getFacetData().size() > 0)
+                    if (c.getShow())
                         intersectionsWithEdges(c.getId());
                 });
             });

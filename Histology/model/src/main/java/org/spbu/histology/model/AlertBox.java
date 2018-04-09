@@ -1,4 +1,4 @@
-package org.spbu.histology.shape.information;
+package org.spbu.histology.model;
 
 import javafx.stage.*;
 import javafx.scene.*;

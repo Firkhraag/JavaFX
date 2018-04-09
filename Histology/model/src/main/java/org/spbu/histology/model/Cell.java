@@ -161,6 +161,16 @@ public class Cell extends HistologyObject<Part> {
         this.histionId = histionId;
     }
     
+    private boolean show;
+    
+    public boolean getShow() {
+        return this.show;
+    }
+    
+    public void setShow(boolean show) {
+        this.show = show;
+    }
+    
     /*private Point3D nodeAvg;
     
     public Point3D getNodeAvg() {
@@ -189,7 +199,7 @@ public class Cell extends HistologyObject<Part> {
     
     public Cell(String name, double xRot, double yRot, double x, double y, double z,
             ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
-            Color diffCol, Color specCol, Integer copiedId, Integer histionId, ObservableMap<Integer, Part> itemMap) {  
+            Color diffCol, Color specCol, Integer copiedId, Integer histionId, boolean show, ObservableMap<Integer, Part> itemMap) {  
         super(count++, name, itemMap);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
@@ -206,11 +216,12 @@ public class Cell extends HistologyObject<Part> {
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
         this.copiedId = copiedId;
         this.histionId = histionId;
+        this.show = show;
     }
     
     public Cell(Integer id, String name, double xRot, double yRot, double x, double y, double z,
             ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
-            Color diffCol, Color specCol, Integer copiedId, Integer histionId, ObservableMap<Integer, Part> itemMap) {  
+            Color diffCol, Color specCol, Integer copiedId, Integer histionId, boolean show, ObservableMap<Integer, Part> itemMap) {  
         super(id, name, itemMap);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
@@ -227,6 +238,7 @@ public class Cell extends HistologyObject<Part> {
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
         this.copiedId = copiedId;
         this.histionId = histionId;
+        this.show = show;
     }
     
     public Cell(Integer id, Cell с) { 
@@ -246,6 +258,7 @@ public class Cell extends HistologyObject<Part> {
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
         this.copiedId = с.getCopiedId();
         this.histionId = с.getHistionId();
+        this.show = с.getShow();
     }
     
     public Cell(Cell с, Integer histionId) { 
@@ -265,6 +278,7 @@ public class Cell extends HistologyObject<Part> {
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
         this.copiedId = с.getCopiedId();
         this.histionId = histionId;
+        this.show = с.getShow();
     }
     
     /*private static long count = 0;
