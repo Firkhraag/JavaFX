@@ -46,11 +46,11 @@
                         <target>1.7</target>
                     </configuration>
                 </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-            </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -67,8 +67,8 @@
         <module>tetgen</module>
         <module>cross-section-viewer</module>
         <module>histion-manager-impl</module>
-        <module>mavenproject1/database</module>
         <module>fxyz</module>
+        <module>util</module>
     </modules>
 
     <properties>

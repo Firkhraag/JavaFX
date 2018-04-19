@@ -8,9 +8,6 @@
     <tabs>
         <Tab fx:id="viewTab" text="3D View">
         </Tab>
-        <Tab fx:id="facetTab" text="Facets">
-            <fx:include fx:id="FacetTab" source="FacetTab.fxml"/>
-        </Tab>
         <Tab fx:id="generalTab" text="General">
             <fx:include fx:id="GeneralTab" source="GeneralTab.fxml"/>
         </Tab>

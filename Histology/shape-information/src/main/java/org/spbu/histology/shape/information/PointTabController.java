@@ -94,6 +94,10 @@ public class PointTabController implements Initializable {
         this.height = height;
     }
     
+    public void setTableHeight(double height) {
+        table.setPrefHeight(height);
+    }
+    
     public void setRectangleList(ObservableList<Rectangle> rectangleList) {
         this.rectangleList = rectangleList;
     }
@@ -165,10 +169,15 @@ public class PointTabController implements Initializable {
     
     @FXML
     private void doneAction() {
-        if (partId == - 1)
+        if (partId == - 1) {
             hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data));
-        else
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part(partId, "Part <" + nameField.getText() + ">", data));
+        }
+        else {
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(
+                    new Part(partId, "Part <" + nameField.getText() + ">", data));
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).setShow(false);
+        }
         /*if (ChosenTool.getToolNumber() == -1)
             ChosenTool.setToolNumber(-2);
         else
@@ -203,9 +212,17 @@ public class PointTabController implements Initializable {
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
-            ((TetgenPoint) event.getTableView().getItems()
-                .get(event.getTablePosition().getRow())).setX(value);
-            rectangleList.get(item.getId() - 1).setX(value + width / 2 - 2);
+            //if (value > -width) && ()
+            TetgenPoint tp = ((TetgenPoint) event.getTableView().getItems()
+                .get(event.getTablePosition().getRow()));
+            tp.setX(value);
+            if (Math.abs(value) < width / 2)
+                rectangleList.get(tp.getId() - 1).setX(value + width / 2 - 2);
+            else
+                rectangleList.get(tp.getId() - 1).setX(4000 + width / 2 - 2);
+            //((TetgenPoint) event.getTableView().getItems()
+            //    .get(event.getTablePosition().getRow())).setX(value);
+            //rectangleList.get(item.getId() - 1).setX(value + width / 2 - 2);
             table.refresh();
         });
     }
@@ -234,9 +251,16 @@ public class PointTabController implements Initializable {
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
-            ((TetgenPoint) event.getTableView().getItems()
+            TetgenPoint tp = ((TetgenPoint) event.getTableView().getItems()
+                .get(event.getTablePosition().getRow()));
+            tp.setZ(value);
+            if (Math.abs(value) < height / 2)
+                rectangleList.get(tp.getId() - 1).setY((-1)*value + height / 2 - 2);
+            else
+                rectangleList.get(tp.getId() - 1).setY(4000 + height / 2 - 2);
+            /*((TetgenPoint) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow())).setZ(value);
-            rectangleList.get(item.getId() - 1).setY((-1) * (value - height / 2) - 2);
+            rectangleList.get(item.getId() - 1).setY((-1) * (value - height / 2) - 2);*/
             table.refresh();
         });
     }

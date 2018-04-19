@@ -27,6 +27,7 @@ import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -38,6 +39,7 @@ import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Point3D;
 import javafx.scene.input.PickResult;
+import javafx.scene.shape.Mesh;
 import javafx.scene.shape.Polygon;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Translate;
@@ -47,12 +49,17 @@ import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.CrossSection;
 import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
-import org.spbu.histology.model.Node;
+//import org.spbu.histology.model.Node;
 import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenFacet;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.fxyz.Text3DMesh;
 import org.spbu.histology.model.AlertBox;
+import org.spbu.histology.model.HideCells;
+import org.spbu.histology.model.Names;
+//import org.spbu.histology.model.SpaceViewerIsInitialized;
+import org.spbu.histology.model.PolygonList;
+import org.spbu.histology.model.TwoPoints;
 
 /**
  * Top component which displays something.
@@ -138,7 +145,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final ObservableMap<Long, Rotate> yRotateList = 
             FXCollections.observableMap(new ConcurrentHashMap());*/
 
-    private final ArrayList<Node> intersectionNodes = new ArrayList();
+    //private final ArrayList<Point3D> intersectionNodes = new ArrayList();
     
     private final double EPS = 0.0000001;
     
@@ -181,11 +188,22 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         }
                         //System.out.println(c.getItems().size());
                         addCell(c);
+                        /*hm.getHistionMap().get(c.getHistionId()).getItems().forEach(cell -> {
+                            if (cell.getId() != c.getId()) {
+                                if (cell.getShow()) {
+                                    if (shapeMap.get(c.getId()) != null) {
+                                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(c.getId()));
+                                        shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                                    }
+                                    addCell(cell);
+                                }
+                            }
+                        });*/
                         //intersectionsWithEdges(change.getKey());
                     }
                 }
                 else if (change.wasRemoved()) {  
-                    Cell removedCell = (Cell)change.getValueAdded();
+                    Cell removedCell = (Cell)change.getValueRemoved();
                     //if (removedCell.getFacetData().size() > 0) {
                     if (removedCell.getShow()) {
                         Integer removedCellId = removedCell.getId();
@@ -205,6 +223,17 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     if (addedCell.getShow()) {
                         //System.out.println(addedCell.getFacetData().size());
                         addCell(addedCell);
+                        /*hm.getHistionMap().get(addedCell.getHistionId()).getItems().forEach(c -> {
+                            if (c.getId() != addedCell.getId()) {
+                                if (c.getShow()) {
+                                    if (shapeMap.get(c.getId()) != null) {
+                                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(c.getId()));
+                                        shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                                    }
+                                    addCell(c);
+                                }
+                            }
+                        });*/
                         //intersectionsWithEdges(change.getKey());
                     }
                 }
@@ -222,13 +251,13 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 }
                 else if (change.wasAdded()) {
                     Histion addedHistion = (Histion)change.getValueAdded();
-                    /*for (Cell c : addedHistion.getItems()) {
+                    for (Cell c : addedHistion.getItems()) {
                         if (c.getShow()) {
                             //System.out.println(addedCell.getFacetData().size());
                             addCell(c);
                             //intersectionsWithEdges(change.getKey());
                         }
-                    }*/
+                    }
                     addedHistion.getItemMap().addListener(cellListener);
                 }
             };
@@ -328,7 +357,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
         });
         hm.addListener(histionListener);
         
-        buildData();
+        if (hm.getHistionMap().isEmpty())
+            hm.addHistion(new Histion("Main histion",0,0,0,0,0));
+        //SpaceViewerIsInitialized.initialized.set(true);
+        //hm.addHistion(new Histion("Main histion",0,0,0,0,0));
+        //buildData();
         /*sm.addListener(shapeListener);        
         buildData();        
         if (!sm.getAllShapes().isEmpty())
@@ -336,19 +369,23 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         buildCrossSectionPlane();
         fxPanel.setScene(scene);  
+        //TetrahedronList.setTetrahedronsList(tetrahedronsList);
+        //PolygonList.setPolygonList(polygonList);
     }
 
-    private Polygon findPolygons(ArrayList<Node> intersectionNodes, Color color) {
+    /*private Polygon findPolygons(ArrayList<Point3D> intersectionNodes, Color color) {
+        //Polygon polygon = new Polygon();
+        //return polygon;
         if (intersectionNodes.size() == 4) {
-            double avgX = (intersectionNodes.get(0).x + intersectionNodes.get(1).x +
-                    intersectionNodes.get(2).x + intersectionNodes.get(3).x) / 4;
+            double avgX = (intersectionNodes.get(0).getX() + intersectionNodes.get(1).getX() +
+                    intersectionNodes.get(2).getX() + intersectionNodes.get(3).getX()) / 4;
             
-            double avgZ = (intersectionNodes.get(0).z + intersectionNodes.get(1).z +
-                    intersectionNodes.get(2).z + intersectionNodes.get(3).z) / 4;
+            double avgZ = (intersectionNodes.get(0).getZ() + intersectionNodes.get(1).getZ() +
+                    intersectionNodes.get(2).getZ() + intersectionNodes.get(3).getZ()) / 4;
             
-            Collections.sort(intersectionNodes, (Node o1, Node o2) -> {
-                double temp1 = Math.atan2(o1.z - avgZ, o1.x - avgX);
-                double temp2 = Math.atan2(o2.z - avgZ, o2.x - avgX);
+            Collections.sort(intersectionNodes, (Point3D o1, Point3D o2) -> {
+                double temp1 = Math.atan2(o1.getZ() - avgZ, o1.getX() - avgX);
+                double temp2 = Math.atan2(o2.getZ() - avgZ, o2.getX() - avgX);
                 if(temp1 == temp2)
                     return 0;
                 return temp1 < temp2 ? -1 : 1;
@@ -356,32 +393,107 @@ public final class SpaceViewerTopComponent extends TopComponent {
             
             Polygon polygon = new Polygon();
             polygon.getPoints().addAll(new Double[]{
-                intersectionNodes.get(0).x, intersectionNodes.get(0).z,
-                intersectionNodes.get(1).x, intersectionNodes.get(1).z,
-                intersectionNodes.get(2).x, intersectionNodes.get(2).z,
-                intersectionNodes.get(3).x, intersectionNodes.get(3).z
+                intersectionNodes.get(0).getX(), intersectionNodes.get(0).getZ(),
+                intersectionNodes.get(1).getX(), intersectionNodes.get(1).getZ(),
+                intersectionNodes.get(2).getX(), intersectionNodes.get(2).getZ(),
+                intersectionNodes.get(3).getX(), intersectionNodes.get(3).getZ()
             });
             
             polygon.setFill(color);
-            /*polygon.setTranslateX(paneSize / 2);
-            polygon.setTranslateY(paneSize / 2);
-            root.getChildren().add(polygon);*/
             return polygon;
         }
         Polygon polygon = new Polygon();
         polygon.getPoints().addAll(new Double[]{
-            intersectionNodes.get(0).x, intersectionNodes.get(0).z,
-            intersectionNodes.get(1).x, intersectionNodes.get(1).z,
-            intersectionNodes.get(2).x, intersectionNodes.get(2).z
+            intersectionNodes.get(0).getX(), intersectionNodes.get(0).getZ(),
+            intersectionNodes.get(1).getX(), intersectionNodes.get(1).getZ(),
+            intersectionNodes.get(2).getX(), intersectionNodes.get(2).getZ()
         });
         polygon.setFill(color);
-        /*polygon.setTranslateX(paneSize / 2);
-        polygon.setTranslateY(paneSize / 2);
-        root.getChildren().add(polygon);*/
         return polygon;
+    }*/
+    
+    private void addPolygon(ArrayList<Point3D> pl, ArrayList<Polygon> polList, Integer id) {
+        Double[] polPoints = new Double[pl.size() * 2];
+        int k = 0;
+        for (int i = 0; i < pl.size(); i++) {
+            polPoints[k] = pl.get(i).getX();
+            polPoints[k + 1] = pl.get(i).getZ();
+            k += 2;
+        }
+        Polygon polygon = new Polygon();
+        polygon.getPoints().addAll(polPoints);
+        polygon.setFill(colorsList.get(id));
+        polList.add(polygon);
+    }
+    
+    private void findPolygons(ArrayList<TwoPoints> lineList, Integer id) {
+        ArrayList<Polygon> polList = new ArrayList<>();
+        Point3D p;
+        ArrayList<Point3D> pl = new ArrayList<>();
+        pl.add(lineList.get(0).getPoint1());
+        p = lineList.get(0).getPoint1();
+        lineList.remove(0);
+        boolean stop = false;
+        //while (!stop) {
+        while (!lineList.isEmpty()) {
+            //System.out.println(p.getX() + " " + p.getZ());
+            stop = true;
+            for (int i = 0; i < lineList.size(); i++) {
+                if (p.distance(lineList.get(i).getPoint1()) < 0.0001) {
+                    pl.add(lineList.get(i).getPoint2());
+                    p = lineList.get(i).getPoint2();
+                    lineList.remove(i);
+                    stop = false;
+                    break;
+                }
+                if (p.distance(lineList.get(i).getPoint2()) < 0.0001) {
+                    pl.add(lineList.get(i).getPoint1());
+                    p = lineList.get(i).getPoint1();
+                    lineList.remove(i);
+                    stop = false;
+                    break;
+                }
+            }
+            if (stop && (!lineList.isEmpty())) {
+                addPolygon(pl, polList, id);
+                pl.clear();
+                pl.add(lineList.get(0).getPoint1());
+                p = lineList.get(0).getPoint1();
+                lineList.remove(0);
+            }
+        }
+        /*Double[] polPoints = new Double[pl.size() * 2];
+        int k = 0;
+        for (int i = 0; i < pl.size(); i++) {
+            polPoints[k] = pl.get(i).getX();
+            polPoints[k + 1] = pl.get(i).getZ();
+            k += 2;
+        }
+        System.out.println(lineList.size());
+        Polygon polygon = new Polygon();
+        polygon.getPoints().addAll(polPoints);
+        polygon.setFill(colorsList.get(id));
+        polList.add(polygon);*/
+        addPolygon(pl, polList, id);
+        polygonList.put(id, polList);
+        
+        /*lineList.forEach(tp -> {
+            Line line = new Line();
+            line.setStartX(tp.getPoint1().getX() + paneSize / 2);
+            line.setStartY(tp.getPoint1().getZ() + paneSize / 2);
+            line.setEndX(tp.getPoint2().getX() + paneSize / 2);
+            line.setEndY(tp.getPoint2().getZ() + paneSize / 2);
+            root.getChildren().add(line);
+        });*/
     }
     
     private void intersectionsWithEdges(Integer id) {
+        ArrayList<ArrayList<Point3D>> points = new ArrayList<>();
+        ArrayList<Point3D> intersectionNodes = new ArrayList<>();
+        //ArrayList<Point3D> excludedNodes = new ArrayList<>();
+        ArrayList<TwoPoints> excludedNodes = new ArrayList<>();
+        ArrayList<TwoPoints> includedNodes = new ArrayList<>();
+        polygonList.put(id, new ArrayList<>());
         /*if ((tetrahedronsList == null) || (nodesList == null))
             return;*/
         
@@ -404,56 +516,439 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 }
             }
         });*/
-        polygonList.put(id, new ArrayList<>());
+        //polygonList.put(id, new ArrayList<>());
+        //ArrayList<Polygon> pl = new ArrayList<>();
         double[] nl = nodesList.get(id);
         int[] tl = tetrahedronsList.get(id);
         for (int i = 0; i < tl.length; i += 4) {
+            //System.out.println(i);
+            Point3D p1 = new Point3D(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]);
+            Point3D p2 = new Point3D(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]);
+            Point3D p3 = new Point3D(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]);
+            Point3D p4 = new Point3D(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]);
             intersectionNodes.clear();
-            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
-            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]));
-            findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]), new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]));
-            findIntersection(new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
-            findIntersection(new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]), new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]));
-            findIntersection(new Node(nl[(tl[i + 2] - 1) * 3], nl[(tl[i + 2] - 1) * 3 + 1], nl[(tl[i + 2] - 1) * 3 + 2]), new Node(nl[(tl[i + 3] - 1) * 3], nl[(tl[i + 3] - 1) * 3 + 1], nl[(tl[i + 3] - 1) * 3 + 2]));
+            findIntersection(p1, p2, intersectionNodes);
+            findIntersection(p1, p3, intersectionNodes);
+            findIntersection(p1, p4, intersectionNodes);
+            findIntersection(p3, p2, intersectionNodes);
+            findIntersection(p4, p2, intersectionNodes);
+            findIntersection(p3, p4, intersectionNodes);
+            /*if (id == 2)
+                System.out.println(intersectionNodes.size());
+            if (id == 3)
+                System.out.println(intersectionNodes.size());
+            if (id == 4)
+                System.out.println(intersectionNodes.size());
+            if (id == 5)
+                System.out.println(intersectionNodes.size());*/
             if (intersectionNodes.size() > 2) {
-                rotateTillHorizontalPanel();
+                rotateTillHorizontalPanel(intersectionNodes);
                 //polygonList.get(id).add(CrossSectionViewerTopComponent.show(intersectionNodes, colorsList.get(id)));
-                polygonList.get(id).add(findPolygons(intersectionNodes, colorsList.get(id)));
+                //polygonList.get(id).add(findPolygons(intersectionNodes, colorsList.get(id)));
+                
+                //pl.add(findPolygons(intersectionNodes, colorsList.get(id)));
+                if (intersectionNodes.size() == 4) {
+                    double avgX = (intersectionNodes.get(0).getX() + intersectionNodes.get(1).getX() +
+                        intersectionNodes.get(2).getX() + intersectionNodes.get(3).getX()) / 4;
+            
+                    double avgZ = (intersectionNodes.get(0).getZ() + intersectionNodes.get(1).getZ() +
+                        intersectionNodes.get(2).getZ() + intersectionNodes.get(3).getZ()) / 4;
+                    Collections.sort(intersectionNodes, (Point3D o1, Point3D o2) -> {
+                        double temp1 = Math.atan2(o1.getZ() - avgZ, o1.getX() - avgX);
+                        double temp2 = Math.atan2(o2.getZ() - avgZ, o2.getX() - avgX);
+                        if(temp1 == temp2)
+                            return 0;
+                        return temp1 < temp2 ? -1 : 1;
+                    }); 
+                    ArrayList<Point3D> temp = new ArrayList<>();
+                    temp.add(intersectionNodes.get(0));
+                    temp.add(intersectionNodes.get(1));
+                    temp.add(intersectionNodes.get(2));
+                    points.add(new ArrayList<>(temp));
+                    temp = new ArrayList<>();
+                    temp.add(intersectionNodes.get(0));
+                    temp.add(intersectionNodes.get(3));
+                    temp.add(intersectionNodes.get(2));
+                    points.add(new ArrayList<>(temp));
+                    //points.add(new ArrayList<>(intersectionNodes));
+                } else {
+                    points.add(new ArrayList<>(intersectionNodes));
+                }
             }
         }
+        //System.out.println(points.size());
+        for (int i = 0; i < points.size(); i++) {
+            /*System.out.println("--------");
+                System.out.println(points.get(i).get(0).getX() + " " + points.get(i).get(0).getZ());
+                System.out.println(points.get(i).get(1).getX() + " " + points.get(i).get(1).getZ());
+                System.out.println(points.get(i).get(2).getX() + " " + points.get(i).get(2).getZ());
+            System.out.println("--------");*/
+            for (int j = i + 1; j < points.size(); j++) {
+                if (((points.get(i).get(0).distance(points.get(j).get(0)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(1)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(2)) < 0.0001)) ||
+                    ((points.get(i).get(0).distance(points.get(j).get(0)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(2)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(1)) < 0.0001)) ||
+                   ((points.get(i).get(0).distance(points.get(j).get(2)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(1)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(0)) < 0.0001)) ||
+                   ((points.get(i).get(0).distance(points.get(j).get(1)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(2)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(0)) < 0.0001)) ||
+                   ((points.get(i).get(0).distance(points.get(j).get(1)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(0)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(2)) < 0.0001)) ||
+                   ((points.get(i).get(0).distance(points.get(j).get(2)) < 0.0001) &&
+                       (points.get(i).get(1).distance(points.get(j).get(0)) < 0.0001) &&
+                       (points.get(i).get(2).distance(points.get(j).get(1)) < 0.0001)))
+                    continue;
+                /*System.out.println("--------");
+                System.out.println(points.get(i).get(0).getX() + " " + points.get(i).get(0).getZ());
+                System.out.println(points.get(i).get(1).getX() + " " + points.get(i).get(1).getZ());
+                System.out.println(points.get(i).get(2).getX() + " " + points.get(i).get(2).getZ());
+                System.out.println("*");
+                System.out.println(points.get(j).get(0).getX() + " " + points.get(j).get(0).getZ());
+                System.out.println(points.get(j).get(1).getX() + " " + points.get(j).get(1).getZ());
+                System.out.println(points.get(j).get(2).getX() + " " + points.get(j).get(2).getZ());
+                System.out.println("--------");*/
+                
+                //if (i == j)
+                //    continue;
+
+                    /*points.get(i).get(0);
+                    points.get(i).get(1);
+
+                    points.get(i).get(0);
+                    points.get(i).get(2);
+
+                    points.get(i).get(2);
+                    points.get(i).get(1);
+                    
+                    points.get(j).get(0);
+                    points.get(j).get(1);
+
+                    points.get(j).get(0);
+                    points.get(j).get(2);
+
+                    points.get(j).get(2);
+                    points.get(j).get(1);*/
+                    
+                if (isOneSide(points.get(i).get(0), points.get(i).get(1),
+                        points.get(j).get(0), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(1));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                if (isOneSide(points.get(i).get(0), points.get(i).get(1),
+                        points.get(j).get(0), points.get(j).get(2))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(1));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));*/
+                }
+                if (isOneSide(points.get(i).get(0), points.get(i).get(1),
+                        points.get(j).get(2), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(1));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                    
+                if (isOneSide(points.get(i).get(0), points.get(i).get(2),
+                        points.get(j).get(0), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                if (isOneSide(points.get(i).get(0), points.get(i).get(2),
+                            points.get(j).get(0), points.get(j).get(2))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));*/
+                }
+                if (isOneSide(points.get(i).get(0), points.get(i).get(2),
+                        points.get(j).get(2), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(0)))
+                        excludedNodes.add(points.get(i).get(0));
+                    if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                    
+                if (isOneSide(points.get(i).get(2), points.get(i).get(1),
+                        points.get(j).get(0), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(1), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                if (isOneSide(points.get(i).get(2), points.get(i).get(1),
+                        points.get(j).get(0), points.get(j).get(2))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(1), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(0)))
+                        excludedNodes.add(points.get(j).get(0));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));*/
+                }
+                if (isOneSide(points.get(i).get(2), points.get(i).get(1),
+                        points.get(j).get(2), points.get(j).get(1))) {
+                    //System.out.println(i + " " + j);
+                    TwoPoints tp = new TwoPoints(points.get(i).get(1), points.get(i).get(2));
+                    if (!excludedNodes.contains(tp))
+                        excludedNodes.add(tp);
+                    /*if (!excludedNodes.contains(points.get(i).get(2)))
+                        excludedNodes.add(points.get(i).get(2));
+                    if (!excludedNodes.contains(points.get(i).get(1)))
+                        excludedNodes.add(points.get(i).get(1));
+                    if (!excludedNodes.contains(points.get(j).get(2)))
+                        excludedNodes.add(points.get(j).get(2));
+                    if (!excludedNodes.contains(points.get(j).get(1)))
+                        excludedNodes.add(points.get(j).get(1));*/
+                }
+                /*if (points.get(i).size() == 4) {
+                    if (isOneSide(points.get(i).get(0), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(0)))
+                            excludedNodes.add(points.get(i).get(0));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                    if (isOneSide(points.get(i).get(0), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(2))) {
+                        if (!excludedNodes.contains(points.get(i).get(0)))
+                            excludedNodes.add(points.get(i).get(0));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                    }
+                    if (isOneSide(points.get(i).get(0), points.get(i).get(3),
+                            points.get(j).get(2), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(0)))
+                            excludedNodes.add(points.get(i).get(0));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                    
+                    if (isOneSide(points.get(i).get(1), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(1)))
+                            excludedNodes.add(points.get(i).get(1));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                    if (isOneSide(points.get(i).get(1), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(2))) {
+                        if (!excludedNodes.contains(points.get(i).get(1)))
+                            excludedNodes.add(points.get(i).get(1));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                    }
+                    if (isOneSide(points.get(i).get(1), points.get(i).get(3),
+                            points.get(j).get(2), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(1)))
+                            excludedNodes.add(points.get(i).get(1));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                    
+                    if (isOneSide(points.get(i).get(2), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(2)))
+                            excludedNodes.add(points.get(i).get(2));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                    if (isOneSide(points.get(i).get(2), points.get(i).get(3),
+                            points.get(j).get(0), points.get(j).get(2))) {
+                        if (!excludedNodes.contains(points.get(i).get(2)))
+                            excludedNodes.add(points.get(i).get(2));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(0)))
+                            excludedNodes.add(points.get(j).get(0));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                    }
+                    if (isOneSide(points.get(i).get(2), points.get(i).get(3),
+                            points.get(j).get(2), points.get(j).get(1))) {
+                        if (!excludedNodes.contains(points.get(i).get(2)))
+                            excludedNodes.add(points.get(i).get(2));
+                        if (!excludedNodes.contains(points.get(i).get(3)))
+                            excludedNodes.add(points.get(i).get(3));
+                        if (!excludedNodes.contains(points.get(j).get(2)))
+                            excludedNodes.add(points.get(j).get(2));
+                        if (!excludedNodes.contains(points.get(j).get(1)))
+                            excludedNodes.add(points.get(j).get(1));
+                    }
+                }*/
+            }
+        }
+        for (int i = 0; i < points.size(); i++) {
+            TwoPoints tp = new TwoPoints(points.get(i).get(0), points.get(i).get(1));
+            if (!excludedNodes.contains(tp))
+                if (!includedNodes.contains(tp))
+                    includedNodes.add(tp);
+            tp = new TwoPoints(points.get(i).get(0), points.get(i).get(2));
+            if (!excludedNodes.contains(tp))
+                if (!includedNodes.contains(tp))
+                    includedNodes.add(tp);
+            tp = new TwoPoints(points.get(i).get(2), points.get(i).get(1));
+            if (!excludedNodes.contains(tp))
+                if (!includedNodes.contains(tp))
+                    includedNodes.add(tp);
+        }
+        //System.out.println(includedNodes.size());
+        
+        //CrossSectionViewerTopComponent.showLines(includedNodes);
+        //CrossSectionViewerTopComponent.showPolygon(includedNodes, colorsList.get(id));
+        if (includedNodes.size() > 0)
+            findPolygons(includedNodes, id);
+        
+        //System.out.println(excludedNodes.size());
+        //polygonList.put(id, pl);
         CrossSectionViewerTopComponent.show(polygonList.get(id));
     }
     
-    private void findIntersection(Node p1, Node p2) {
-        double firstEquation = CrossSection.getA() * p1.x + CrossSection.getB() * p1.y + CrossSection.getC() * p1.z + CrossSection.getD();
-        double secondEquation = CrossSection.getA() * p2.x + CrossSection.getB() * p2.y + CrossSection.getC() * p2.z + CrossSection.getD();
+    private boolean isOneSide(Point3D p1, Point3D p2, Point3D p3, Point3D p4) {
+        /*System.out.println("-------");
+        System.out.println(p1.getX() + " " + p1.getY() + " " + p1.getZ());
+        System.out.println(p2.getX() + " " + p2.getY() + " " + p2.getZ());
+        System.out.println(p3.getX() + " " + p3.getY() + " " + p3.getZ());
+        System.out.println(p4.getX() + " " + p4.getY() + " " + p4.getZ());
+        System.out.println("-------");*/
+        if ((p1.distance(p3) < 0.0001) && (p2.distance(p4) < 0.0001))
+            return true;
+        if ((p1.distance(p4) < 0.0001) && (p2.distance(p3) < 0.0001))
+            return true;
+        //System.out.println("False");
+        return false;
+    }
+    
+    private void findIntersection(final Point3D p1, final Point3D p2, ArrayList<Point3D> intersectionNodes) {
+        double firstEquation = CrossSection.getA() * p1.getX() + CrossSection.getB() * p1.getY() + CrossSection.getC() * p1.getZ() + CrossSection.getD();
+        double secondEquation = CrossSection.getA() * p2.getX() + CrossSection.getB() * p2.getY() + CrossSection.getC() * p2.getZ() + CrossSection.getD();
         double absValueOfFirstEquation = Math.abs(firstEquation);
         double absValueOfSecondEquation = Math.abs(secondEquation);
         if ((absValueOfFirstEquation < EPS) && (absValueOfSecondEquation < EPS)) {
             if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(new Node(p1));
+                intersectionNodes.add(p1);
             if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(new Node(p2));
+                intersectionNodes.add(p2);
         } else if (absValueOfFirstEquation < EPS) {
             if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(new Node(p1));
+                intersectionNodes.add(p1);
         } else if (absValueOfSecondEquation < EPS) {
             if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(new Node(p2));
+                intersectionNodes.add(p2);
         } else if (firstEquation * secondEquation < 0) {
-            double a1 = p2.x - p1.x;
-            double a2 = p2.y - p1.y;
-            double a3 = p2.z - p1.z;
-            double t = 1 / (CrossSection.getA() * a1 + CrossSection.getB() * a2 +
-                    CrossSection.getC() * a3) * (-1) * firstEquation;
-            double x = a1 * t + p1.x;
-            double y = a2 * t + p1.y;
-            double z = a3 * t + p1.z;
-            intersectionNodes.add(new Node(x, y, z));
-        } 
+            double a1 = p2.getX() - p1.getX();
+            double a2 = p2.getY() - p1.getY();
+            double a3 = p2.getZ() - p1.getZ();
+            //double t = 1 / (CrossSection.getA() * a1 + CrossSection.getB() * a2 +
+            //        CrossSection.getC() * a3) * (-1) * firstEquation;
+            double t = 1 / (secondEquation - firstEquation) * (-1) * firstEquation;
+            double x = a1 * t + p1.getX();
+            double y = a2 * t + p1.getY();
+            double z = a3 * t + p1.getZ();
+            intersectionNodes.add(new Point3D(x, y, z));
+        }
     }
     
-    private void rotateTillHorizontalPanel() {
+    private void rotateTillHorizontalPanel(ArrayList<Point3D> intersectionNodes) {
         try {
             double angX = -Math.toRadians(Double.parseDouble(CrossSection.getXRotate()));
             double angY = -Math.toRadians(Double.parseDouble(CrossSection.getYRotate()));
@@ -467,9 +962,9 @@ public final class SpaceViewerTopComponent extends TopComponent {
             double x,y,z,temp;
 
             for (int i = 0; i < intersectionNodes.size(); i++) {
-                x = intersectionNodes.get(i).x - xCoord;
-                y = intersectionNodes.get(i).y - yCoord;
-                z = intersectionNodes.get(i).z - zCoord;
+                x = intersectionNodes.get(i).getX() - xCoord;
+                y = intersectionNodes.get(i).getY() - yCoord;
+                z = intersectionNodes.get(i).getZ() - zCoord;
                 
                 temp = x;
                 x = x * cosAngY + z * sinAngY;
@@ -481,7 +976,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 x = x * cosAngY + z * (-sinAngY);
                 z = -temp * (-sinAngY) + z * cosAngY;
                 
-                intersectionNodes.set(i, new Node(x + xCoord, 0, z + zCoord));
+                intersectionNodes.set(i, new Point3D(x + xCoord, 0, z + zCoord));
             }
         } catch (Exception ex) {
             
@@ -546,11 +1041,37 @@ public final class SpaceViewerTopComponent extends TopComponent {
         }
         nodeAvg = new Point3D(nodeAvg.getX() / pointSize, nodeAvg.getY() / pointSize, nodeAvg.getZ() / pointSize);*/
         
-        ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
-        facetData.add(new TetgenFacet(1, 2, 1, 23, 24, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+        //ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
+        ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
+        facetData.add(new ArrayList<>(Arrays.asList(2, 1, 23, 24)));
+        facetData.add(new ArrayList<>(Arrays.asList(3, 2, 24, 25)));
+        facetData.add(new ArrayList<>(Arrays.asList(4, 3, 25, 26)));
+        facetData.add(new ArrayList<>(Arrays.asList(5, 4, 26, 27)));
+        facetData.add(new ArrayList<>(Arrays.asList(6, 5, 27, 28)));
+        facetData.add(new ArrayList<>(Arrays.asList(7, 6, 28, 29)));
+        facetData.add(new ArrayList<>(Arrays.asList(8, 7, 29, 30)));
+        facetData.add(new ArrayList<>(Arrays.asList(9, 8, 30, 31)));
+        facetData.add(new ArrayList<>(Arrays.asList(10, 9, 31, 32)));
+        facetData.add(new ArrayList<>(Arrays.asList(11, 10, 32, 33)));
+        facetData.add(new ArrayList<>(Arrays.asList(12, 11, 33, 34)));
+        facetData.add(new ArrayList<>(Arrays.asList(13, 12, 34, 35)));
+        facetData.add(new ArrayList<>(Arrays.asList(14, 13, 35, 36)));
+        facetData.add(new ArrayList<>(Arrays.asList(15, 14, 36, 37)));
+        facetData.add(new ArrayList<>(Arrays.asList(16, 15, 37, 38)));
+        facetData.add(new ArrayList<>(Arrays.asList(17, 16, 38, 39)));
+        facetData.add(new ArrayList<>(Arrays.asList(18, 17, 39, 40)));
+        facetData.add(new ArrayList<>(Arrays.asList(19, 18, 40, 41)));
+        facetData.add(new ArrayList<>(Arrays.asList(20, 19, 41, 42)));
+        facetData.add(new ArrayList<>(Arrays.asList(21, 20, 42, 43)));
+        facetData.add(new ArrayList<>(Arrays.asList(22, 21, 43, 44)));
+        facetData.add(new ArrayList<>(Arrays.asList(1, 22, 44, 23)));
+        
+        facetData.add(new ArrayList<>(Arrays.asList(1, 2, 3, 4, 
+                5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)));
+        facetData.add(new ArrayList<>(Arrays.asList(23, 24, 25, 26, 
+                27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44)));
         /*facetData.add(new TetgenFacet(1, 2, 1, 23, 24, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));*/
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         facetData.add(new TetgenFacet(2, 3, 2, 24, 25, 0, 0, 0, 0, 0,
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         facetData.add(new TetgenFacet(3, 4, 3, 25, 26, 
@@ -597,15 +1118,16 @@ public final class SpaceViewerTopComponent extends TopComponent {
         facetData.add(new TetgenFacet(23, 1, 2, 3, 4, 
                 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 0, 0, 0, 0, 0, 0, 0, 0));
         facetData.add(new TetgenFacet(24, 23, 24, 25, 26, 
-                27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 0, 0, 0, 0, 0, 0, 0, 0));
+                27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 0, 0, 0, 0, 0, 0, 0, 0));*/
         
-        int maxNumberOfVertices = 22;
+        //int maxNumberOfVertices = 22;
 
-        hm.addHistion(new Histion("Histion <1>",0,0,0,0,0));
+        hm.addHistion(new Histion("Main histion",0,0,0,0,0));
         //hm.getAllHistions().get(0).addChild(new Cell("Cell <1>"));
         //Cell c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
         //                Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
-        Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, 0, true);
+        //Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.BLUE, Color.LIGHTBLUE, 0, true);
+        Cell c = new Cell("Cell <1>", 0, 0, 0, 0, 0, facetData, Color.BLUE, Color.LIGHTBLUE, 0, true);
         
         ObservableList<TetgenPoint> tempData1 = FXCollections.observableArrayList();
         ObservableList<TetgenPoint> tempData2 = FXCollections.observableArrayList();
@@ -660,6 +1182,19 @@ public final class SpaceViewerTopComponent extends TopComponent {
         nodeAvg = new Point3D(nodeAvg.getX() / pointSize, nodeAvg.getY() / pointSize, nodeAvg.getZ() / pointSize);*/
         
         facetData = FXCollections.observableArrayList();
+        facetData.add(new ArrayList<>(Arrays.asList(2, 1, 9, 10)));
+        facetData.add(new ArrayList<>(Arrays.asList(3, 2, 10, 11)));
+        facetData.add(new ArrayList<>(Arrays.asList(4, 3, 11, 12)));
+        facetData.add(new ArrayList<>(Arrays.asList(5, 4, 12, 13)));
+        facetData.add(new ArrayList<>(Arrays.asList(6, 5, 13, 14)));
+        facetData.add(new ArrayList<>(Arrays.asList(7, 6, 14, 15)));
+        facetData.add(new ArrayList<>(Arrays.asList(8, 7, 15, 16)));
+        facetData.add(new ArrayList<>(Arrays.asList(1, 8, 16, 9)));
+        
+        facetData.add(new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8)));
+        facetData.add(new ArrayList<>(Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16)));
+        
+        /*facetData = FXCollections.observableArrayList();
         facetData.add(new TetgenFacet(1, 2, 1, 9, 10, 
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         facetData.add(new TetgenFacet(2, 3, 2, 10, 11, 
@@ -680,14 +1215,15 @@ public final class SpaceViewerTopComponent extends TopComponent {
         facetData.add(new TetgenFacet(9, 1, 2, 3, 4, 
                 5, 6, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         facetData.add(new TetgenFacet(10, 9, 10, 11, 12, 
-                13, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));
+                13, 14, 15, 16, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0));*/
         
-        maxNumberOfVertices = 8;
+        //maxNumberOfVertices = 8;
         
         //c = new Cell("Cell <2>", 0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
         //                Color.RED, Color.RED, -1, 0, false, FXCollections.emptyObservableMap());
         
-        c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, 0, true);
+        //c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, 0, true);
+        c = new Cell("Cell <2>", 0, 0, 0, 0, 0, facetData, Color.DARKRED, Color.RED, 0, true);
         
         tempData1 = FXCollections.observableArrayList();
         tempData2 = FXCollections.observableArrayList();
@@ -700,6 +1236,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         c.addChild(new Part("Part <2>",tempData2));
         hm.getHistionMap().get(0).addChild(c);
         
+        
         //hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <1>",tempData1));
         //hm.getHistionMap().get(0).getItemMap().get(1).addChild(new Part("Part <2>",tempData2));
         
@@ -707,10 +1244,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
         //c = new Cell(c.getId(), "Cell <2>", 0, 0, 0, 0, 0, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, -1, 0, true, hm.getHistionMap().get(0).getItemMap().get(1).getItemMap());
         //hm.getHistionMap().get(0).addChild(c);
         //sm.addShape(new Shape("2", 0, 0, 0, 0, 0, pointData, facetData, maxNumberOfVertices, Color.DARKRED, Color.RED, nodeAvg, -1, 0));
-        hm.addHistion(new Histion("Histion <2>",0,0,0,0,0));
-        hm.deleteHistion(1);
+        //hm.addHistion(new Histion("Histion <2>",0,0,0,0,0));
+        //hm.deleteHistion(1);
         //addCell(c);
         //intersectionsWithEdges(c.getId());
+        
+        //SpaceViewerIsInitialized.initialized.set(true);
     }
     
     private void applyTransformations(double xRot, double yRot, 
@@ -719,6 +1258,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
         double ang, tempVal;
         for (int i = 0; i < pointData.size(); i++) {
             TetgenPoint pd = new TetgenPoint(pointData.get(i));
+            
+            //System.out.println(nodeAvg.getX() + " " + nodeAvg.getY() + " " + nodeAvg.getZ());
             
             pd.setX(pd.getX() - nodeAvg.getX());
             pd.setY(pd.getY() - nodeAvg.getY());
@@ -796,13 +1337,15 @@ public final class SpaceViewerTopComponent extends TopComponent {
         ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
         
         //ObservableList<TetgenPoint> tempPointData = FXCollections.observableArrayList();
-        hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
+        //System.out.println("***********");
+        /*hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
+            //System.out.println(p.getId() + " " + p.getName());
             //System.out.println("Part");
             for (TetgenPoint point : p.getPointData()) {
                 //System.out.println("Point");
                 pointData.add(new TetgenPoint(point));
             }
-        });
+        });*/
         //System.out.println(pointData.size());
         //System.out.println(pointData.size());
         //return pointData;
@@ -819,31 +1362,50 @@ public final class SpaceViewerTopComponent extends TopComponent {
         double yTran = c.getYCoordinate();
         double zTran = c.getZCoordinate();
         
+        //System.out.println("****");
+        //System.out.println(xRot + " " + yRot + " " + xTran + " " + yTran + " " + zTran);
+        
         dataSize = 0;
         nodeAvg = new Point3D(0, 0, 0);
-        Cell cellValue = hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId());
+        //Cell cellValue = hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId());
         hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
-            ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
+            //ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
             for (TetgenPoint point : p.getPointData()) {
-                    data.add(new TetgenPoint(point));
-                }
-            dataSize += data.size();
-            for (int i = 0; i < data.size(); i++) {
-                nodeAvg.add(data.get(i).getX() + cellValue.getXCoordinate(), data.get(i).getY() + cellValue.getYCoordinate(), data.get(i).getZ() + cellValue.getZCoordinate());
+                pointData.add(new TetgenPoint(point));
+                nodeAvg = new Point3D(nodeAvg.getX() + point.getX(), nodeAvg.getY() + point.getY(), nodeAvg.getZ() + point.getZ());
+                    //data.add(new TetgenPoint(point));
             }
+            dataSize += p.getPointData().size();
+            /*for (int i = 0; i < data.size(); i++) {
+                //nodeAvg.add(data.get(i).getX() + cellValue.getXCoordinate(), data.get(i).getY() + cellValue.getYCoordinate(), data.get(i).getZ() + cellValue.getZCoordinate());
+                //nodeAvg.add(data.get(i).getX(), data.get(i).getY(), data.get(i).getZ());
+                nodeAvg = new Point3D(nodeAvg.getX() + data.get(i).getX(), nodeAvg.getY() + data.get(i).getY(), nodeAvg.getZ() + data.get(i).getZ());
+                System.out.println(nodeAvg.getX() + " " + nodeAvg.getY() + " " + nodeAvg.getZ());
+            }*/
         });
         nodeAvg = new Point3D(nodeAvg.getX() / dataSize, nodeAvg.getY() / dataSize, nodeAvg.getZ() / dataSize);
         
         applyTransformations(xRot, yRot, xTran, yTran, zTran, nodeAvg, pointData);
         
+        c.setTransformedPointData(pointData);
+        
         dataSize = 0;
         nodeAvg = new Point3D(0, 0, 0);
         Histion h = hm.getHistionMap().get(c.getHistionId());
         h.getItems().forEach(cell -> {
+            //ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
+            if (cell.getShow()) {
+                for (TetgenPoint point : cell.getTransformedPointData()) {
+                    nodeAvg = new Point3D(nodeAvg.getX() + point.getX(), nodeAvg.getY() + point.getY(), nodeAvg.getZ() + point.getZ());
+                    //data.add(new TetgenPoint(point));
+                }
+                dataSize += cell.getTransformedPointData().size();
+            }
+            //nodeAvg = new Point3D(nodeAvg.getX() + cell.getTransformedPointData().getX() + cell.getXCoordinate(), nodeAvg.getY() + data.get(i).getY() + cell.getYCoordinate(), nodeAvg.getZ() + data.get(i).getZ() + cell.getZCoordinate());
             //ObservableList<TetgenPoint> data = sm.getShapeMap().get(cell.getId()).getPointData();
             //ObservableList<TetgenPoint> data = cell.getPointData();
             //ObservableList<TetgenPoint> data = cell.getPointData();
-            ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
+            /*ObservableList<TetgenPoint> data = FXCollections.observableArrayList();
             hm.getHistionMap().get(cell.getHistionId()).getItemMap().get(cell.getId()).getItems().forEach(p -> {
                 for (TetgenPoint point : p.getPointData()) {
                     data.add(new TetgenPoint(point));
@@ -851,8 +1413,9 @@ public final class SpaceViewerTopComponent extends TopComponent {
             });
             dataSize += data.size();
             for (int i = 0; i < data.size(); i++) {
-                nodeAvg.add(data.get(i).getX() + cell.getXCoordinate(), data.get(i).getY() + cell.getYCoordinate(), data.get(i).getZ() + cell.getZCoordinate());
-            }
+                //nodeAvg.add(data.get(i).getX() + cell.getXCoordinate(), data.get(i).getY() + cell.getYCoordinate(), data.get(i).getZ() + cell.getZCoordinate());
+                nodeAvg = new Point3D(nodeAvg.getX() + data.get(i).getX() + cell.getXCoordinate(), nodeAvg.getY() + data.get(i).getY() + cell.getYCoordinate(), nodeAvg.getZ() + data.get(i).getZ() + cell.getZCoordinate());
+            }*/
         });
         nodeAvg = new Point3D(nodeAvg.getX() / dataSize, nodeAvg.getY() / dataSize, nodeAvg.getZ() / dataSize);
         xRot = h.getXRotate();
@@ -862,7 +1425,15 @@ public final class SpaceViewerTopComponent extends TopComponent {
         zTran = h.getZCoordinate();
         applyTransformations(xRot, yRot, xTran, yTran, zTran, nodeAvg, pointData);
         
+        /*System.out.println("--------------");
+        for (TetgenPoint point : pointData) {
+            System.out.println(point.getX() + " " + point.getY() + " " + point.getZ());
+        }*/
+        
+        //h.setTransformedPointData(pointData);
+        
         int numberOfNodes = pointData.size();
+        //System.out.println(numberOfNodes);
         double[] nodeList = new double[numberOfNodes * 3];
         int count = 0;
         for (int i = 0; i < numberOfNodes; i++) {
@@ -872,8 +1443,10 @@ public final class SpaceViewerTopComponent extends TopComponent {
             count += 3;
         }
         
-        ObservableList<TetgenFacet> facetData = c.getFacetData();
+        //ObservableList<TetgenFacet> facetData = c.getFacetData();
+        ObservableList<ArrayList<Integer>> facetData = c.getFacetData();
         int numberOfFacets = facetData.size();
+        //System.out.println(numberOfFacets);
         
         int[] numberOfPolygonsInFacet = new int[numberOfFacets];
         for (int i = 0; i < numberOfFacets; i++)
@@ -881,13 +1454,16 @@ public final class SpaceViewerTopComponent extends TopComponent {
         
         int[] numberOfVerticesInPolygon = new int[numberOfFacets];
         for (int i = 0; i < numberOfFacets; i++) {
+            numberOfVerticesInPolygon[i] = facetData.get(i).size();
+        }
+        /*for (int i = 0; i < numberOfFacets; i++) {
             ////////////////////////////////
             for (int j = 0; j < 30; j++) {
                 if (facetData.get(i).getVertex(j + 1) == 0)
                     break;
                 numberOfVerticesInPolygon[i]++;
             }
-        }
+        }*/
         
         count = 0;
         for (int i = 0; i < numberOfFacets; i++) {
@@ -897,9 +1473,9 @@ public final class SpaceViewerTopComponent extends TopComponent {
         int[] vertexList = new int[count];
         count = 0;
         for (int i = 0; i < numberOfFacets; i++) {
-            ////////////////////////////////
             for (int j = 0; j < numberOfVerticesInPolygon[i]; j++) {
-                vertexList[count] = facetData.get(i).getVertex(j + 1);
+                //vertexList[count] = facetData.get(i).getVertex(j + 1);
+                vertexList[count] = facetData.get(i).get(j);
                 count ++;
             }
         }
@@ -950,20 +1526,22 @@ public final class SpaceViewerTopComponent extends TopComponent {
         shape.setDrawMode(DrawMode.FILL);
         shape.setMaterial(phongMaterial);
         
-        
         /*shape.setOnMouseEntered(e->{
             PickResult pr = e.getPickResult();
             System.out.println(pr.getIntersectedFace());
             //System.out.println(pr.getIntersectedPoint());
         });*/
         
-        
         //xRotateList.put(s.getId(), new Rotate(0, Rotate.X_AXIS));
         //yRotateList.put(s.getId(), new Rotate(0, Rotate.Y_AXIS));
 
-        shapeGroup.getChildren().add(shape);
+        String n = c.getName();
+        n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">")); 
+        if (!HideCells.getCellNameToHideList().contains(n))
+            shapeGroup.getChildren().add(shape);
         shapeMap.put(c.getId(), shape);
-        intersectionsWithEdges(c.getId());
+        hm.getHistionMap().get(0).setShapeMap(shapeMap);
+        intersectionsWithEdges(c.getId());  
     }
     
     private void buildCrossSectionPlane() {
@@ -1435,6 +2013,18 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     case E:
                         CameraView.setYCoordinate(String.valueOf(camera.getTranslateY() - 10));
                         break;
+                    case Y:
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(0));
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(1));
+                        break;
+                    case U:
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(2));
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(3));
+                        break;
+                    case I:
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(4));
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(5));
+                        break;
                 }
             }
         });
@@ -1525,19 +2115,107 @@ public final class SpaceViewerTopComponent extends TopComponent {
         }
     };
     
-    ListChangeListener<Integer> hideShapeListChangeListener = (change) -> {
+    ListChangeListener<String> hideShapeListChangeListener = (change) -> {
         while (change.next()) {
             if (change.wasAdded()) {
-                for(Integer id : change.getAddedSubList()) {
-                    shapeGroup.getChildren().remove(shapeMap.get(id));
+                for (String name : change.getAddedSubList()) {
+                    hm.getAllHistions().forEach(h -> {
+                        h.getItems().forEach(c -> {
+                            String n = c.getName();
+                            n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">"));
+                            if (n.equals(name))
+                                shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                        });
+                    });
+                    /*if (hm.getHistionMap().size() > 1) {
+                        String name = hm.getHistionMap().get(0).getItemMap().get(id).getName();
+                        hm.getAllHistions().forEach(h -> {
+                            h.getItems().forEach(c -> {
+                                if (c.getName().equals(name))
+                                    shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                            });
+                        });
+                    } else {
+                        shapeGroup.getChildren().remove(shapeMap.get(id));
+                    }*/
+                    //shapeGroup.getChildren().remove(shapeMap.get(id));
                 }
             } else {
-                for(Integer id : change.getRemoved()) {
-                    shapeGroup.getChildren().add(shapeMap.get(id));
+                for (String name : change.getRemoved()) {
+                    hm.getAllHistions().forEach(h -> {
+                        h.getItems().forEach(c -> {
+                            String n = c.getName();
+                            n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">"));
+                            if (n.equals(name))
+                                shapeGroup.getChildren().add(shapeMap.get(c.getId()));
+                        });
+                    });
+                    /*if (hm.getHistionMap().size() > 1) {
+                        String name = hm.getHistionMap().get(0).getItemMap().get(id).getName();
+                        hm.getAllHistions().forEach(h -> {
+                            h.getItems().forEach(c -> {
+                                if (c.getName().equals(name))
+                                    shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                            });
+                        });
+                    } else {
+                        shapeGroup.getChildren().remove(shapeMap.get(id));
+                    }*/
+                    //shapeGroup.getChildren().remove(shapeMap.get(id));
                 }
+                /*for(Integer id : change.getRemoved()) {
+                    if (hm.getHistionMap().size() > 1) {
+                        String name = hm.getHistionMap().get(0).getItemMap().get(id).getName();
+                        hm.getAllHistions().forEach(h -> {
+                            h.getItems().forEach(c -> {
+                                if (c.getName().equals(name))
+                                    shapeGroup.getChildren().add(shapeMap.get(c.getId()));
+                            });
+                        });
+                    } else {
+                        shapeGroup.getChildren().add(shapeMap.get(id));
+                    }
+                    //shapeGroup.getChildren().add(shapeMap.get(id));
+                }*/
             }
         }
     };
+    
+    /*ListChangeListener<Integer> hideShapeListChangeListener = (change) -> {
+        while (change.next()) {
+            if (change.wasAdded()) {
+                for(Integer id : change.getAddedSubList()) {
+                    if (hm.getHistionMap().size() > 1) {
+                        String name = hm.getHistionMap().get(0).getItemMap().get(id).getName();
+                        hm.getAllHistions().forEach(h -> {
+                            h.getItems().forEach(c -> {
+                                if (c.getName().equals(name))
+                                    shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
+                            });
+                        });
+                    } else {
+                        shapeGroup.getChildren().remove(shapeMap.get(id));
+                    }
+                    //shapeGroup.getChildren().remove(shapeMap.get(id));
+                }
+            } else {
+                for(Integer id : change.getRemoved()) {
+                    if (hm.getHistionMap().size() > 1) {
+                        String name = hm.getHistionMap().get(0).getItemMap().get(id).getName();
+                        hm.getAllHistions().forEach(h -> {
+                            h.getItems().forEach(c -> {
+                                if (c.getName().equals(name))
+                                    shapeGroup.getChildren().add(shapeMap.get(c.getId()));
+                            });
+                        });
+                    } else {
+                        shapeGroup.getChildren().add(shapeMap.get(id));
+                    }
+                    //shapeGroup.getChildren().add(shapeMap.get(id));
+                }
+            }
+        }
+    };*/
     
     private void addCameraViewListener() {
         CameraView.xRotateProperty().addListener(xRotListener);
@@ -1546,7 +2224,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CameraView.yCoordinateProperty().addListener(yPosListener);
         CameraView.zCoordinateProperty().addListener(zPosListener);
         CameraView.FOVProperty().addListener(FOVListener); 
-        CameraView.getShapeIdToHideList().addListener(hideShapeListChangeListener);
+        //HideCells.getCellIdToHideList().addListener(hideShapeListChangeListener);
+        HideCells.getCellNameToHideList().addListener(hideShapeListChangeListener);
     }
     
     private void removeCameraViewListener() {
@@ -1556,7 +2235,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CameraView.yCoordinateProperty().removeListener(yPosListener);
         CameraView.zCoordinateProperty().removeListener(zPosListener);
         CameraView.FOVProperty().removeListener(FOVListener); 
-        CameraView.getShapeIdToHideList().removeListener(hideShapeListChangeListener);
+        //HideCells.getCellIdToHideList().removeListener(hideShapeListChangeListener);
+        HideCells.getCellNameToHideList().removeListener(hideShapeListChangeListener);
     }
     
     ChangeListener<String> crossSectionXRotListener = (v, oldValue, newValue) -> {
@@ -1651,6 +2331,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     ChangeListener<Boolean> changeListener = (v, oldValue, newValue) -> {
         if (newValue) {
             CrossSectionViewerTopComponent.clear();
+            //polygonList.clear();
             hm.getAllHistions().forEach(h -> {
                 h.getItems().forEach(c -> {
                     //if (c.getFacetData().size() > 0)
@@ -1666,6 +2347,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     ChangeListener<Boolean> updateListener = (v, oldValue, newValue) -> {
         if (newValue) {
             CrossSectionViewerTopComponent.clear();
+            polygonList.clear();
             hm.getAllHistions().forEach(h -> {
                 h.getItems().forEach(c -> {
                     //if (c.getFacetData().size() > 0)

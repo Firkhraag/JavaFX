@@ -79,7 +79,8 @@ public class HistionInformationController implements Initializable  {
     public void setHistionId(Integer histionId) {
         hId = histionId;
         String name = hm.getHistionMap().get(histionId).getName();
-        nameField.setText(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+        //nameField.setText(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+        nameField.setText(name);
         xRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXRotate()));
         yRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getYRotate()));
         xPositionField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXCoordinate()));
@@ -100,7 +101,8 @@ public class HistionInformationController implements Initializable  {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        hm.getHistionMap().get(hId).setName("Histion <" + nameField.getText() + ">");
+        //hm.getHistionMap().get(hId).setName("Histion <" + nameField.getText() + ">");
+        hm.getHistionMap().get(hId).setName(nameField.getText());
         hm.getHistionMap().get(hId).setXRotate(xRot);
         hm.getHistionMap().get(hId).setYRotate(yRot);
         hm.getHistionMap().get(hId).setXCoordinate(xTran);
@@ -109,7 +111,7 @@ public class HistionInformationController implements Initializable  {
         hm.getHistionMap().get(hId).getItems().forEach(c -> {
             Cell newCell = new Cell(c.getId(), c);
             c.getItems().forEach(p -> {
-                newCell.addChild(new Part(p.getId(), p));
+                newCell.addChild(p);
             });
             hm.getHistionMap().get(hId).addChild(newCell);
         });

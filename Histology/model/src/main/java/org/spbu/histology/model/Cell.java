@@ -1,5 +1,6 @@
 package org.spbu.histology.model;
 
+import java.util.ArrayList;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
@@ -79,7 +80,7 @@ public class Cell extends HistologyObject<Part> {
         this.zCoordinateProperty().set(zCoordinate);
     }
     
-    private int maxNumberOfPoints;
+    /*private int maxNumberOfPoints;
     
     public int getMaxNumberOfPoints() {
         return maxNumberOfPoints;
@@ -87,10 +88,11 @@ public class Cell extends HistologyObject<Part> {
     
     public void setMaxNumberOfPoints(int maxNumberOfPoints) {
         this.maxNumberOfPoints = maxNumberOfPoints;
-    }
+    }*/
 
     //private final ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-    private final ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
+    //private final ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
+    private ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
     
     /*public ObservableList<TetgenPoint> getPointData() {
         ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
@@ -111,9 +113,27 @@ public class Cell extends HistologyObject<Part> {
             pointData.add(new TetgenPoint(p));
     }*/
      
-      public ObservableList<TetgenFacet> getFacetData() {
+    public ObservableList<ArrayList<Integer>> getFacetData() {
         return facetData;
     }
+    
+    public void setFacetData(ObservableList<ArrayList<Integer>> facetData) {
+        this.facetData = FXCollections.observableArrayList(facetData);
+        /*for (int i = 0; i < facetData.size(); i++) {
+            this.facetData.add(new ArrayList(facetData.get(i)));
+        }*/
+    }
+    
+    /*private final ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
+    
+    public ObservableList<TwoIntegers> getLineData() {
+        return lineData;
+    }
+    public void setLineData(ObservableList<TwoIntegers> lineData) {
+        for (int i = 0; i < lineData.size(); i++) {
+            this.lineData.add(new TwoIntegers(lineData.get(i)));
+        }
+    }*/
     
     private final ObjectProperty<Color> diffuseColor = new SimpleObjectProperty(this, "diffuseColor");
     public final ObjectProperty<Color> diffuseColorProperty() {
@@ -198,7 +218,7 @@ public class Cell extends HistologyObject<Part> {
     }*/
     
     public Cell(String name, double xRot, double yRot, double x, double y, double z,
-            ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
+            ObservableList<ArrayList<Integer>> facetData, //int maxNumberOfPoints, 
             Color diffCol, Color specCol, Integer histionId, boolean show) {  
         super(count++, name);
         this.xRotate.set(xRot);
@@ -209,8 +229,8 @@ public class Cell extends HistologyObject<Part> {
         /*for (int i = 0; i < pointData.size(); i++)
             this.pointData.add(new TetgenPoint(pointData.get(i)));*/
         for (int i = 0; i < facetData.size(); i++)
-            this.facetData.add(new TetgenFacet(facetData.get(i)));
-        this.maxNumberOfPoints = maxNumberOfPoints;
+            this.facetData.add(new ArrayList(facetData.get(i)));
+        //this.maxNumberOfPoints = maxNumberOfPoints;
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
@@ -219,7 +239,7 @@ public class Cell extends HistologyObject<Part> {
     }
     
     public Cell(Integer id, String name, double xRot, double yRot, double x, double y, double z,
-            ObservableList<TetgenFacet> facetData, int maxNumberOfPoints, 
+            ObservableList<ArrayList<Integer>> facetData, //int maxNumberOfPoints, 
             Color diffCol, Color specCol, Integer histionId, boolean show) {  
         super(id, name);
         this.xRotate.set(xRot);
@@ -230,8 +250,8 @@ public class Cell extends HistologyObject<Part> {
         /*for (int i = 0; i < pointData.size(); i++)
             this.pointData.add(new TetgenPoint(pointData.get(i)));*/
         for (int i = 0; i < facetData.size(); i++)
-            this.facetData.add(new TetgenFacet(facetData.get(i)));
-        this.maxNumberOfPoints = maxNumberOfPoints;
+            this.facetData.add(new ArrayList(facetData.get(i)));
+        //this.maxNumberOfPoints = maxNumberOfPoints;
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
@@ -239,45 +259,46 @@ public class Cell extends HistologyObject<Part> {
         this.show = show;
     }
     
-    public Cell(Integer id, Cell с) { 
-        super(id, с.getName());
-        this.xRotate.set(с.getXRotate());
-        this.yRotate.set(с.getYRotate());
-        this.xCoordinate.set(с.getXCoordinate());
-        this.yCoordinate.set(с.getYCoordinate());
-        this.zCoordinate.set(с.getZCoordinate());
+    public Cell(Integer id, Cell c) { 
+        super(id, c.getName());
+        this.xRotate.set(c.getXRotate());
+        this.yRotate.set(c.getYRotate());
+        this.xCoordinate.set(c.getXCoordinate());
+        this.yCoordinate.set(c.getYCoordinate());
+        this.zCoordinate.set(c.getZCoordinate());
         /*for (int i = 0; i < с.getPointData().size(); i++)
             this.pointData.add(new TetgenPoint(с.getPointData().get(i)));*/
-        for (int i = 0; i < с.getFacetData().size(); i++)
-            this.facetData.add(new TetgenFacet(с.getFacetData().get(i)));
-        this.maxNumberOfPoints = с.getMaxNumberOfPoints();
-        this.diffuseColor.set(с.getDiffuseColor());
-        this.specularColor.set(с.getSpecularColor());
+        for (int i = 0; i < c.getFacetData().size(); i++)
+            this.facetData.add(new ArrayList(c.getFacetData().get(i)));
+        //this.maxNumberOfPoints = с.getMaxNumberOfPoints();
+        this.diffuseColor.set(c.getDiffuseColor());
+        this.specularColor.set(c.getSpecularColor());
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
-        this.histionId = с.getHistionId();
-        this.show = с.getShow();
+        this.histionId = c.getHistionId();
+        this.show = c.getShow();
         /*с.getItems().forEach(p -> {
             addChild(p);
         });*/
     }
     
-    public Cell(Cell с, Integer histionId) { 
-        super(count++, с.getName());
-        this.xRotate.set(с.getXRotate());
-        this.yRotate.set(с.getYRotate());
-        this.xCoordinate.set(с.getXCoordinate());
-        this.yCoordinate.set(с.getYCoordinate());
-        this.zCoordinate.set(с.getZCoordinate());
+    public Cell(Cell c, Integer histionId) { 
+        super(count++, c.getName());
+        this.xRotate.set(c.getXRotate());
+        this.yRotate.set(c.getYRotate());
+        this.xCoordinate.set(c.getXCoordinate());
+        this.yCoordinate.set(c.getYCoordinate());
+        this.zCoordinate.set(c.getZCoordinate());
         /*for (int i = 0; i < с.getPointData().size(); i++)
             this.pointData.add(new TetgenPoint(с.getPointData().get(i)));*/
-        for (int i = 0; i < с.getFacetData().size(); i++)
-            this.facetData.add(new TetgenFacet(с.getFacetData().get(i)));
-        this.maxNumberOfPoints = с.getMaxNumberOfPoints();
-        this.diffuseColor.set(с.getDiffuseColor());
-        this.specularColor.set(с.getSpecularColor());
+        for (int i = 0; i < c.getFacetData().size(); i++)
+            this.facetData.add(new ArrayList(c.getFacetData().get(i)));
+        //this.maxNumberOfPoints = с.getMaxNumberOfPoints();
+        this.diffuseColor.set(c.getDiffuseColor());
+        this.specularColor.set(c.getSpecularColor());
         //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
         this.histionId = histionId;
-        this.show = с.getShow();
+        this.show = c.getShow();
+        this.transformedPointData = FXCollections.observableArrayList(c.getTransformedPointData());
         /*с.getItems().forEach(p -> {
             addChild(p);
         });*/
@@ -387,6 +408,18 @@ public class Cell extends HistologyObject<Part> {
     public final void setZCoordinate(double zCoordinate) {
         this.zCoordinateProperty().set(zCoordinate);
     }*/
+    
+    private ObservableList<TetgenPoint> transformedPointData = FXCollections.observableArrayList();
+    
+    public ObservableList<TetgenPoint> getTransformedPointData() {
+        return transformedPointData;
+    }
+    
+    public void setTransformedPointData(ObservableList<TetgenPoint> transformedPointData) {
+        this.transformedPointData = FXCollections.observableArrayList(transformedPointData);
+        /*for (int i = 0; i < transformedPointData.size(); i++)
+            this.transformedPointData.add(new TetgenPoint(transformedPointData.get(i)));*/
+    }
     
     @Override
     public void addChild(Part p) {

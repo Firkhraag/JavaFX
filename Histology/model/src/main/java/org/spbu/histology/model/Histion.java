@@ -1,8 +1,13 @@
 package org.spbu.histology.model;
 
+import java.util.ArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
+import javafx.scene.shape.MeshView;
+import javafx.scene.shape.TriangleMesh;
 
 public class Histion extends HistologyObject<Cell> {
     
@@ -116,6 +121,17 @@ public class Histion extends HistologyObject<Cell> {
     
     public final void setZCoordinate(double zCoordinate) {
         this.zCoordinateProperty().set(zCoordinate);
+    }
+    
+    private ObservableMap<Integer, MeshView> shapeMap = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    
+    public ObservableMap<Integer, MeshView> getShapeMap() {
+        return shapeMap;
+    }
+    
+    public void setShapeMap(ObservableMap<Integer, MeshView> shapeMap) {
+        this.shapeMap = FXCollections.observableMap(new ConcurrentHashMap(shapeMap));
     }
 
     @Override

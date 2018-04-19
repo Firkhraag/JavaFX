@@ -3,7 +3,7 @@ package org.spbu.histology.model;
 import javafx.beans.property.SimpleIntegerProperty;
 
 public class TetgenFacet {
-    
+/*    
     private final SimpleIntegerProperty id;
     private final SimpleIntegerProperty vertex1;
     private final SimpleIntegerProperty vertex2;
@@ -398,5 +398,5 @@ public class TetgenFacet {
                 vertex30.set(v);
                 break;
         }
-    }
+    }*/
 }

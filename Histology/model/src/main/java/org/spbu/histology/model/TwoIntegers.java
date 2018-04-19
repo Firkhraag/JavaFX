@@ -1,0 +1,75 @@
+package org.spbu.histology.model;
+
+import javafx.beans.property.SimpleIntegerProperty;
+
+public class TwoIntegers {
+    
+    private final SimpleIntegerProperty id;
+    private final SimpleIntegerProperty point1;
+    private final SimpleIntegerProperty point2;
+    /*private int p1;
+    private int p2;*/
+    
+    public TwoIntegers(int id, int p1, int p2) {
+        /*this.p1 = p1;
+        this.p2 = p2;*/
+        this.id = new SimpleIntegerProperty(id);
+        this.point1 = new SimpleIntegerProperty(p1);
+        this.point2 = new SimpleIntegerProperty(p2);
+    }
+    
+    /*public int getPoint1() {
+        return p1;
+    }
+    
+    public int getPoint2() {
+        return p2;
+    }*/
+    
+     public int getId() {
+        return id.get();
+    }
+ 
+    public void setId(int v) {
+        id.set(v);
+    }
+         
+    public int getPoint1() {
+        return point1.get();
+    }
+ 
+    public void setPoint1(int v) {
+        point1.set(v);
+    }
+         
+    public int getPoint2() {
+        return point2.get();
+    }
+ 
+    public void setPoint2(int v) {
+        point2.set(v);
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+
+        if (o == this) return true;
+        if (!(o instanceof TwoIntegers)) {
+            return false;
+        }
+
+        TwoIntegers t = (TwoIntegers) o;
+
+        /*return tp.p1.getX() == p1.getX() &&
+                tp.p1.getY() == p1.getY() &&
+                tp.p1.getZ() == p1.getZ() &&
+                tp.p2.getX() == p2.getX() &&
+                tp.p2.getY() == p2.getY() &&
+                tp.p2.getZ() == p2.getZ();*/
+        return ((t.point1.get() == point1.get()) &&
+                (t.point2.get() == point2.get())) ||
+                ((t.point1.get() == point2.get()) &&
+                (t.point2.get() == point1.get()));
+    }
+    
+}

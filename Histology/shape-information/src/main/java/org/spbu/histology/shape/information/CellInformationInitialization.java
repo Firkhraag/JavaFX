@@ -25,20 +25,32 @@ public class CellInformationInitialization {
             MainController mainController = (MainController)fxmlLoader.getController();
             //mainController.setShape(s);
             mainController.setCell(new Cell(c.getId(), c));
+            Stage stage = new Stage();
+            stage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
+            Scene scene = new Scene(root, 1000, 700);
+            stage.setScene(scene);
+            stage.setTitle("Cell");
+            stage.heightProperty().addListener((obs, oldVal, newVal) -> {
+                mainController.setTableHeight(stage.getHeight() - 100);
+            });
+            stage.showAndWait();
         } catch (Exception ex) {
             Logger.getLogger(CellInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
         }
-        displayScene(root);
+        //displayScene(root);
     }
     
-    private static void displayScene(Parent root) {
+    /*private static void displayScene(Parent root) {
         Stage stage = new Stage();
         stage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
         Scene scene = new Scene(root, 1000, 700);
         stage.setScene(scene);
         stage.setTitle("Cell");
+        stage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            mainController.setTableHeight(stage.getHeight() - 120);
+        });
         stage.showAndWait();
-    }
+    }*/
     
 }

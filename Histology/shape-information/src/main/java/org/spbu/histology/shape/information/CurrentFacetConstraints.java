@@ -2,6 +2,7 @@ package org.spbu.histology.shape.information;
 
 import java.util.ArrayList;
 
+@Deprecated
 public class CurrentFacetConstraints {
     
     private static int maxNumOfPoints;

@@ -87,8 +87,14 @@ public class CrossSectionController implements Initializable  {
     private final double crossSectPosLim = 900;
     
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-        if (change)
+        if (change) {
             xRotation.setText(newValue + "");
+        }
+            /*try {
+                Thread.sleep(10);
+            } catch (Exception ex) {
+                
+            }*/
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
         if (change)    

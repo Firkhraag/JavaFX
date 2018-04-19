@@ -107,6 +107,13 @@ public class PartInformationInitialization {
                 }
             }
         });
+        /*stage.widthProperty().addListener((obs, oldVal, newVal) -> {
+            pointTabController.setWidth()
+        });*/
+
+        primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
+            pointTabController.setTableHeight(primaryStage.getHeight() - 120);
+        });
         primaryStage.showAndWait();
     }
 }

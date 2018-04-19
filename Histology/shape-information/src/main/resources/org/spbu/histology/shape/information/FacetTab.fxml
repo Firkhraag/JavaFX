@@ -8,36 +8,23 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 
-<VBox fx:id="polygonVBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.FacetTabController">
+<VBox fx:id="facetVBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.FacetTabController">
     <children>
-        <HBox fx:id="headerHBox">
-            <children>
-                <Button fx:id="addFacet" text="Add new facet" onAction="#addAction"/>
-                <Label fx:id="numberOfVerticesLabel" text="Max number of vertices"/>
-                <TextField fx:id="numberOfVerticesField" text="3"/>
-                <Button fx:id="button" text="Update" onAction="#updateAction"/>
-            </children>
-        </HBox>
-        <TableView fx:id="table" prefHeight="500.0" prefWidth="380.0">
+        <TableView fx:id="table" prefHeight="700.0" prefWidth="182.0">
             <columns>
-                <TableColumn fx:id="idColumn" prefWidth="60.0" minWidth="60.0" text="#">
+                <TableColumn fx:id="idColumn" prefWidth="40.0" minWidth="40.0" text="#">
                     <cellValueFactory>
                       <PropertyValueFactory property="id" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="vertex1Column" prefWidth="100.0" text="Vertex 1">
+                <TableColumn fx:id="p1Column" prefWidth="70.0" text="P1">
                     <cellValueFactory>
-                      <PropertyValueFactory property="vertex1" />
+                      <PropertyValueFactory property="point1" />
                     </cellValueFactory>
                 </TableColumn>
-                <TableColumn fx:id="vertex2Column" prefWidth="100.0" text="Vertex 2">
+                <TableColumn fx:id="p2Column" prefWidth="70.0" text="P2">
                     <cellValueFactory>
-                      <PropertyValueFactory property="vertex2" />
-                    </cellValueFactory>
-                </TableColumn>
-                <TableColumn fx:id="vertex3Column" prefWidth="100.0" text="Vertex 3">
-                    <cellValueFactory>
-                      <PropertyValueFactory property="vertex3" />
+                      <PropertyValueFactory property="point2" />
                     </cellValueFactory>
                 </TableColumn>
             </columns>
