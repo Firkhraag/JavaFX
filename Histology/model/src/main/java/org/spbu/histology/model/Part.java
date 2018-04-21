@@ -7,30 +7,34 @@ import javafx.collections.ObservableMap;
 public class Part extends HistologyObject<HistologyObject<?>> {
 
     private static Integer count = 0;
-    private final ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+    private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
 
-    public Part(String name, ObservableList<TetgenPoint> pointData) {
+    public Part(String name, ObservableList<TetgenPoint> pointData, Integer histionId, Integer cellId) {
         super(count++, name);
-        for (int i = 0; i < pointData.size(); i++)
-            this.pointData.add(new TetgenPoint(pointData.get(i)));
+        this.pointData = FXCollections.observableArrayList(pointData);
+        this.histionId = histionId;
+        this.cellId = cellId;
     }
     
-    public Part(Integer id, String name, ObservableList<TetgenPoint> pointData) {
+    public Part(Integer id, String name, ObservableList<TetgenPoint> pointData, Integer histionId, Integer cellId) {
         super(id, name);
-        for (int i = 0; i < pointData.size(); i++)
-            this.pointData.add(new TetgenPoint(pointData.get(i)));
+        this.pointData = FXCollections.observableArrayList(pointData);
+        this.histionId = histionId;
+        this.cellId = cellId;
     }
     
-    public Part(Part p) {
+    public Part(Part p, Integer histionId, Integer cellId) {
         super(count++, p.getName());
-        for (int i = 0; i < p.getPointData().size(); i++)
-            this.pointData.add(new TetgenPoint(p.getPointData().get(i)));
+        this.pointData = FXCollections.observableArrayList(p.getPointData());
+        this.histionId = histionId;
+        this.cellId = cellId;
     }
     
     public Part(Integer id, Part p) {
         super(id, p.getName());
-        for (int i = 0; i < p.getPointData().size(); i++)
-            this.pointData.add(new TetgenPoint(p.getPointData().get(i)));
+        this.pointData = FXCollections.observableArrayList(p.getPointData());
+        this.histionId = p.getHistionId();
+        this.cellId = p.getCellId();
     }
     
     public ObservableList<TetgenPoint> getPointData() {
@@ -38,8 +42,27 @@ public class Part extends HistologyObject<HistologyObject<?>> {
     }
     
     public void setPointData(ObservableList<TetgenPoint> pointData) {
-        for (int i = 0; i < pointData.size(); i++)
-            this.pointData.add(new TetgenPoint(pointData.get(i)));
+        this.pointData = FXCollections.observableArrayList(pointData);
+    }
+    
+    private Integer histionId;
+    
+    public Integer getHistionId() {
+        return this.histionId;
+    }
+    
+    public void setHistionId(Integer histionId) {
+        this.histionId = histionId;
+    }
+    
+    private Integer cellId;
+    
+    public Integer getCellId() {
+        return this.cellId;
+    }
+    
+    public void setCellId(Integer cellId) {
+        this.cellId = cellId;
     }
     
     @Override

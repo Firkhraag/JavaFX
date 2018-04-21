@@ -3,7 +3,6 @@ package org.spbu.histology.space.editor;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
-import javafx.collections.FXCollections;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -12,11 +11,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
-import javafx.scene.paint.Color;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
-import org.spbu.histology.model.Cell;
-import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
 
 public class HistionRecurrence {
@@ -30,9 +26,6 @@ public class HistionRecurrence {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-
-        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
 
         CheckBox xCheckBox = new CheckBox("X axis");
@@ -159,7 +152,6 @@ public class HistionRecurrence {
                 boundaryFieldZ.setDisable(true);
             }
         });
-        //layout.getChildren().addAll(hBox, hBox2, hBox3, closeButton);
         layout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(layout, 350, 470);

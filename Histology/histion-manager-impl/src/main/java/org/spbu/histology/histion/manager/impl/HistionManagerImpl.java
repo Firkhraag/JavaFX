@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import javafx.beans.InvalidationListener;
-//import javafx.beans.property.BooleanProperty;
-//import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -18,8 +16,6 @@ public class HistionManagerImpl implements HistionManager {
 
     private final ObservableMap<Integer, Histion> observableMap = 
             FXCollections.observableMap(new ConcurrentHashMap<>());
-    /*private final BooleanProperty childListChanged = 
-            new SimpleBooleanProperty(false);*/
     
     @Override
     public void addListener(MapChangeListener<? super Integer, ? super Histion> m1) {
@@ -43,19 +39,16 @@ public class HistionManagerImpl implements HistionManager {
 
     @Override
     public void addHistion(Histion h) {
-        //observableMap.put(h.getId(), new Histion(h.getId(), h));
         observableMap.put(h.getId(), h);
     }
 
     @Override
     public void updateHistion(Histion h, Integer histionId) {
-        //observableMap.put(histionId, new Histion(histionId, h));
         observableMap.put(histionId, h);
     }
     
     @Override
     public void deleteHistion(Integer id) {
-        //observableMap.get(id).getItemMap().clear();
         observableMap.remove(id);
         
     }

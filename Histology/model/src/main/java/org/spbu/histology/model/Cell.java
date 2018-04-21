@@ -5,12 +5,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
-import javafx.geometry.Point3D;
 import javafx.scene.paint.Color;
 
 public class Cell extends HistologyObject<Part> {
@@ -80,38 +76,7 @@ public class Cell extends HistologyObject<Part> {
         this.zCoordinateProperty().set(zCoordinate);
     }
     
-    /*private int maxNumberOfPoints;
-    
-    public int getMaxNumberOfPoints() {
-        return maxNumberOfPoints;
-    }
-    
-    public void setMaxNumberOfPoints(int maxNumberOfPoints) {
-        this.maxNumberOfPoints = maxNumberOfPoints;
-    }*/
-
-    //private final ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-    //private final ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
     private ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
-    
-    /*public ObservableList<TetgenPoint> getPointData() {
-        ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-        getItems().forEach(p -> {
-            for (TetgenPoint point : p.getPointData()) {
-                pointData.add(new TetgenPoint(point));
-            }
-        });
-        return pointData;
-    }*/
-    
-    /*public ObservableList<TetgenPoint> getPointData() {
-        return pointData;
-    }
-    
-    public void addPointData(ObservableList<TetgenPoint> data) {
-        for (TetgenPoint p : data)
-            pointData.add(new TetgenPoint(p));
-    }*/
      
     public ObservableList<ArrayList<Integer>> getFacetData() {
         return facetData;
@@ -119,21 +84,7 @@ public class Cell extends HistologyObject<Part> {
     
     public void setFacetData(ObservableList<ArrayList<Integer>> facetData) {
         this.facetData = FXCollections.observableArrayList(facetData);
-        /*for (int i = 0; i < facetData.size(); i++) {
-            this.facetData.add(new ArrayList(facetData.get(i)));
-        }*/
     }
-    
-    /*private final ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
-    
-    public ObservableList<TwoIntegers> getLineData() {
-        return lineData;
-    }
-    public void setLineData(ObservableList<TwoIntegers> lineData) {
-        for (int i = 0; i < lineData.size(); i++) {
-            this.lineData.add(new TwoIntegers(lineData.get(i)));
-        }
-    }*/
     
     private final ObjectProperty<Color> diffuseColor = new SimpleObjectProperty(this, "diffuseColor");
     public final ObjectProperty<Color> diffuseColorProperty() {
@@ -161,16 +112,6 @@ public class Cell extends HistologyObject<Part> {
         this.specularColorProperty().set(specularColor);
     }
     
-    /*private Integer copiedId;
-    
-    public Integer getCopiedId() {
-        return this.copiedId;
-    }
-    
-    public void setCopiedId(Integer copiedId) {
-        this.copiedId = copiedId;
-    }*/
-    
     private Integer histionId;
     
     public Integer getHistionId() {
@@ -190,32 +131,18 @@ public class Cell extends HistologyObject<Part> {
     public void setShow(boolean show) {
         this.show = show;
     }
+        
+    private ObservableList<TetgenPoint> transformedPointData = FXCollections.observableArrayList();
     
-    /*private Point3D nodeAvg;
-    
-    public Point3D getNodeAvg() {
-        return nodeAvg;
+    public ObservableList<TetgenPoint> getTransformedPointData() {
+        return transformedPointData;
     }
     
-    public void setNodeAvg(Point3D nodeAvg) {
-        this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
-    }*/
+    public void setTransformedPointData(ObservableList<TetgenPoint> transformedPointData) {
+        this.transformedPointData = FXCollections.observableArrayList(transformedPointData);
+    }
     
     private static Integer count = 0;
-    
-    /*public Cell(Integer histionId, ObservableMap<Integer, Part> itemMap) {  
-        super(-1, "", itemMap);
-        this.xRotate.set(0);
-        this.yRotate.set(0);
-        this.xCoordinate.set(0);
-        this.yCoordinate.set(0);
-        this.zCoordinate.set(0);
-        this.maxNumberOfPoints = 3;
-        this.diffuseColor.set(Color.RED);
-        this.specularColor.set(Color.RED);
-        this.copiedId = -1;
-        this.histionId = histionId;
-    }*/
     
     public Cell(String name, double xRot, double yRot, double x, double y, double z,
             ObservableList<ArrayList<Integer>> facetData, //int maxNumberOfPoints, 
@@ -226,35 +153,25 @@ public class Cell extends HistologyObject<Part> {
         this.xCoordinate.set(x);
         this.yCoordinate.set(y);
         this.zCoordinate.set(z);
-        /*for (int i = 0; i < pointData.size(); i++)
-            this.pointData.add(new TetgenPoint(pointData.get(i)));*/
-        for (int i = 0; i < facetData.size(); i++)
-            this.facetData.add(new ArrayList(facetData.get(i)));
-        //this.maxNumberOfPoints = maxNumberOfPoints;
+        this.facetData = FXCollections.observableArrayList(facetData);
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
-        //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
         this.histionId = histionId;
         this.show = show;
     }
     
     public Cell(Integer id, String name, double xRot, double yRot, double x, double y, double z,
-            ObservableList<ArrayList<Integer>> facetData, //int maxNumberOfPoints, 
-            Color diffCol, Color specCol, Integer histionId, boolean show) {  
+            ObservableList<ArrayList<Integer>> facetData, Color diffCol,
+            Color specCol, Integer histionId, boolean show) {  
         super(id, name);
         this.xRotate.set(xRot);
         this.yRotate.set(yRot);
         this.xCoordinate.set(x);
         this.yCoordinate.set(y);
         this.zCoordinate.set(z);
-        /*for (int i = 0; i < pointData.size(); i++)
-            this.pointData.add(new TetgenPoint(pointData.get(i)));*/
-        for (int i = 0; i < facetData.size(); i++)
-            this.facetData.add(new ArrayList(facetData.get(i)));
-        //this.maxNumberOfPoints = maxNumberOfPoints;
+        this.facetData = FXCollections.observableArrayList(facetData);
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
-        //this.nodeAvg = new Point3D(nodeAvg.getX(), nodeAvg.getY(), nodeAvg.getZ());
         this.histionId = histionId;
         this.show = show;
     }
@@ -266,19 +183,11 @@ public class Cell extends HistologyObject<Part> {
         this.xCoordinate.set(c.getXCoordinate());
         this.yCoordinate.set(c.getYCoordinate());
         this.zCoordinate.set(c.getZCoordinate());
-        /*for (int i = 0; i < с.getPointData().size(); i++)
-            this.pointData.add(new TetgenPoint(с.getPointData().get(i)));*/
-        for (int i = 0; i < c.getFacetData().size(); i++)
-            this.facetData.add(new ArrayList(c.getFacetData().get(i)));
-        //this.maxNumberOfPoints = с.getMaxNumberOfPoints();
+        this.facetData = FXCollections.observableArrayList(c.getFacetData());
         this.diffuseColor.set(c.getDiffuseColor());
         this.specularColor.set(c.getSpecularColor());
-        //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
         this.histionId = c.getHistionId();
         this.show = c.getShow();
-        /*с.getItems().forEach(p -> {
-            addChild(p);
-        });*/
     }
     
     public Cell(Cell c, Integer histionId) { 
@@ -288,142 +197,16 @@ public class Cell extends HistologyObject<Part> {
         this.xCoordinate.set(c.getXCoordinate());
         this.yCoordinate.set(c.getYCoordinate());
         this.zCoordinate.set(c.getZCoordinate());
-        /*for (int i = 0; i < с.getPointData().size(); i++)
-            this.pointData.add(new TetgenPoint(с.getPointData().get(i)));*/
-        for (int i = 0; i < c.getFacetData().size(); i++)
-            this.facetData.add(new ArrayList(c.getFacetData().get(i)));
-        //this.maxNumberOfPoints = с.getMaxNumberOfPoints();
+        this.facetData = FXCollections.observableArrayList(c.getFacetData());
         this.diffuseColor.set(c.getDiffuseColor());
         this.specularColor.set(c.getSpecularColor());
-        //this.nodeAvg = new Point3D(с.getNodeAvg().getX(), с.getNodeAvg().getY(), с.getNodeAvg().getZ());
         this.histionId = histionId;
         this.show = c.getShow();
         this.transformedPointData = FXCollections.observableArrayList(c.getTransformedPointData());
-        /*с.getItems().forEach(p -> {
-            addChild(p);
-        });*/
-    }
-    
-    /*private static long count = 0;
-
-    public Cell(String name, double xRot, double yRot, double xPos, double yPos,
-            double zPos) {
-        super(count++, name);
-        this.xRotate.set(xRot);
-        this.yRotate.set(yRot);
-        this.xCoordinate.set(xPos);
-        this.yCoordinate.set(yPos);
-        this.zCoordinate.set(zPos);
-    }
-    
-    public Cell(Long id, String name, double xRot, double yRot, double xPos,
-            double yPos, double zPos) {
-        super(id, name);
-        this.xRotate.set(xRot);
-        this.yRotate.set(yRot);
-        this.xCoordinate.set(xPos);
-        this.yCoordinate.set(yPos);
-        this.zCoordinate.set(zPos);
-    }
-    
-    public Cell(Cell c) {
-        super(count++, c.getName());
-        this.xRotate.set(c.getXRotate());
-        this.yRotate.set(c.getYRotate());
-        this.xCoordinate.set(c.getXCoordinate());
-        this.yCoordinate.set(c.getYCoordinate());
-        this.zCoordinate.set(c.getZCoordinate());
-    }
-    
-    public Cell(Long id, Cell c) {
-        super(id, c.getName());
-        this.xRotate.set(c.getXRotate());
-        this.yRotate.set(c.getYRotate());
-        this.xCoordinate.set(c.getXCoordinate());
-        this.yCoordinate.set(c.getYCoordinate());
-        this.zCoordinate.set(c.getZCoordinate());
-    }
-    
-    private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
-    public final DoubleProperty xRotateProperty() {
-        return this.xRotate;
-    }
-    
-    public final double getXRotate() {
-        return this.xRotateProperty().get();
-    }
-    
-    public final void setXRotate(double xRotate) {
-        this.xRotateProperty().set(xRotate);
-    }
-    
-    private final DoubleProperty yRotate = new SimpleDoubleProperty(0);
-    public final DoubleProperty yRotateProperty() {
-        return this.yRotate;
-    }
-    
-    public final double getYRotate() {
-        return this.yRotateProperty().get();
-    }
-    
-    public final void setYRotate(double yRotate) {
-        this.yRotateProperty().set(yRotate);
-    }
-    
-    private final DoubleProperty xCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty xCoordinateProperty() {
-        return this.xCoordinate;
-    }
-    
-    public final double getXCoordinate() {
-        return this.xCoordinateProperty().get();
-    }
-    
-    public final void setXCoordinate(double xCoordinate) {
-        this.xCoordinateProperty().set(xCoordinate);
-    }
-    
-    private final DoubleProperty yCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty yCoordinateProperty() {
-        return this.yCoordinate;
-    }
-    
-    public final double getYCoordinate() {
-        return this.yCoordinateProperty().get();
-    }
-    
-    public final void setYCoordinate(double yCoordinate) {
-        this.yCoordinateProperty().set(yCoordinate);
-    }
-    
-    private final DoubleProperty zCoordinate = new SimpleDoubleProperty(0);
-    public final DoubleProperty zCoordinateProperty() {
-        return this.zCoordinate;
-    }
-    
-    public final double getZCoordinate() {
-        return this.zCoordinateProperty().get();
-    }
-    
-    public final void setZCoordinate(double zCoordinate) {
-        this.zCoordinateProperty().set(zCoordinate);
-    }*/
-    
-    private ObservableList<TetgenPoint> transformedPointData = FXCollections.observableArrayList();
-    
-    public ObservableList<TetgenPoint> getTransformedPointData() {
-        return transformedPointData;
-    }
-    
-    public void setTransformedPointData(ObservableList<TetgenPoint> transformedPointData) {
-        this.transformedPointData = FXCollections.observableArrayList(transformedPointData);
-        /*for (int i = 0; i < transformedPointData.size(); i++)
-            this.transformedPointData.add(new TetgenPoint(transformedPointData.get(i)));*/
     }
     
     @Override
     public void addChild(Part p) {
-        //getItemMap().put(p.getId(), new Part(p.getId(), p));
         getItemMap().put(p.getId(), p);
     }
     

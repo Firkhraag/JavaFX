@@ -1,13 +1,11 @@
 package org.spbu.histology.model;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
 import javafx.scene.shape.MeshView;
-import javafx.scene.shape.TriangleMesh;
 
 public class Histion extends HistologyObject<Cell> {
     
@@ -40,10 +38,6 @@ public class Histion extends HistologyObject<Cell> {
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
-        /*h.getItems().forEach(c -> {
-            addChild(c);
-            //addChild(new Cell(c));
-        });*/
     }
     
     public Histion(Integer id, Histion h) {
@@ -53,9 +47,6 @@ public class Histion extends HistologyObject<Cell> {
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
-        /*h.getItems().forEach(c -> {
-            addChild(c);
-        });*/
     }
     
     private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
@@ -136,7 +127,6 @@ public class Histion extends HistologyObject<Cell> {
 
     @Override
     public void addChild(Cell c) {
-        //getItemMap().put(c.getId(), new Cell(c.getId(), c));
         getItemMap().put(c.getId(), c);
     }
     

@@ -9,7 +9,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -23,7 +22,6 @@ import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.SceneAntialiasing;
 import javafx.scene.SubScene;
-import javafx.scene.control.Button;
 import javafx.scene.control.Tab;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.PickResult;
@@ -34,27 +32,20 @@ import javafx.scene.paint.PhongMaterial;
 import javafx.scene.shape.Box;
 import javafx.scene.shape.MeshView;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Text;
 import javafx.scene.transform.Rotate;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.fxyz.Line3D;
-import org.spbu.histology.fxyz.Text3DMesh;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.DigitMeshes;
 import org.spbu.histology.model.HistionManager;
-import org.spbu.histology.model.TetgenFacet;
 //import org.fxyz3d.shapes.primitives.Text3DMesh;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.TwoIntegers;
-import org.spbu.histology.model.TwoPoints;
 
 public class MainController implements Initializable {
     
     private HistionManager hm = null;
-    
-    /*@FXML
-    private FacetTabController FacetTabController;*/
     
     @FXML
     private GeneralTabController GeneralTabController;
@@ -78,44 +69,20 @@ public class MainController implements Initializable {
     private double mouseOldY;
     private Rotate rotateXCam = new Rotate(0, Rotate.X_AXIS);
     private Rotate rotateYCam = new Rotate(0, Rotate.Y_AXIS);
-    //private ObservableList<TetgenFacet> facetData = FXCollections.observableArrayList();
     private ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
     private ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
     private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-    //private int facetNumber = 0;
     
     private ArrayList<Line3D> lineList = new ArrayList<>();
     private ArrayList<Box> boxList = new ArrayList<>();
-    //ArrayList<Point3D> linePointsList = new ArrayList<>();
     ArrayList<Point3D> linePointsList = new ArrayList<>();
     ArrayList<Integer> indexList = new ArrayList<>();
     
-    /*public void setShape(Shape s) {
-        BooleanProperty change = new SimpleBooleanProperty(false);
-        FacetTabController.setShape(s, change);
-        GeneralTabController.setShape(s, change);
-    }*/
-    
     BooleanProperty change = new SimpleBooleanProperty(false);
     
-    /*private final ChangeListener<Boolean> changeListener = (o, ov, nv) -> {
-        if (nv)
-            buildLines();
-    };*/
-    
-    //IntegerProperty maxNumOfVertices = new SimpleIntegerProperty(3);
-    //IntegerProperty facetNumber = new SimpleIntegerProperty(0);
-    
     public void setCell(Cell c) {
-        //BooleanProperty change = new SimpleBooleanProperty(false);
-        //FacetTabController.setShape(c, change);
-        //GeneralTabController.setShape(c, change);
-        
         facetData = c.getFacetData();
-        
-        //GeneralTabController.setCell(c, change, maxNumOfVertices, facetNumber);
         GeneralTabController.setCell(c, change, lineData, pointData);
-        //pointData = c.getPointData();
         final IntegerProperty num = new SimpleIntegerProperty(1);
         hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
             System.out.println(p.getId() + " " + p.getName());
@@ -124,10 +91,7 @@ public class MainController implements Initializable {
                 num.set(num.get() + 1);
             }
         });
-        System.out.println("--------------");
         buildPoints();
-        //FacetTabController.setCell(c, change, maxNumOfVertices, facetNumber, pointData);
-        //FacetTabController.setLineList(lineList);
         buildLines();
     }
     
@@ -194,20 +158,7 @@ public class MainController implements Initializable {
                         //boxList.get(b).setMaterial();
                         b.setMaterial(redMaterial);
                     }
-                    /*if (lineList.size() > facetNumber.get()) {
-                        shapeGroup.getChildren().remove(lineList.get(facetNumber.get()));
-                        lineList.remove(facetNumber.get());
-                    }*/
-                    //if (linePointsList.size() > 1) {
-                        //if ()
-                        
-                        /*Line3D line = new Line3D(linePointsList, 10f, Color.YELLOW);
-                        lineList.add(line);
-                        shapeGroup.getChildren().add(line);*/
-                        
-                    //}
                 }
-                //System.out.println(b.getTranslateX());
             }
             scene.requestFocus();
             mouseOldX = me.getSceneX();
@@ -285,51 +236,6 @@ public class MainController implements Initializable {
                     case E:
                         camera.setTranslateY(camera.getTranslateY() - 10);
                         break;
-                    /*case BACK_SPACE:
-                        if (linePointsList.size() > 0) {
-                            shapeGroup.getChildren().remove(lineList.get(facetNumber.get()));
-                            lineList.remove(facetNumber.get());
-                            linePointsList.remove(linePointsList.size() - 1);
-                            indexList.remove(indexList.size() - 1);
-                        }
-                        line = new Line3D(linePointsList, 10f, Color.YELLOW);
-                        lineList.add(line);
-                        shapeGroup.getChildren().add(line);
-                        break;
-                    case ENTER:
-                        if (lineList.size() > 0) {
-                            if (indexList.size() <= 30) { 
-                                shapeGroup.getChildren().remove(lineList.get(facetNumber.get()));
-                                lineList.remove(facetNumber.get());
-                                linePointsList.add(linePointsList.get(0));
-                                line = new Line3D(linePointsList, 5f, Color.BLACK);
-                                lineList.add(line);
-                                shapeGroup.getChildren().add(line);
-                                linePointsList.clear();
-                                TetgenFacet tf = new TetgenFacet(facetNumber.get() + 1, 0,
-                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
-                                if (indexList.size() > maxNumOfVertices.get())
-                                    maxNumOfVertices.set(indexList.size());
-                                for (int i = 0; i < indexList.size(); i++)
-                                    tf.setVertex(indexList.get(i), i + 1);
-                                facetData.add(tf);
-                                indexList.clear();
-                                facetNumber.set(facetNumber.get() + 1);
-                            }
-                        }
-                        break;*/
-                    /*case ESCAPE:
-                        if (lineList.size() > 0) {
-                            lineList.forEach(l -> {
-                                shapeGroup.getChildren().remove(l);
-                            });
-                            lineList.clear();
-                            linePointsList.clear();
-                            indexList.clear();
-                            facetNumber = 0;
-                        }
-                        break;*/
                 }
             }
         });
@@ -343,7 +249,6 @@ public class MainController implements Initializable {
         redMaterial.setDiffuseColor(Color.RED);
         redMaterial.setSpecularColor(Color.RED);
         int num = 1;
-        //System.out.println(pointData.size());
         for (TetgenPoint p : pointData) {
             Box c = new Box(3,3,3);
             c.setTranslateX(p.getX());
@@ -418,69 +323,13 @@ public class MainController implements Initializable {
                 lineData.add(ti);
                 count.set(count.get() + 1);
             }
-            //linePointsList.clear();
-            //int num = 0;
-            /*for (int i = 1; i <= 30; i++) {
-                int vert = f.getVertex(i);
-                if (vert > pointData.size()) {
-                    num = 0;
-                    break;
-                }
-                if (vert == 0)
-                    break;
-                num++;
-                linePointsList.add(new Point3D(pointData.get(vert - 1).getX(),
-                        pointData.get(vert - 1).getY(),
-                        pointData.get(vert - 1).getZ()));
-            }
-            if (num > 2) {
-                linePointsList.add(new Point3D(pointData.get(f.getVertex(1) - 1).getX(),
-                            pointData.get(f.getVertex(1) - 1).getY(),
-                            pointData.get(f.getVertex(1) - 1).getZ()));
-                Line3D line = new Line3D(linePointsList, 5f, Color.BLACK);
-                lineList.add(line);
-                shapeGroup.getChildren().add(line);
-            }*/
         }
     }
-    
-    /*private void buildLines() {
-        for (Line3D l : lineList)
-            shapeGroup.getChildren().remove(l);
-        lineList.clear();
-        ArrayList<Point3D> linePointsList = new ArrayList<>();
-        for (TetgenFacet f : facetData) {
-            linePointsList.clear();
-            int num = 0;
-            for (int i = 1; i <= 30; i++) {
-                int vert = f.getVertex(i);
-                if (vert > pointData.size()) {
-                    num = 0;
-                    break;
-                }
-                if (vert == 0)
-                    break;
-                num++;
-                linePointsList.add(new Point3D(pointData.get(vert - 1).getX(),
-                        pointData.get(vert - 1).getY(),
-                        pointData.get(vert - 1).getZ()));
-            }
-            if (num > 2) {
-                linePointsList.add(new Point3D(pointData.get(f.getVertex(1) - 1).getX(),
-                            pointData.get(f.getVertex(1) - 1).getY(),
-                            pointData.get(f.getVertex(1) - 1).getZ()));
-                Line3D line = new Line3D(linePointsList, 5f, Color.BLACK);
-                lineList.add(line);
-                shapeGroup.getChildren().add(line);
-            }
-        }
-    }*/
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         change.addListener((o, ov, nv) -> {
             if (nv) {
-                //buildLines();
                 change.set(false);
             }
         });
@@ -502,8 +351,7 @@ public class MainController implements Initializable {
             facetTabController.setLineList(lineList);
             facetTabController.setRoot(shapeGroup);
             facetTabController.setCount(count);
-            facetTabController.setLineData(lineData);
-            //shapeStructureInformationController.setInformation(histionId, cellId, partId);          
+            facetTabController.setLineData(lineData);       
         } catch (Exception ex) {
             Logger.getLogger(PartInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -513,7 +361,6 @@ public class MainController implements Initializable {
         BorderPane borderPane = new BorderPane();
         borderPane.setLeft(leftPart);
         borderPane.setCenter(scene);
-        //viewTab.setContent(scene);
         viewTab.setContent(borderPane);
     }
 }

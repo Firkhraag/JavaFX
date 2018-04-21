@@ -3,7 +3,6 @@ package org.spbu.histology.shape.information;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -14,27 +13,19 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Rectangle;
-import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.fxyz.Line3D;
 import org.spbu.histology.model.HistionManager;
-import org.spbu.histology.model.Part;
-import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.TwoIntegers;
-import org.spbu.histology.toolbar.ChosenTool;
 
 public class FacetTabController implements Initializable {
     
@@ -61,16 +52,6 @@ public class FacetTabController implements Initializable {
     double width, height;
     IntegerProperty count;
     private ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
-    /*Integer histionId, cellId, partId;
-    
-    public void setIds(Integer histionId, Integer cellId, Integer partId) {
-        this.histionId = histionId;
-        this.cellId = cellId;
-        this.partId = partId;
-        if (partId != -1) {
-            String name = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getName();
-        }
-    }*/
     
     public void setCount(IntegerProperty count) {
         this.count = count;
@@ -150,16 +131,6 @@ public class FacetTabController implements Initializable {
         data.add(p);
     }
     
-    /*@FXML
-    private void clearAction() {
-        for (TetgenPoint p : data) {
-            root.getChildren().remove(1);
-            rectangleList.remove(0);
-        }
-        count.set(1);
-        data.clear();
-    }*/
-    
     private void setTableEditable() {
         table.setEditable(true);
         table.getSelectionModel().cellSelectionEnabledProperty().set(true);
@@ -188,7 +159,6 @@ public class FacetTabController implements Initializable {
             event.getNewValue() : event.getOldValue();
             ((TwoIntegers) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow())).setPoint1(value);
-            //rectangleList.get(item.getId() - 1).setX(value + width / 2 - 2);
             table.refresh();
         });
     }
@@ -204,12 +174,6 @@ public class FacetTabController implements Initializable {
             event.getNewValue() : event.getOldValue();
             ((TwoIntegers) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow())).setPoint2(value);
-            /*change.set(true);
-            final Integer value = event.getNewValue() != null ?
-            event.getNewValue() : event.getOldValue();
-            for (TwoIntegers p : data) {
-                p.setsetPoint2(value);
-            }*/
             table.refresh();
         });
     }

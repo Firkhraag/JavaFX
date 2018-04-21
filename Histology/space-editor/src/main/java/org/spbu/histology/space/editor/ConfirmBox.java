@@ -11,7 +11,6 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
-import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HideCells;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Names;
@@ -25,15 +24,7 @@ public class ConfirmBox {
             LifecycleManager.getDefault().exit();
         }
         
-        /*ShapeManager sm = Lookup.getDefault().lookup(ShapeManager.class);
-        if (sm == null) {
-            LifecycleManager.getDefault().exit();
-        }*/
-        
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-
-        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
 
         Label label = new Label();
@@ -48,19 +39,10 @@ public class ConfirmBox {
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).deleteChild(partId);
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
                 hm.getHistionMap().get(histionId).getItemMap().get(cellId).setShow(false);
-                /*Cell c = new Cell(cellId, hm.getHistionMap().get(histionId).getItemMap().get(cellId));
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItems().forEach(p -> {
-                    //System.out.println(p.getId() + " " + p.getName());
-                    //c.addChild(new Part(p));
-                    c.addChild(p);
-                });
-                hm.getHistionMap().get(histionId).addChild(c);*/
             } else if (cellId != -1) {
-                //sm.deleteShape(cellId);
                 String name = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getName();
                 name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
                 Names.removeCellName(name);
-                //HideCells.removeCellIdToHide(cellId);
                 HideCells.removeCellNameToHide(name);
                 hm.getHistionMap().get(histionId).deleteChild(cellId);
             }

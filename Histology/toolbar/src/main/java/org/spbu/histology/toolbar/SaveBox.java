@@ -3,7 +3,6 @@ package org.spbu.histology.toolbar;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -11,7 +10,6 @@ import javafx.geometry.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
-import javafx.scene.paint.Color;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.HistionManager;
@@ -26,9 +24,6 @@ public class SaveBox {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-
-        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("Save");
 
         
@@ -42,14 +37,12 @@ public class SaveBox {
         closeButton.setOnAction(e -> {
             if (hm.getHistionMap().get(0).getShapeMap().isEmpty())
                 return;
-            //hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
             try {
                 String dir = System.getProperty("user.dir");
                 for (int i = 0; i < 3; i++)
                     dir = dir.substring(0, dir.lastIndexOf('\\'));
                 dir = dir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Models\\";
                 BufferedWriter writer = new BufferedWriter(new FileWriter(dir
-                        //"C:\\Users\\Sigl\\Documents\\NetBeansProjects\\Histology\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\"
                                 + field.getText() + ".txt"));
                 
                 writer.write(hm.getHistionMap().get(0).getXRotate() + " " +
@@ -64,8 +57,6 @@ public class SaveBox {
                 
                 hm.getHistionMap().get(0).getItems().forEach(c -> {
                     try {
-                        //writer.write("*");
-                        //writer.newLine();
                         writer.write(c.getName());
                         writer.newLine();
                         writer.write(c.getXRotate() + " " + c.getYRotate() + " " +
@@ -82,15 +73,11 @@ public class SaveBox {
                         writer.newLine();
                         writer.write(c.getShow() + "");
                         writer.newLine();
-                        //writer.write("Points");
-                        //writer.newLine();
                         writer.write(c.getItems().size() + "");
                         writer.newLine();
                         
                         c.getItems().forEach(p -> {
                             try {
-                                //writer.write("^");
-                                //writer.newLine();
                                 writer.write(p.getName());
                                 writer.newLine();
                                 writer.write(p.getPointData().size() + "");
@@ -104,18 +91,7 @@ public class SaveBox {
                             } catch (Exception ex) {
 
                             }
-                            /*p.getPointData().forEach(point -> {
-                                try {
-                                    for(int i = 0; i < l.size(); i++)
-                                        writer.write(l.get(i) + " ");
-                                    writer.newLine();
-                                } catch (Exception ex) {
-
-                                }
-                            });*/
                         });
-                        //writer.write("Facets");
-                        //writer.newLine();
                         
                         writer.write(c.getFacetData().size() + "");
                         writer.newLine();
@@ -137,7 +113,6 @@ public class SaveBox {
                 
                     }
                 });
-                //writer.write("Test");
                 writer.close();
             } catch (Exception ex) {
                 

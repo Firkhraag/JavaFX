@@ -90,11 +90,6 @@ public class CrossSectionController implements Initializable  {
         if (change) {
             xRotation.setText(newValue + "");
         }
-            /*try {
-                Thread.sleep(10);
-            } catch (Exception ex) {
-                
-            }*/
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
         if (change)    

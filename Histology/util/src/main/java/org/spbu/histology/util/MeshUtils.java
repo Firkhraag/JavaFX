@@ -36,8 +36,6 @@ public class MeshUtils {
             // Get vertices
             points.addAll(((TriangleMesh)mesh).getPoints());
             size += ((TriangleMesh)mesh).getPoints().size() / 3;
-            //System.out.println(f.size());
-            //System.out.println(((TriangleMesh)mesh).getPoints().size());
             faces.addAll(f);
         }
         
@@ -52,7 +50,6 @@ public class MeshUtils {
         
         // convert faces to polygons
         for(int i=0; i<faces.size()/6; i++){
-            //System.out.println(i);
             int i0=f[6*i], i1=f[6*i+2], i2=f[6*i+4];
             Point3D pA=new Point3D(p[3*i0], p[3*i0+1], p[3*i0+2]);
             Point3D pB=new Point3D(p[3*i1], p[3*i1+1], p[3*i1+2]);

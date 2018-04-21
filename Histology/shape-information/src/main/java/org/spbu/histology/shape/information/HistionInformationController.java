@@ -15,8 +15,6 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
-import org.spbu.histology.model.Part;
-import org.spbu.histology.model.ShapeManager;
 
 public class HistionInformationController implements Initializable  {
     
@@ -44,18 +42,12 @@ public class HistionInformationController implements Initializable  {
     @FXML
     private Button updateButton;
     
-    //private ShapeManager sm = null;
-    
     private HistionManager hm = null;
     
     private Integer hId;
     
      @Override
     public void initialize(URL url, ResourceBundle rb) {
-        /*sm = Lookup.getDefault().lookup(ShapeManager.class);
-        if (sm == null) {
-            LifecycleManager.getDefault().exit();
-        }*/
         
         hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -79,7 +71,6 @@ public class HistionInformationController implements Initializable  {
     public void setHistionId(Integer histionId) {
         hId = histionId;
         String name = hm.getHistionMap().get(histionId).getName();
-        //nameField.setText(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
         nameField.setText(name);
         xRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXRotate()));
         yRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getYRotate()));
@@ -101,7 +92,6 @@ public class HistionInformationController implements Initializable  {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        //hm.getHistionMap().get(hId).setName("Histion <" + nameField.getText() + ">");
         hm.getHistionMap().get(hId).setName(nameField.getText());
         hm.getHistionMap().get(hId).setXRotate(xRot);
         hm.getHistionMap().get(hId).setYRotate(yRot);

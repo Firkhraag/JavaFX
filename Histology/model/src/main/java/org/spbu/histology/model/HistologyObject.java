@@ -1,8 +1,6 @@
 package org.spbu.histology.model;
 
 import java.util.concurrent.ConcurrentHashMap;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -11,14 +9,9 @@ import javafx.collections.ObservableMap;
 
 public abstract class HistologyObject<T extends HistologyObject<?>> {
 
-    //public HistologyObject(Integer id, String name, ObservableMap<Integer, T> itemMap) {
     public HistologyObject(Integer id, String name) {
-        //System.out.println(itemMap.size());
         setName(name);
         this.id = id;
-        /*itemMap.forEach((i, t) -> {
-            this.itemMap.put(i, t);
-        });*/
     }
 
     private final StringProperty name = new SimpleStringProperty();
@@ -58,7 +51,7 @@ public abstract class HistologyObject<T extends HistologyObject<?>> {
         ObservableList<T> copyList = FXCollections.observableArrayList();
         itemMap.values().stream().forEach(s ->
             copyList.add(s));
-        return copyList;
+        return copyList.sorted((i1, i2) -> Integer.compare(i1.getId(), i2.getId()));
     }
     
     public abstract void addChild(T obj);

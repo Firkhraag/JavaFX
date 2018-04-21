@@ -60,7 +60,6 @@
         <module>application</module>
         <module>model</module>
         <module>shape-information</module>
-        <module>shape-manager-impl</module>
         <module>space-viewer</module>
         <module>space-editor</module>
         <module>toolbar</module>

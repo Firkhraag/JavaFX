@@ -3,7 +3,6 @@ package org.spbu.histology.shape.information;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Application;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -16,9 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.shape.Rectangle;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.stage.StageStyle;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.HistionManager;
@@ -53,8 +50,9 @@ public class PartInformationInitialization {
             pointTabController = (PointTabController)fxmlLoader.getController();
             pointTabController.setRectangleList(rectangleList);
             pointTabController.setCount(count);
-            pointTabController.setIds(histionId, cellId, partId);
-            //shapeStructureInformationController.setInformation(histionId, cellId, partId);          
+            pointTabController.setInitialSize(hm.getHistionMap().get(histionId).
+                    getItemMap().get(cellId).getItemMap().get(partId).getPointData().size());
+            pointTabController.setIds(histionId, cellId, partId);       
         } catch (Exception ex) {
             Logger.getLogger(PartInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -81,7 +79,7 @@ public class PartInformationInitialization {
                 r.setHeight(5);
                 root.getChildren().add(r);
                 rectangleList.add(r);
-                pointTabController.addPoint(p);
+                pointTabController.addPoint(new TetgenPoint(p));
                 count.set(count.get() + 1);
             }
         }
@@ -107,9 +105,6 @@ public class PartInformationInitialization {
                 }
             }
         });
-        /*stage.widthProperty().addListener((obs, oldVal, newVal) -> {
-            pointTabController.setWidth()
-        });*/
 
         primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
             pointTabController.setTableHeight(primaryStage.getHeight() - 120);

@@ -30,12 +30,6 @@ public class TwoPoints {
 
         TwoPoints tp = (TwoPoints) o;
 
-        /*return tp.p1.getX() == p1.getX() &&
-                tp.p1.getY() == p1.getY() &&
-                tp.p1.getZ() == p1.getZ() &&
-                tp.p2.getX() == p2.getX() &&
-                tp.p2.getY() == p2.getY() &&
-                tp.p2.getZ() == p2.getZ();*/
         return ((tp.p1.distance(p1) < 0.0001) &&
                 (tp.p2.distance(p2) < 0.0001)) ||
                 ((tp.p1.distance(p2) < 0.0001) &&

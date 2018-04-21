@@ -19,8 +19,6 @@ import org.openide.awt.ActionReference;
 import org.openide.util.Exceptions;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.spbu.histology.model.DigitMeshes;
-import org.spbu.histology.model.UpdateTree;
 
 /**
  * Top component which displays something.
@@ -69,9 +67,6 @@ public final class SpaceEditorTopComponent extends TopComponent {
         Platform.runLater(() -> {
             createScene(0);
         });
-        
-        /*for (int i = 0; i < 10; i++)
-            DigitMeshes.getMeshList(i);*/
     }
     
     ChangeListener<Integer> cl = (v, oldValue, newValue) -> {
@@ -163,14 +158,6 @@ public final class SpaceEditorTopComponent extends TopComponent {
             Exceptions.printStackTrace(ex);
         }
     }
-    
-    ChangeListener<Boolean> updateTreeListener = (v, oldValue, newValue) -> {
-            if (newValue) {
-                if (ChosenTool.getToolNumber() == 0)
-                    homeController.updateTree();
-                UpdateTree.setShouldBeUpdated(false);
-            }
-    };
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -197,14 +184,12 @@ public final class SpaceEditorTopComponent extends TopComponent {
     @Override
     public void componentOpened() {
         addToolBarListener(cl);
-        UpdateTree.shouldBeUpdatedProperty().addListener(updateTreeListener);
         // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
         removeToolBarListener(cl);
-        UpdateTree.shouldBeUpdatedProperty().removeListener(updateTreeListener);
         // TODO add custom code on component closing
     }
 

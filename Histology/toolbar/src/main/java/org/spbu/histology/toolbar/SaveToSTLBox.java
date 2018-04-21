@@ -1,10 +1,7 @@
 package org.spbu.histology.toolbar;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import javafx.beans.binding.Bindings;
-import javafx.collections.FXCollections;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -12,9 +9,7 @@ import javafx.geometry.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Mesh;
-import javafx.scene.shape.TriangleMesh;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.HistionManager;
@@ -30,9 +25,6 @@ public class SaveToSTLBox {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-
-        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle("To STL");
 
         
@@ -48,25 +40,22 @@ public class SaveToSTLBox {
             hm.getHistionMap().get(0).getShapeMap().forEach((i, m) -> {
                 meshList.add(m.getMesh());
             });
-            
-            if (hm.getHistionMap().get(0).getShapeMap().isEmpty())
+
+            if (hm.getHistionMap().get(0).getShapeMap().isEmpty()) {
                 return;
-            
-            //hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
-            //try {
-                String dir = System.getProperty("user.dir");
-                for (int i = 0; i < 3; i++)
-                    dir = dir.substring(0, dir.lastIndexOf('\\'));
-                dir = dir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\3D Printer\\";
-                
-                try {
-                    MeshUtils.mesh2STL(dir + field.getText() + ".stl", meshList);
-                } catch (Exception ex) {
-                    
-                }
-            /*} catch (Exception ex) {
-                
-            }*/
+            }
+
+            String dir = System.getProperty("user.dir");
+            for (int i = 0; i < 3; i++) {
+                dir = dir.substring(0, dir.lastIndexOf('\\'));
+            }
+            dir = dir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\3D Printer\\";
+
+            try {
+                MeshUtils.mesh2STL(dir + field.getText() + ".stl", meshList);
+            } catch (Exception ex) {
+
+            }
             window.close();
         });
         closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));

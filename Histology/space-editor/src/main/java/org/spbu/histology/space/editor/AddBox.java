@@ -14,7 +14,6 @@ import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
-import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Names;
 
@@ -28,9 +27,6 @@ public class AddBox {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-
-        //window.initModality(Modality.APPLICATION_MODAL);
         window.setTitle(title);
 
         
@@ -43,20 +39,11 @@ public class AddBox {
         hBox.setSpacing(20);
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> {
-            //hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
-            /*if (histionId == -1)
-                hm.addHistion(new Histion("Histion <" + field.getText() + ">", 0, 0, 0, 0, 0));
-            else {*/
-            //if {
-                /*hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
-                        0, 0, 0, 0, 0, FXCollections.observableArrayList(), 3,
-                        Color.RED, Color.RED, histionId, false));*/
             if (!Names.containsCellName(field.getText())) {
                 hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
                         0, 0, 0, 0, 0, FXCollections.observableArrayList(),
                         Color.RED, Color.RED, histionId, false));
                 Names.addCellName(field.getText());
-            //}
                 window.close();
             } else
                 AlertBox.display("Error", "This name is already used");

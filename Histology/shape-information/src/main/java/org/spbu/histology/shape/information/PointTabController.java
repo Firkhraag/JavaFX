@@ -31,7 +31,6 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
-import org.spbu.histology.toolbar.ChosenTool;
 
 public class PointTabController implements Initializable {
     
@@ -68,6 +67,7 @@ public class PointTabController implements Initializable {
     Group root;
     ObservableList<Rectangle> rectangleList = FXCollections.observableArrayList();
     double width, height;
+    int initialSize;
     IntegerProperty count;
     Integer histionId, cellId, partId;
     
@@ -83,6 +83,10 @@ public class PointTabController implements Initializable {
     
     public void setCount(IntegerProperty count) {
         this.count = count;
+    }
+    
+    public void setInitialSize(Integer initialSize) {
+        this.initialSize = initialSize;
     }
     
     public void setRoot(Group root) {
@@ -157,31 +161,18 @@ public class PointTabController implements Initializable {
         data.add(p);
     }
     
-    /*@FXML
-    private void clearAction() {
-        for (TetgenPoint p : data) {
-            root.getChildren().remove(1);
-            rectangleList.remove(0);
-        }
-        count.set(1);
-        data.clear();
-    }*/
-    
     @FXML
     private void doneAction() {
         if (partId == - 1) {
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data));
+            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data, histionId, cellId));
         }
         else {
             hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(
-                    new Part(partId, "Part <" + nameField.getText() + ">", data));
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+                    new Part(partId, "Part <" + nameField.getText() + ">", data, histionId, cellId));
             hm.getHistionMap().get(histionId).getItemMap().get(cellId).setShow(false);
+            if ((count.get() - 1) != initialSize)
+                hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
         }
-        /*if (ChosenTool.getToolNumber() == -1)
-            ChosenTool.setToolNumber(-2);
-        else
-            ChosenTool.setToolNumber(-1);*/
         Stage stage = (Stage) doneButton.getScene().getWindow();
         stage.close();
     }
@@ -212,7 +203,6 @@ public class PointTabController implements Initializable {
             change.set(true);
             final Double value = event.getNewValue() != null ?
             event.getNewValue() : event.getOldValue();
-            //if (value > -width) && ()
             TetgenPoint tp = ((TetgenPoint) event.getTableView().getItems()
                 .get(event.getTablePosition().getRow()));
             tp.setX(value);
@@ -220,9 +210,6 @@ public class PointTabController implements Initializable {
                 rectangleList.get(tp.getId() - 1).setX(value + width / 2 - 2);
             else
                 rectangleList.get(tp.getId() - 1).setX(4000 + width / 2 - 2);
-            //((TetgenPoint) event.getTableView().getItems()
-            //    .get(event.getTablePosition().getRow())).setX(value);
-            //rectangleList.get(item.getId() - 1).setX(value + width / 2 - 2);
             table.refresh();
         });
     }
@@ -258,9 +245,6 @@ public class PointTabController implements Initializable {
                 rectangleList.get(tp.getId() - 1).setY((-1)*value + height / 2 - 2);
             else
                 rectangleList.get(tp.getId() - 1).setY(4000 + height / 2 - 2);
-            /*((TetgenPoint) event.getTableView().getItems()
-                .get(event.getTablePosition().getRow())).setZ(value);
-            rectangleList.get(item.getId() - 1).setY((-1) * (value - height / 2) - 2);*/
             table.refresh();
         });
     }
