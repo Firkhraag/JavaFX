@@ -69,14 +69,13 @@ public class PointTabController implements Initializable {
     double width, height;
     int initialSize;
     IntegerProperty count;
-    Integer histionId, cellId, partId;
+    Integer cellId, partId;
     
-    public void setIds(Integer histionId, Integer cellId, Integer partId) {
-        this.histionId = histionId;
+    public void setIds(Integer cellId, Integer partId) {
         this.cellId = cellId;
         this.partId = partId;
         if (partId != -1) {
-            String name = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getName();
+            String name = hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getName();
             nameField.setText(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
         }
     }
@@ -164,14 +163,14 @@ public class PointTabController implements Initializable {
     @FXML
     private void doneAction() {
         if (partId == - 1) {
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data, histionId, cellId));
+            hm.getHistionMap().get(0).getItemMap().get(cellId).addChild(new Part("Part <" + nameField.getText() + ">", data, cellId));
         }
         else {
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).addChild(
-                    new Part(partId, "Part <" + nameField.getText() + ">", data, histionId, cellId));
-            hm.getHistionMap().get(histionId).getItemMap().get(cellId).setShow(false);
+            hm.getHistionMap().get(0).getItemMap().get(cellId).addChild(
+                    new Part(partId, "Part <" + nameField.getText() + ">", data, cellId));
+            hm.getHistionMap().get(0).getItemMap().get(cellId).setShow(false);
             if ((count.get() - 1) != initialSize)
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+                hm.getHistionMap().get(0).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
         }
         Stage stage = (Stage) doneButton.getScene().getWindow();
         stage.close();

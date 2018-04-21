@@ -659,7 +659,7 @@ public class HomeController implements Initializable {
                 newCell.setName("Cell <" + name + ">");
                 Names.addCellName(name);
                 hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
-                    newCell.addChild(new Part(p, 0, newCell.getId()));
+                    newCell.addChild(new Part(p, newCell.getId()));
                 });
                 hm.getHistionMap().get(this.getValue().getId()).addChild(newCell);
             });
@@ -691,8 +691,9 @@ public class HomeController implements Initializable {
             MenuItem addPart = new MenuItem();
             addPart.setText("Add part");
             addPart.setOnAction(event -> {
-                PartInformationInitialization.show(c.getHistionId(),
-                        c.getId(), -1);
+                //PartInformationInitialization.show(c.getId(), -1);
+                System.out.println(c.getId());
+                PartInformationInitialization.show(c.getId(), -1);
             });
             MenuItem copyCell = new MenuItem();
             copyCell.setText("Copy cell");
@@ -708,7 +709,7 @@ public class HomeController implements Initializable {
                 Integer newHistionId = c.getHistionId();
                 Integer newCellId = c.getId();
                 Part newPart = new Part(hm.getHistionMap().get(0).
-                                getItemMap().get(cellId).getItemMap().get(partId), newHistionId, newCellId);
+                                getItemMap().get(cellId).getItemMap().get(partId), newCellId);
                 hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).
                         addChild(newPart);
             });
@@ -735,9 +736,7 @@ public class HomeController implements Initializable {
                 pastePartDisabledProperty.set(true);
                 pasteCellDisabledProperty.set(true);
                 ConfirmBox.display("Delete Confirmation", "Are you sure you want to delete " 
-                        + c.getName(), 
-                        c.getHistionId(), 
-                        c.getId(), -1);
+                        + c.getName(), c.getId(), -1);
             });
             
             String name = c.getName();
@@ -768,7 +767,7 @@ public class HomeController implements Initializable {
             MenuItem editPart = new MenuItem();
             editPart.setText("Edit part");
             editPart.setOnAction(event -> {
-                PartInformationInitialization.show(p.getHistionId(), p.getCellId(), p.getId());
+                PartInformationInitialization.show(p.getCellId(), p.getId());
             });
             MenuItem copyPart = new MenuItem();
             copyPart.setText("Copy part");
@@ -784,9 +783,7 @@ public class HomeController implements Initializable {
                 pastePartDisabledProperty.set(true);
                 pasteCellDisabledProperty.set(true);
                 ConfirmBox.display("Delete Confirmation", "Are you sure you want to delete " +
-                        p.getName(), 
-                        p.getHistionId(), 
-                        p.getCellId(), p.getId());
+                        p.getName(), p.getCellId(), p.getId());
             });
             
             editPart.disableProperty().bind(disableEverything);

@@ -125,7 +125,7 @@ public class LoadBox {
                         int partNum = Integer.parseInt(line);
                         for (int j = 0; j < partNum; j++) {
                             ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-                            Part p = new Part("Part", FXCollections.observableArrayList(), 0, c.getId());
+                            Part p = new Part("Part", FXCollections.observableArrayList(), c.getId());
                             line = br.readLine();
                             p.setName(line);
                             

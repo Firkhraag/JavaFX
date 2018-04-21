@@ -17,7 +17,7 @@ import org.spbu.histology.model.Names;
 
 public class ConfirmBox {
 
-    public static void display(String title, String message, Integer histionId, Integer cellId, Integer partId) {
+    public static void display(String title, String message, Integer cellId, Integer partId) {
         
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -36,15 +36,15 @@ public class ConfirmBox {
         Button confirmButton = new Button("Yes");
         confirmButton.setOnAction(e -> {
             if (partId != -1) {
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).deleteChild(partId);
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
-                hm.getHistionMap().get(histionId).getItemMap().get(cellId).setShow(false);
+                hm.getHistionMap().get(0).getItemMap().get(cellId).deleteChild(partId);
+                hm.getHistionMap().get(0).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+                hm.getHistionMap().get(0).getItemMap().get(cellId).setShow(false);
             } else if (cellId != -1) {
-                String name = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getName();
+                String name = hm.getHistionMap().get(0).getItemMap().get(cellId).getName();
                 name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
                 Names.removeCellName(name);
                 HideCells.removeCellNameToHide(name);
-                hm.getHistionMap().get(histionId).deleteChild(cellId);
+                hm.getHistionMap().get(0).deleteChild(cellId);
             }
             window.close();
         });

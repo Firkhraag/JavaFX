@@ -9,31 +9,27 @@ public class Part extends HistologyObject<HistologyObject<?>> {
     private static Integer count = 0;
     private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
 
-    public Part(String name, ObservableList<TetgenPoint> pointData, Integer histionId, Integer cellId) {
+    public Part(String name, ObservableList<TetgenPoint> pointData, Integer cellId) {
         super(count++, name);
         this.pointData = FXCollections.observableArrayList(pointData);
-        this.histionId = histionId;
         this.cellId = cellId;
     }
     
-    public Part(Integer id, String name, ObservableList<TetgenPoint> pointData, Integer histionId, Integer cellId) {
+    public Part(Integer id, String name, ObservableList<TetgenPoint> pointData, Integer cellId) {
         super(id, name);
         this.pointData = FXCollections.observableArrayList(pointData);
-        this.histionId = histionId;
         this.cellId = cellId;
     }
     
-    public Part(Part p, Integer histionId, Integer cellId) {
+    public Part(Part p, Integer cellId) {
         super(count++, p.getName());
         this.pointData = FXCollections.observableArrayList(p.getPointData());
-        this.histionId = histionId;
         this.cellId = cellId;
     }
     
     public Part(Integer id, Part p) {
         super(id, p.getName());
         this.pointData = FXCollections.observableArrayList(p.getPointData());
-        this.histionId = p.getHistionId();
         this.cellId = p.getCellId();
     }
     
@@ -43,16 +39,6 @@ public class Part extends HistologyObject<HistologyObject<?>> {
     
     public void setPointData(ObservableList<TetgenPoint> pointData) {
         this.pointData = FXCollections.observableArrayList(pointData);
-    }
-    
-    private Integer histionId;
-    
-    public Integer getHistionId() {
-        return this.histionId;
-    }
-    
-    public void setHistionId(Integer histionId) {
-        this.histionId = histionId;
     }
     
     private Integer cellId;

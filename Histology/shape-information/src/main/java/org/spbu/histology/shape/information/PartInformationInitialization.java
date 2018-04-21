@@ -23,7 +23,7 @@ import org.spbu.histology.model.TetgenPoint;
 
 public class PartInformationInitialization {
     
-    public static void show(Integer histionId, Integer cellId, Integer partId) {
+    public static void show(Integer cellId, Integer partId) {
         
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -50,9 +50,12 @@ public class PartInformationInitialization {
             pointTabController = (PointTabController)fxmlLoader.getController();
             pointTabController.setRectangleList(rectangleList);
             pointTabController.setCount(count);
-            pointTabController.setInitialSize(hm.getHistionMap().get(histionId).
-                    getItemMap().get(cellId).getItemMap().get(partId).getPointData().size());
-            pointTabController.setIds(histionId, cellId, partId);       
+            if (partId == -1)
+                pointTabController.setInitialSize(0);
+            else
+                pointTabController.setInitialSize(hm.getHistionMap().get(0).
+                        getItemMap().get(cellId).getItemMap().get(partId).getPointData().size());
+            pointTabController.setIds(cellId, partId);       
         } catch (Exception ex) {
             Logger.getLogger(PartInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
@@ -71,7 +74,7 @@ public class PartInformationInitialization {
         Scene scene = new Scene(borderPane);
         primaryStage.setScene(scene);
         if (partId != -1) {
-            for (TetgenPoint p : hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getPointData()) {
+            for (TetgenPoint p : hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getPointData()) {
                 Rectangle r = new Rectangle();
                 r.setX(p.getX() + width / 2 - 2);
                 r.setY((-1) * (p.getZ() - height / 2) - 2);
@@ -97,8 +100,8 @@ public class PartInformationInitialization {
                     rectangleList.add(r);
                     double y = 0;
                     if (partId != -1)
-                        if (hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getPointData().size() > 0)
-                            y = hm.getHistionMap().get(histionId).getItemMap().get(cellId).getItemMap().get(partId).getPointData().get(0).getY();
+                        if (hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getPointData().size() > 0)
+                            y = hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getPointData().get(0).getY();
                     TetgenPoint p = new TetgenPoint(count.get(), xPos - width / 2, y, -yPos + height / 2);
                     pointTabController.addPoint(p);
                     count.set(count.get() + 1);
