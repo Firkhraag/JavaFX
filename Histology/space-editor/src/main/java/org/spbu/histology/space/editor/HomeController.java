@@ -691,8 +691,6 @@ public class HomeController implements Initializable {
             MenuItem addPart = new MenuItem();
             addPart.setText("Add part");
             addPart.setOnAction(event -> {
-                //PartInformationInitialization.show(c.getId(), -1);
-                System.out.println(c.getId());
                 PartInformationInitialization.show(c.getId(), -1);
             });
             MenuItem copyCell = new MenuItem();

@@ -54,7 +54,7 @@ public class PartInformationInitialization {
                 pointTabController.setInitialSize(0);
             else
                 pointTabController.setInitialSize(hm.getHistionMap().get(0).
-                        getItemMap().get(cellId).getItemMap().get(partId).getPointData().size());
+                    getItemMap().get(cellId).getItemMap().get(partId).getPointData().size());
             pointTabController.setIds(cellId, partId);       
         } catch (Exception ex) {
             Logger.getLogger(PartInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);

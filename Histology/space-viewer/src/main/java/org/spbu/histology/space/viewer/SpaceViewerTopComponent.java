@@ -135,13 +135,23 @@ public final class SpaceViewerTopComponent extends TopComponent {
             (change) -> {
                 if (change.wasRemoved() && change.wasAdded()) {
                     Cell c = (Cell)change.getValueAdded();
+                    Cell removedShape = (Cell)change.getValueRemoved();
                     if (c.getShow()) {
-                        Cell removedShape = (Cell)change.getValueRemoved();
                         if (shapeMap.get(removedShape.getId()) != null) {
                             CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(c.getId()));
                             shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
                         }
                         addCell(c);
+                    } else if (!c.getShow() && removedShape.getShow()) {
+                        Integer removedCellId = removedShape.getId();
+                        shapeGroup.getChildren().remove(shapeMap.get(removedCellId));
+                        shapeMap.remove(removedCellId);
+                        nodesList.remove(removedCellId);
+                        tetrahedronsList.remove(removedCellId);
+                        facesList.remove(removedCellId);
+                        colorsList.remove(removedCellId);
+                        CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(removedCellId));
+                        polygonList.remove(removedCellId);
                     }
                 }
                 else if (change.wasRemoved()) {  

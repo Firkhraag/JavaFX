@@ -28,6 +28,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
@@ -168,9 +169,15 @@ public class PointTabController implements Initializable {
         else {
             hm.getHistionMap().get(0).getItemMap().get(cellId).addChild(
                     new Part(partId, "Part <" + nameField.getText() + ">", data, cellId));
-            hm.getHistionMap().get(0).getItemMap().get(cellId).setShow(false);
+            //hm.getHistionMap().get(0).getItemMap().get(cellId).setShow(false);
             if ((count.get() - 1) != initialSize)
                 hm.getHistionMap().get(0).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+            Cell newCell = new Cell(cellId, hm.getHistionMap().get(0).getItemMap().get(cellId));
+            newCell.setShow(false);
+            hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
+                newCell.addChild(p);
+            });
+            hm.getHistionMap().get(0).addChild(newCell);
         }
         Stage stage = (Stage) doneButton.getScene().getWindow();
         stage.close();
