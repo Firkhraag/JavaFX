@@ -50,6 +50,7 @@ public final class SpaceEditorTopComponent extends TopComponent {
     private HomeController homeController;
     private CameraViewController cameraViewController;
     private CrossSectionController crossSectionController;
+    //private FXMLLoader fxmlLoader;
 
     public SpaceEditorTopComponent() {
         initComponents();
@@ -66,6 +67,24 @@ public final class SpaceEditorTopComponent extends TopComponent {
         Platform.setImplicitExit(false);
         Platform.runLater(() -> {
             createScene(0);
+        });
+        fxPanel.addComponentListener(new ComponentAdapter() {
+            public void componentResized(ComponentEvent e) {
+                switch (ChosenTool.getToolNumber()) {
+                    case 0:
+                        homeController.setTreeViewSize(getWidth(), getHeight());
+                        break;
+                    case 1:
+                        cameraViewController.setScrollPanel(getWidth(), getHeight());
+                        break;
+                    case 2:
+                        crossSectionController.setScrollPanel(getWidth(), getHeight());
+                        break;
+                    default:
+                        homeController.setTreeViewSize(getWidth(), getHeight());
+                        break;
+                }
+            }
         });
     }
     
@@ -84,6 +103,18 @@ public final class SpaceEditorTopComponent extends TopComponent {
     }
     
     private void createScene(Integer toolNum) {
+        if (!(cameraViewController == null)) {
+            cameraViewController.removeListeners();
+            cameraViewController = null;
+        }
+        if (!(crossSectionController == null)) {
+            crossSectionController.removeListeners();
+            crossSectionController = null;
+        }
+        if (!(homeController == null)) {
+            homeController.removeListeners();
+            homeController = null;
+        }
         try {
             URL location;
             switch (toolNum) {
@@ -101,8 +132,9 @@ public final class SpaceEditorTopComponent extends TopComponent {
                     break;
             }
             FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(location);
-            fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+            //fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 
             Parent root = (Parent)fxmlLoader.load(location.openStream());
             Scene scene = new Scene(root);
@@ -135,25 +167,6 @@ public final class SpaceEditorTopComponent extends TopComponent {
                     homeController.setTreeViewSize(getWidth(), getHeight());
                     break;
             }
-            homeController.setTreeViewSize(getWidth(), getHeight());
-            fxPanel.addComponentListener(new ComponentAdapter() {
-                public void componentResized(ComponentEvent e) {
-                    switch (toolNum) {
-                        case 0:
-                            homeController.setTreeViewSize(getWidth(), getHeight());
-                            break;
-                        case 1:
-                            cameraViewController.setScrollPanel(getWidth(), getHeight());
-                            break;
-                        case 2:
-                            crossSectionController.setScrollPanel(getWidth(), getHeight());
-                            break;
-                        default:
-                            homeController.setTreeViewSize(getWidth(), getHeight());
-                            break;
-                    }
-                }
-            });
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }

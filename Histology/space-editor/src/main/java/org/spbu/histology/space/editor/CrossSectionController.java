@@ -114,11 +114,103 @@ public class CrossSectionController implements Initializable  {
             opaqueness.setText(newValue + "");
     };
     
+    ChangeListener<String> xRotationTextListener = (v, oldValue, newValue) -> {
+        try {
+            double ang = Double.parseDouble(newValue);
+            if ((ang >= 0) && (ang <= 90)) {
+                change = false;
+                xRotSlider.setValue(ang);
+                change = true;
+                CrossSection.setXRotate(newValue);
+                findCoordinates();
+                findPlane(p1, p2, p3);
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> yRotationTextListener = (v, oldValue, newValue) -> {
+        try {
+            double ang = Double.parseDouble(newValue);
+            if ((ang > 360) || (ang < -360)) {
+                ang %= 360;
+            }
+            change = false;
+            yRotSlider.setValue(ang);
+            change = true;
+            CrossSection.setYRotate(newValue);
+            findCoordinates();
+            findPlane(p1, p2, p3);
+        } catch (Exception ex) {
+
+        }
+    };
+    
+    ChangeListener<String> xPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(newValue);
+            if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
+                change = false;
+                xPosSlider.setValue(pos);
+                change = true;
+                CrossSection.setXCoordinate(newValue);
+                findCoordinates();
+                findPlane(p1, p2, p3);
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> yPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(yPosition.getText());
+            if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
+                change = false;
+                yPosSlider.setValue(pos);
+                change = true;
+                CrossSection.setYCoordinate(newValue);
+                findCoordinates();
+                findPlane(p1, p2, p3);
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> zPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(zPosition.getText());
+            if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
+                change = false;
+                zPosSlider.setValue(pos);
+                change = true;
+                CrossSection.setZCoordinate(newValue);
+                findCoordinates();
+                findPlane(p1, p2, p3);
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    
+    ChangeListener<String> opaquenessTextListener = (v, oldValue, newValue) -> {
+        try {
+            double opq = Double.parseDouble(opaqueness.getText());
+            if ((opq <= 1) && (opq >= 0)) {
+                change = false;
+                opaquenessSlider.setValue(opq);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) { 
         
         xRotSlider.valueProperty().addListener(xRotationChangeListener);
-        xRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        xRotation.textProperty().addListener(xRotationTextListener);
+        /*xRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double ang = Double.parseDouble(newValue);
                 if ((ang >= 0) && (ang <= 90)) {
@@ -132,9 +224,10 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         yRotSlider.valueProperty().addListener(yRotationChangeListener);
-        yRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        yRotation.textProperty().addListener(yRotationTextListener);
+        /*yRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double ang = Double.parseDouble(newValue);
                 if ((ang > 360) || (ang < -360))
@@ -148,9 +241,10 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         xPosSlider.valueProperty().addListener(xPositionChangeListener);
-        xPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        xPosition.textProperty().addListener(xPositionTextListener);
+        /*xPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(newValue);
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
@@ -164,9 +258,10 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         yPosSlider.valueProperty().addListener(yPositionChangeListener);
-        yPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        yPosition.textProperty().addListener(yPositionTextListener);
+        /*yPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(yPosition.getText());
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
@@ -180,9 +275,10 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         zPosSlider.valueProperty().addListener(zPositionChangeListener);
-        zPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        zPosition.textProperty().addListener(zPositionTextListener);
+        /*zPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(zPosition.getText());
                 if ((pos <= crossSectPosLim) && (pos >= -crossSectPosLim)) {
@@ -196,9 +292,10 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         opaquenessSlider.valueProperty().addListener(opaquenessChangeListener);
-        opaqueness.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        opaqueness.textProperty().addListener(opaquenessTextListener);
+        /*opaqueness.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double opq = Double.parseDouble(opaqueness.getText());
                 if ((opq <= 1) && (opq >= 0)) {
@@ -209,7 +306,7 @@ public class CrossSectionController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         
         scrollPane.setStyle("-fx-background-color:transparent;");
         vBox.setPadding(new Insets(10, 10, 10, 10));
@@ -301,6 +398,22 @@ public class CrossSectionController implements Initializable  {
     
     public void setScrollPanel(int width, int height) {
         scrollPane.setPrefSize(width, height);
+    }
+    
+    public void removeListeners() {
+        xRotSlider.valueProperty().removeListener(xRotationChangeListener);
+        xRotation.textProperty().removeListener(xRotationTextListener);
+        yRotSlider.valueProperty().removeListener(yRotationChangeListener);
+        yRotation.textProperty().removeListener(yRotationTextListener);
+        xPosSlider.valueProperty().removeListener(xPositionChangeListener);
+        xPosition.textProperty().removeListener(xPositionTextListener);
+        yPosSlider.valueProperty().removeListener(yPositionChangeListener);
+        yPosition.textProperty().removeListener(yPositionTextListener);
+        zPosSlider.valueProperty().removeListener(zPositionChangeListener);
+        zPosition.textProperty().removeListener(zPositionTextListener);
+        opaquenessSlider.valueProperty().removeListener(opaquenessChangeListener);
+        opaqueness.textProperty().removeListener(opaquenessTextListener);
+        opaqueness.textProperty().unbind();
     }
     
 }

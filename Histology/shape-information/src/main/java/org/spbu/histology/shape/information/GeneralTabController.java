@@ -271,15 +271,15 @@ public class GeneralTabController implements Initializable {
             AlertBox.display("Error", "Please enter valid numbers in general tab");
             return;
         }
-        findFacets();
-        for (ArrayList<Integer> ar : facetData) {
-            System.out.println(ar);
-        }
         Names.removeCellName(name);
         if (Names.containsCellName(nameField.getText())) {
             Names.addCellName(name);
             AlertBox.display("Error", "This name is already used");
         } else {
+            findFacets();
+            for (ArrayList<Integer> ar : facetData) {
+                System.out.println(ar);
+            }
             Cell c = new Cell(cellId, "Cell <" + nameField.getText() + ">",
                     xRot, yRot, xTran, yTran, zTran, facetData,
                     diffuseColorPicker.getValue(), specularColorPicker.getValue(), 0, true);

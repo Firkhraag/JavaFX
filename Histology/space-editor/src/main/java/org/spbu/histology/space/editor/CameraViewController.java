@@ -77,6 +77,8 @@ public class CameraViewController implements Initializable  {
     
     private boolean change = true;
     
+    private final double camPosLim = 2000;
+    
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
         if (change)
             xRotation.setText(newValue + "");
@@ -104,12 +106,87 @@ public class CameraViewController implements Initializable  {
             FOV.setText(newValue + "");
     };
     
-    private final double camPosLim = 2000;
+    ChangeListener<String> xRotationTextListener = (v, oldValue, newValue) -> {
+        try {
+            double ang = Double.parseDouble(xRotation.getText());
+            if ((ang <= 90) && (ang >= -90)) {
+                change = false;
+                xRotSlider.setValue(ang);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> yRotationTextListener = (v, oldValue, newValue) -> {
+        try {
+            double ang = Double.parseDouble(yRotation.getText());
+            if ((ang > 360) || (ang < -360)) {
+                ang %= 360;
+            }
+            change = false;
+            yRotSlider.setValue(ang);
+            change = true;
+        } catch (Exception ex) {
+
+        }
+    };
+    
+    ChangeListener<String> xPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(xPosition.getText());
+            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                change = false;
+                xPosSlider.setValue(pos);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> yPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(yPosition.getText());
+            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                change = false;
+                yPosSlider.setValue(pos);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    ChangeListener<String> zPositionTextListener = (v, oldValue, newValue) -> {
+        try {
+            double pos = Double.parseDouble(zPosition.getText());
+            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                change = false;
+                zPosSlider.setValue(pos);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
+    
+    ChangeListener<String> FOVTextListener = (v, oldValue, newValue) -> {
+        try {
+            double fov = Double.parseDouble(FOV.getText());
+            if ((fov <= 80) && (fov >= 1)) {
+                change = false;
+                FOVSlider.setValue(fov);
+                change = true;
+            }
+        } catch (Exception ex) {
+
+        }
+    };
     
     @Override
     public void initialize(URL url, ResourceBundle rb) { 
         xRotSlider.valueProperty().addListener(xRotationChangeListener);
-        xRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        xRotation.textProperty().addListener(xRotationTextListener);
+        /*xRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double ang = Double.parseDouble(xRotation.getText());
                 if ((ang <= 90) && (ang >= -90)) {
@@ -120,9 +197,10 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         yRotSlider.valueProperty().addListener(yRotationChangeListener);
-        yRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        yRotation.textProperty().addListener(yRotationTextListener);
+        /*yRotation.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double ang = Double.parseDouble(yRotation.getText());
                 if ((ang > 360) || (ang < -360))
@@ -133,10 +211,11 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         
         xPosSlider.valueProperty().addListener(xPositionChangeListener);
-        xPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        xPosition.textProperty().addListener(xPositionTextListener);
+        /*xPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(xPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
@@ -147,9 +226,10 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         yPosSlider.valueProperty().addListener(yPositionChangeListener);
-        yPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        yPosition.textProperty().addListener(yPositionTextListener);
+        /*yPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(yPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
@@ -160,9 +240,10 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         zPosSlider.valueProperty().addListener(zPositionChangeListener);
-        zPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        zPosition.textProperty().addListener(zPositionTextListener);
+        /*zPosition.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double pos = Double.parseDouble(zPosition.getText());
                 if ((pos <= camPosLim) && (pos >= -camPosLim)) {
@@ -173,10 +254,11 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         
         FOVSlider.valueProperty().addListener(FOVChangeListener);
-        FOV.textProperty().addListener( (observableValue, oldValue, newValue) -> {
+        FOV.textProperty().addListener(FOVTextListener);
+        /*FOV.textProperty().addListener( (observableValue, oldValue, newValue) -> {
             try {
                 double fov = Double.parseDouble(FOV.getText());
                 if ((fov <= 80) && (fov >= 1)) {
@@ -187,7 +269,7 @@ public class CameraViewController implements Initializable  {
             } catch (Exception ex) {
                 
             }
-        });
+        });*/
         
         scrollPane.setStyle("-fx-background-color:transparent;");
         vBox.setPadding(new Insets(10, 10, 10, 10));
@@ -211,6 +293,27 @@ public class CameraViewController implements Initializable  {
     
     public void setScrollPanel(int width, int height) {
         scrollPane.setPrefSize(width, height);
+    }
+    
+    public void removeListeners() {
+        xRotSlider.valueProperty().removeListener(xRotationChangeListener);
+        xRotation.textProperty().removeListener(xRotationTextListener);
+        yRotSlider.valueProperty().removeListener(yRotationChangeListener);
+        yRotation.textProperty().removeListener(yRotationTextListener);
+        xPosSlider.valueProperty().removeListener(xPositionChangeListener);
+        xPosition.textProperty().removeListener(xPositionTextListener);
+        yPosSlider.valueProperty().removeListener(yPositionChangeListener);
+        yPosition.textProperty().removeListener(yPositionTextListener);
+        zPosSlider.valueProperty().removeListener(zPositionChangeListener);
+        zPosition.textProperty().removeListener(zPositionTextListener);
+        FOVSlider.valueProperty().removeListener(FOVChangeListener);
+        FOV.textProperty().removeListener(FOVTextListener);
+        xRotation.textProperty().unbind();
+        yRotation.textProperty().unbind();
+        xPosition.textProperty().unbind();
+        yPosition.textProperty().unbind();
+        zPosition.textProperty().unbind();
+        FOV.textProperty().unbind();
     }
     
 }

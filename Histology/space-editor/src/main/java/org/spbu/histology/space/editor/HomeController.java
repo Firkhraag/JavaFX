@@ -44,12 +44,128 @@ public class HomeController implements Initializable {
     
     private Integer cellId;
     private Integer partId;
-    private BooleanProperty pasteCellDisabledProperty = new SimpleBooleanProperty(true);
-    private BooleanProperty pastePartDisabledProperty = new SimpleBooleanProperty(true);
-    private BooleanProperty disableEverything = new SimpleBooleanProperty(false);
+    private final BooleanProperty pasteCellDisabledProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty pastePartDisabledProperty = new SimpleBooleanProperty(true);
+    private final BooleanProperty disableEverything = new SimpleBooleanProperty(false);
     
     int dataSize;
     Point3D nodeAvg;
+        
+    HistionTreeItem histion;
+    private final ObservableMap<Integer, CellTreeItem> cellTreeItemMap = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    private final ObservableMap<Integer, PartTreeItem> partTreeItemMap = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    
+    private final MapChangeListener<Integer, Part> partListener
+            = (change) -> {
+                if (change.wasRemoved() && change.wasAdded()) {
+                    Part p = (Part) change.getValueAdded();
+                    Part removedPart = (Part) change.getValueRemoved();
+                    if (!(p.getName().equals(removedPart.getName()))) {
+                        partTreeItemMap.get(p.getId()).getValue().setName(p.getName());
+                        shapeTreeView.setCellFactory(new Callback<TreeView<HistologyObject<?>>, TreeCell<HistologyObject<?>>>() {
+                            @Override
+                            public TreeCell<HistologyObject<?>> call(TreeView<HistologyObject<?>> p) {
+                                return new TreeCellImpl();
+                            }
+                        });
+                    }
+                } else if (change.wasAdded()) {
+                    Part addedPart = (Part) change.getValueAdded();
+                    PartTreeItem pti = new PartTreeItem(addedPart);
+                    histion.getChildren().forEach(c -> {
+                        if (c.getValue().getId() == addedPart.getCellId()) {
+                            c.getChildren().add(pti);
+                        }
+                    });
+                    partTreeItemMap.put(addedPart.getId(), pti);
+                } else if (change.wasRemoved()) {
+                    Part removedPart = (Part) change.getValueRemoved();
+                    histion.getChildren().forEach(c -> {
+                        if (c.getValue().getId() == removedPart.getCellId()) {
+                            c.getChildren().remove(partTreeItemMap.get(removedPart.getId()));
+                        }
+                    });
+                    partTreeItemMap.remove(removedPart.getId());
+                }
+            };
+    
+    private final MapChangeListener<Integer, Cell> cellListener
+            = (change) -> {
+                
+                if (change.wasRemoved() && change.wasAdded()) {
+                    Cell c = (Cell) change.getValueAdded();
+                    Cell removedShape = (Cell) change.getValueRemoved();
+                    if (!(c.getName().equals(removedShape.getName()))) {
+                        cellTreeItemMap.get(c.getId()).getValue().setName(c.getName());
+                        shapeTreeView.setCellFactory(new Callback<TreeView<HistologyObject<?>>, TreeCell<HistologyObject<?>>>() {
+                            @Override
+                            public TreeCell<HistologyObject<?>> call(TreeView<HistologyObject<?>> p) {
+                                return new TreeCellImpl();
+                            }
+                        });
+                    }
+                    removedShape.getItemMap().removeListener(partListener);
+                    c.getItemMap().addListener(partListener);
+                    
+                    /*else {
+                        c.getItems().forEach(p -> {
+                            if ()
+                        });
+                    }*/
+                    /*if (!(c.getName().equals(removedShape.getName()))) {
+                        histion = new HistionTreeItem(hm.getHistionMap().get(0));
+
+                        hm.getHistionMap().get(0).getItemMap().addListener(cellListener);
+                        hm.getHistionMap().get(0).getItems().forEach(c -> {
+                            CellTreeItem cti = new CellTreeItem(c);
+                            histion.getChildren().add(cti);
+                            cellTreeItemMap.put(c.getId(), cti);
+                            c.getItemMap().addListener(partListener);
+                            c.getItems().forEach(p -> {
+                                PartTreeItem pti = new PartTreeItem(p);
+                                histion.getChildren().get(c.getId()).getChildren().add(pti);
+                                partTreeItemMap.put(p.getId(), pti);
+                            });
+                        });
+                    }*/
+                    
+                    /*if (!(c.getName().equals(removedShape.getName()))) {
+                        if (ChosenTool.getToolNumber() == 0) {
+                            ChosenTool.setToolNumber(-1);
+                        } else if (ChosenTool.getToolNumber() == -1) {
+                            ChosenTool.setToolNumber(0);
+                        }
+                    } else if (!c.getShow()) {
+                        if (ChosenTool.getToolNumber() == 0) {
+                            ChosenTool.setToolNumber(-1);
+                        } else if (ChosenTool.getToolNumber() == -1) {
+                            ChosenTool.setToolNumber(0);
+                        }
+                    }*/
+                } else if (change.wasAdded()) {
+                    Cell addedCell = (Cell) change.getValueAdded();
+                    CellTreeItem cti = new CellTreeItem(addedCell);
+                    histion.getChildren().add(cti);
+                    cellTreeItemMap.put(addedCell.getId(), cti);
+                    addedCell.getItemMap().addListener(partListener);
+                    addedCell.getItems().forEach(p -> {
+                        PartTreeItem pti = new PartTreeItem(p);
+                        histion.getChildren().forEach(c -> {
+                            if (c.getValue().getId() == addedCell.getId()) {
+                                c.getChildren().add(pti);
+                            }
+                        });
+                        partTreeItemMap.put(p.getId(), pti);
+                    });
+                } else if (change.wasRemoved()) {
+                    Cell removedShape = (Cell) change.getValueRemoved();
+                    histion.getChildren().remove(cellTreeItemMap.get(removedShape.getId()));
+                    cellTreeItemMap.remove(removedShape.getId());
+                    removedShape.getItemMap().removeListener(partListener);
+                }
+            };
     
     public abstract class AbstractTreeItem extends TreeItem<HistologyObject<?>> {
         public abstract ContextMenu getMenu();
@@ -708,6 +824,10 @@ public class HomeController implements Initializable {
                 Integer newCellId = c.getId();
                 Part newPart = new Part(hm.getHistionMap().get(0).
                                 getItemMap().get(cellId).getItemMap().get(partId), newCellId);
+                String name = newPart.getName();
+                name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                name += "(Copy)";
+                newPart.setName("Part <" + name + ">");
                 hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).
                         addChild(newPart);
             });
@@ -828,69 +948,6 @@ public class HomeController implements Initializable {
                SameSide(v4, v1, v2, v3, p);   
     }
     
-    HistionTreeItem histion;
-    private final ObservableMap<Integer, CellTreeItem> cellTreeItemMap = 
-            FXCollections.observableMap(new ConcurrentHashMap());
-    private final ObservableMap<Integer, PartTreeItem> partTreeItemMap = 
-            FXCollections.observableMap(new ConcurrentHashMap());
-    
-    private final MapChangeListener<Integer, Part> partListener
-            = (change) -> {
-                if (change.wasRemoved() && change.wasAdded()) {
-                    Part p = (Part) change.getValueAdded();
-                    partTreeItemMap.get(p.getId()).getValue().setName(p.getName());
-                } else if (change.wasAdded()) {
-                    Part addedPart = (Part) change.getValueAdded();
-                    PartTreeItem pti = new PartTreeItem(addedPart);
-                    histion.getChildren().forEach(c -> {
-                        if (c.getValue().getId() == addedPart.getCellId()) {
-                            c.getChildren().add(pti);
-                        }
-                    });
-                    partTreeItemMap.put(addedPart.getId(), pti);
-                } else if (change.wasRemoved()) {
-                    Part removedPart = (Part) change.getValueRemoved();
-                    histion.getChildren().forEach(c -> {
-                        if (c.getValue().getId() == removedPart.getCellId()) {
-                            c.getChildren().remove(partTreeItemMap.get(removedPart.getId()));
-                        }
-                    });
-                    partTreeItemMap.remove(removedPart.getId());
-                }
-            };
-    
-    private final MapChangeListener<Integer, Cell> cellListener
-            = (change) -> {
-                if (change.wasRemoved() && change.wasAdded()) {
-                    Cell c = (Cell) change.getValueAdded();
-                    Cell removedShape = (Cell) change.getValueRemoved();
-                    cellTreeItemMap.get(c.getId()).getValue().setName(c.getName());
-                    removedShape.getItemMap().removeListener(partListener);
-                    c.getItemMap().addListener(partListener);
-                } else if (change.wasAdded()) {
-                    Cell addedCell = (Cell) change.getValueAdded();
-                    CellTreeItem cti = new CellTreeItem(addedCell);
-                    histion.getChildren().add(cti);
-                    cellTreeItemMap.put(addedCell.getId(), cti);
-                    addedCell.getItemMap().addListener(partListener);
-                    addedCell.getItems().forEach(p -> {
-                        PartTreeItem pti = new PartTreeItem(p);
-                        histion.getChildren().forEach(c -> {
-                            if (c.getValue().getId() == addedCell.getId()) {
-                                c.getChildren().add(pti);
-                            }
-                        });
-                        //histion.getChildren().get(addedCell.getId()).getChildren().add(pti);
-                        partTreeItemMap.put(p.getId(), pti);
-                    });
-                } else if (change.wasRemoved()) {
-                    Cell removedShape = (Cell) change.getValueRemoved();
-                    histion.getChildren().remove(cellTreeItemMap.get(removedShape.getId()));
-                    cellTreeItemMap.remove(removedShape.getId());
-                    removedShape.getItemMap().removeListener(partListener);
-                }
-            };
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
@@ -907,6 +964,8 @@ public class HomeController implements Initializable {
             pastePartDisabledProperty.set(true);
             pasteCellDisabledProperty.set(true);
         }
+        
+        //System.out.println(partTreeItemMap.size());
         
         histion = new HistionTreeItem(hm.getHistionMap().get(0));
         
@@ -963,6 +1022,13 @@ public class HomeController implements Initializable {
     
     public void setTreeViewSize(int width, int height) {
         shapeTreeView.setPrefSize(width, height);
+    }
+    
+    public void removeListeners() {
+        hm.getHistionMap().get(0).getItemMap().removeListener(cellListener);
+        hm.getHistionMap().get(0).getItems().forEach(c -> {
+            c.getItemMap().removeListener(partListener);
+        });
     }
     
 }

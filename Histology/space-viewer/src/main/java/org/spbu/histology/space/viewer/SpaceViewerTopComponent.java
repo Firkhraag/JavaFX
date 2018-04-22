@@ -232,7 +232,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         handleKeyboard();
         handleMouseEvents();       
         
-        hm = Lookup.getDefault().lookup(HistionManager.class);
+        /*hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
@@ -242,7 +242,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         hm.addListener(histionListener);
         
         if (hm.getHistionMap().isEmpty())
-            hm.addHistion(new Histion("Main histion",0,0,0,0,0));
+            hm.addHistion(new Histion("Main histion",0,0,0,0,0));*/
         
         buildCrossSectionPlane();
         fxPanel.setScene(scene);  
@@ -568,7 +568,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         dataSize = 0;
         nodeAvg = new Point3D(0, 0, 0);
         hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
-            System.out.println(p.getId() + " " + p.getName());
             for (TetgenPoint point : p.getPointData()) {
                 pointData.add(new TetgenPoint(point));
                 nodeAvg = new Point3D(nodeAvg.getX() + point.getX(), nodeAvg.getY() + point.getY(), nodeAvg.getZ() + point.getZ());
@@ -1229,12 +1228,27 @@ public final class SpaceViewerTopComponent extends TopComponent {
     public void componentOpened() {
         addCameraViewListener();
         addCrossSectionListener();
+        hm = Lookup.getDefault().lookup(HistionManager.class);
+        if (hm == null) {
+            LifecycleManager.getDefault().exit();
+        }
+        hm.getAllHistions().forEach(h -> {
+            h.getItemMap().addListener(cellListener);
+        });
+        hm.addListener(histionListener);
+        
+        if (hm.getHistionMap().isEmpty())
+            hm.addHistion(new Histion("Main histion",0,0,0,0,0));
     }
 
     @Override
     public void componentClosed() {
         removeCameraViewListener();
         removeCrossSectionListener();
+        hm.getAllHistions().forEach(h -> {
+            h.getItemMap().removeListener(cellListener);
+        });
+        hm.removeListener(histionListener);
         // TODO add custom code on component closing
     }
 

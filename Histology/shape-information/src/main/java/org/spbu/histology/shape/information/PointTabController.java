@@ -177,6 +177,7 @@ public class PointTabController implements Initializable {
             hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
                 newCell.addChild(p);
             });
+            //newCell.addChild(new Part(partId, "Part <" + nameField.getText() + ">", data, cellId));
             hm.getHistionMap().get(0).addChild(newCell);
         }
         Stage stage = (Stage) doneButton.getScene().getWindow();
