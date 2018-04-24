@@ -36,7 +36,7 @@ public class HistionInformationInitialization {
         Scene scene = new Scene(root, 480, 420);
         stage.setScene(scene);
         stage.setTitle("Histion");
-        stage.showAndWait();
+        stage.show();
     }
     
 }

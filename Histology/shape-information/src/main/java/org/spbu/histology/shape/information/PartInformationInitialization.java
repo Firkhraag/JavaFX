@@ -114,6 +114,6 @@ public class PartInformationInitialization {
         primaryStage.heightProperty().addListener((obs, oldVal, newVal) -> {
             pointTabController.setTableHeight(primaryStage.getHeight() - 120);
         });
-        primaryStage.showAndWait();
+        primaryStage.show();
     }
 }

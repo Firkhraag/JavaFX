@@ -32,7 +32,7 @@ public class CellInformationInitialization {
             stage.heightProperty().addListener((obs, oldVal, newVal) -> {
                 mainController.setTableHeight(stage.getHeight() - 100);
             });
-            stage.showAndWait();
+            stage.show();
         } catch (Exception ex) {
             Logger.getLogger(CellInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);
             return;
