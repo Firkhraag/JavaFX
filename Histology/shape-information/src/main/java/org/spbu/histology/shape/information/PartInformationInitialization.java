@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
@@ -92,6 +93,7 @@ public class PartInformationInitialization {
                 int yPos = (int)e.getY();
                 if (xPos >= 0 && xPos <= width && yPos >= 0 && yPos <= height) {
                     Rectangle r = new Rectangle();
+                    r.setStroke(Color.BLACK);
                     r.setX(xPos - 2);
                     r.setY(yPos - 2);
                     r.setWidth(5);

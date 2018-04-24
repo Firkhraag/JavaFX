@@ -67,8 +67,7 @@ public final class SpaceEditorTopComponent extends TopComponent {
         Platform.setImplicitExit(false);
         Platform.runLater(() -> {
             createScene(0);
-        });
-        fxPanel.addComponentListener(new ComponentAdapter() {
+            fxPanel.addComponentListener(new ComponentAdapter() {
             public void componentResized(ComponentEvent e) {
                 switch (ChosenTool.getToolNumber()) {
                     case 0:
@@ -85,6 +84,7 @@ public final class SpaceEditorTopComponent extends TopComponent {
                         break;
                 }
             }
+        });
         });
     }
     

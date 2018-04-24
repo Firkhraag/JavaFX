@@ -783,6 +783,9 @@ public class HomeController implements Initializable {
             
             editHistion.disableProperty().bind(disableEverything);
             addCell.disableProperty().bind(disableEverything);
+            if (hm.getAllHistions().size() > 1) {
+                fillModel.setSelected(true);
+            }
             return new ContextMenu(editHistion, addCell, pasteCell, fillModel);
         }
     }
