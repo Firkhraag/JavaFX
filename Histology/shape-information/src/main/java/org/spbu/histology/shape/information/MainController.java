@@ -236,6 +236,16 @@ public class MainController implements Initializable {
                     case E:
                         camera.setTranslateY(camera.getTranslateY() - 10);
                         break;
+                    case ESCAPE:
+                        if (linePointsList.size() == 1) {
+                            final PhongMaterial blackMaterial = new PhongMaterial();
+                            blackMaterial.setDiffuseColor(Color.BLACK);
+                            blackMaterial.setSpecularColor(Color.BLACK);
+                            linePointsList.clear();
+                            boxList.get(indexList.get(0) - 1).setMaterial(blackMaterial);
+                            indexList.clear();
+                        }
+                        break;
                 }
             }
         });

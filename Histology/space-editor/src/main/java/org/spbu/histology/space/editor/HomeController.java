@@ -980,7 +980,12 @@ public class HomeController implements Initializable {
             c.getItemMap().addListener(partListener);
             c.getItems().forEach(p -> {
                 PartTreeItem pti = new PartTreeItem(p);
-                histion.getChildren().get(c.getId()).getChildren().add(pti);
+                //histion.getChildren().get(c.getId()).getChildren().add(pti);
+                histion.getChildren().forEach(cell -> {
+                    if (cell.getValue().getId() == c.getId()) {
+                        cell.getChildren().add(pti);
+                    }
+                });
                 partTreeItemMap.put(p.getId(), pti);
             });
         });
