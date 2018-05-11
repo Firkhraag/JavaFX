@@ -86,27 +86,65 @@ public class CrossSectionController implements Initializable  {
     
     private final double crossSectPosLim = 900;
     
+    /*double oldValXRot = 0;
+    double oldValYRot = 0;
+    double oldValXPos = 0;
+    double oldValYPos = 0;
+    double oldValZPos = 0;*/
+    
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
+        double newVal = (double)newValue;
         if (change) {
-            xRotation.setText(newValue + "");
+            //if (Math.abs(newVal - oldValXRot) > 5) {
+                //oldValXRot = newVal;
+                xRotation.setText(newValue + "");
+            //}
         }
     };
     ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
-        if (change)    
-            yRotation.setText(newValue + "");
+        double newVal = (double)newValue;
+        if (change) {
+            if (change) {
+                //if (Math.abs(newVal - oldValYRot) > 5) {
+                   // oldValYRot = newVal;
+                    yRotation.setText(newValue + "");
+                //}
+            }
+        }
     };
     
     ChangeListener xPositionChangeListener = (v, oldValue, newValue) -> {
-        if (change)
-            xPosition.setText(newValue + "");
+        double newVal = (double)newValue;
+        if (change) {
+            if (change) {
+                //if (Math.abs(newVal - oldValXPos) > 5) {
+                   // oldValXPos = newVal;
+                    xPosition.setText(newValue + "");
+                //}
+            }
+        }
     };
     ChangeListener yPositionChangeListener = (v, oldValue, newValue) -> {
-        if (change)
-            yPosition.setText(newValue + "");
+        double newVal = (double)newValue;
+        if (change) {
+            if (change) {
+                //if (Math.abs(newVal - oldValYPos) > 5) {
+                   // oldValYPos = newVal;
+                    yPosition.setText(newValue + "");
+                //}
+            }
+        }
     };
     ChangeListener zPositionChangeListener = (v, oldValue, newValue) -> {
-        if (change)
-            zPosition.setText(newValue + "");
+        double newVal = (double)newValue;
+        if (change) {
+            if (change) {
+                //if (Math.abs(newVal - oldValZPos) > 5) {
+                    //oldValZPos = newVal;
+                    zPosition.setText(newValue + "");
+                //}
+            }
+        }
     };
     
     ChangeListener opaquenessChangeListener = (v, oldValue, newValue) -> {

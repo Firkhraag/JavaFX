@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javafx.application.Platform;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.collections.MapChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
@@ -12,12 +13,14 @@ import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
+import org.spbu.histology.model.CrossSection;
 
 /**
  * Top component which displays something.
@@ -45,10 +48,10 @@ import org.openide.util.NbBundle.Messages;
 })
 public final class CrossSectionViewerTopComponent extends TopComponent {
     
-    private static JFXPanel fxPanel;
-    private static Group root = new Group();
-    public static BooleanProperty initialized = new SimpleBooleanProperty(false);
-    private static final double paneSize = 4000;
+    private JFXPanel fxPanel;
+    private Group root = new Group();
+    //public BooleanProperty initialized = new SimpleBooleanProperty(false);
+    private final double paneSize = 4000;
     private double scale = 1.0;
 
     public CrossSectionViewerTopComponent() {
@@ -102,18 +105,22 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         scrollPane.setVvalue(0.5);
         Scene scene = new Scene(scrollPane);
         fxPanel.setScene(scene);
-        initialized.set(true);
+        CrossSection.initialized.set(true);
     }
     
-    public static void clear() {
+    public void clear() {
         root.getChildren().clear();
     }
     
-    public static void clearPolygonArray(ArrayList<Polygon> polygons) {
+    public void clearPolygonArray(ArrayList<Polygon> polygons) {
         polygons.forEach(p -> root.getChildren().remove(p));
     }
     
-    public static void show(ArrayList<Polygon> polygons) {
+    public void clearLineArray(ArrayList<Line> lines) {
+        lines.forEach(l -> root.getChildren().remove(l));
+    }
+    
+    public void show(ArrayList<Polygon> polygons) {
         if (fxPanel == null)
             return;  
         polygons.forEach(polygon -> {
@@ -123,19 +130,54 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         });
     }
     
-    /*public static void showLines(ArrayList<TwoPoints> lineList) {
+    public void showLines(ArrayList<Line> lineList) {
         if (fxPanel == null)
             return;  
-        lineList.forEach(tp -> {
-            Line line = new Line();
-            line.setStartX(tp.getPoint1().getX() + paneSize / 2);
+        lineList.forEach(line -> {
+            line.setTranslateX(paneSize / 2);
+            line.setTranslateY(paneSize / 2);
+            /*line.setStartX(tp.getPoint1().getX() + paneSize / 2);
             line.setStartY(tp.getPoint1().getZ() + paneSize / 2);
             line.setEndX(tp.getPoint2().getX() + paneSize / 2);
-            line.setEndY(tp.getPoint2().getZ() + paneSize / 2);
+            line.setEndY(tp.getPoint2().getZ() + paneSize / 2);*/
             root.getChildren().add(line);
         });
-    }*/
+    }
 
+    private final MapChangeListener<Integer, ArrayList<Line>> lineListener =
+            (change) -> {
+                if (change.wasRemoved()) {  
+                    for (Line l : change.getValueRemoved()) {
+                        root.getChildren().remove(l);
+                    }
+                }
+                //else if (change.wasAdded()) {
+                if (change.wasAdded()) {
+                    for (Line l : change.getValueAdded()) {
+                        l.setTranslateX(paneSize / 2);
+                        l.setTranslateY(paneSize / 2);
+                        root.getChildren().add(l);
+                    }
+                }
+            };
+    
+    private final MapChangeListener<Integer, ArrayList<Polygon>> polygonListener =
+            (change) -> {
+                if (change.wasRemoved()) {  
+                    for (Polygon p : change.getValueRemoved()) {
+                        root.getChildren().remove(p);
+                    }
+                }
+                //else if (change.wasAdded()) {
+                if (change.wasAdded()) {
+                    for (Polygon p : change.getValueAdded()) {
+                        p.setTranslateX(paneSize / 2);
+                        p.setTranslateY(paneSize / 2);
+                        root.getChildren().add(p);
+                    }
+                }
+            };
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -160,11 +202,15 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
+        CrossSection.getPolygonMap().addListener(polygonListener);
+        CrossSection.getLineMap().addListener(lineListener);
         // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
+        CrossSection.getPolygonMap().removeListener(polygonListener);
+        CrossSection.getLineMap().removeListener(lineListener);
         // TODO add custom code on component closing
     }
 

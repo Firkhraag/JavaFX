@@ -22,6 +22,6 @@ public final class SaveAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Platform.runLater(() -> SaveBox.display());
+        //Platform.runLater(() -> SaveBox.display());
     }
 }

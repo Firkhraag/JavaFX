@@ -1,4 +1,4 @@
-package org.spbu.histology.toolbar;
+package org.spbu.histology.space.editor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,9 +27,9 @@ import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.TwoIntegers;
 
-public class LoadBox {
+public class LoadPartBox {
     
-    public static void display() {
+    public static void display(Integer cellId) {
         
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -37,12 +37,13 @@ public class LoadBox {
         }
         
         Stage window = new Stage();
-        window.setTitle("Load");
+        //window.initStyle(StageStyle.UTILITY);
+        window.setTitle("Load part");
 
         String tempdir = System.getProperty("user.dir");
         for (int i = 0; i < 3; i++)
             tempdir = tempdir.substring(0, tempdir.lastIndexOf('\\'));
-        tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Histions\\";
+        tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Parts\\";
         final String dir = tempdir;
         File directory = new File(dir);
         ObservableList<String> textFiles = FXCollections.observableArrayList();
@@ -55,15 +56,6 @@ public class LoadBox {
         Label label = new Label("File name");
         final ComboBox comboBox = new ComboBox(textFiles);
         
-        final ToggleGroup group = new ToggleGroup();
-
-        RadioButton rb1 = new RadioButton("Replace current histion");
-        rb1.setToggleGroup(group);
-        rb1.setSelected(true);
-
-        RadioButton rb2 = new RadioButton("Add to current histion");
-        rb2.setToggleGroup(group);
-        
         hBox.getChildren().addAll(label, comboBox);
         hBox.setPadding(new Insets(10, 10, 10, 10));
         hBox.setSpacing(20);
@@ -72,22 +64,36 @@ public class LoadBox {
             if (!comboBox.getSelectionModel().isEmpty()) {
                 String selected = (String) comboBox.getSelectionModel().getSelectedItem();
                 try {
-                    if (hm.getHistionMap().isEmpty())
+                    /*if (hm.getHistionMap().isEmpty())
                         //hm.addHistion(new Histion("Main histion",0,0,0,0,0));
-                        hm.addHistion(new Histion("Main histion",0,0,0));
-                    else {
-                        if (rb1.isSelected()) {
-                            hm.getHistionMap().get(0).getItems().forEach(c -> {
-                                String name = c.getName();
-                                Names.removeCellName(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
-                                hm.getHistionMap().get(0).deleteChild(c.getId());
-                            });
-                        }
-                     }
+                        hm.addHistion(new Histion("Main histion",0,0,0));*/
                     Histion main = hm.getHistionMap().get(0);
                     BufferedReader br = new BufferedReader(new FileReader(dir + selected));
-                    String line = br.readLine();
                     
+                    double x,y,z;
+
+                    String line = br.readLine();
+
+                    ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+                    Part p = new Part("Part", FXCollections.observableArrayList(), cellId);
+                    //line = br.readLine();
+                    p.setName(line);
+
+                    line = br.readLine();
+                    int pointNum = Integer.parseInt(line);
+                    for (int q = 0; q < pointNum; q++) {
+                        line = br.readLine();
+                        x = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        y = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        z = Double.parseDouble(line);
+                        pointData.add(new TetgenPoint(q + 1, x, y, z));
+                    }
+                    p.setPointData(pointData);
+                    p.setAvgNode();
+                    hm.getHistionMap().get(0).getItemMap().get(cellId).addChild(p);
+                    /*
                     //main.setXRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
                     line = line.substring(line.indexOf(" ") + 1, line.length());
                     //main.setYRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
@@ -210,6 +216,7 @@ public class LoadBox {
                         });
                         hm.getHistionMap().get(0).addChild(newCell);
                     });*/
+                    br.close();
                 } catch (Exception ex) {
                     System.out.println("error");
                 }
@@ -218,10 +225,10 @@ public class LoadBox {
         });
 
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(hBox, rb1, rb2, closeButton);
+        layout.getChildren().addAll(hBox,closeButton);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 350, 200);
+        Scene scene = new Scene(layout, 300, 150);
         window.setScene(scene);
         window.showAndWait();
     }

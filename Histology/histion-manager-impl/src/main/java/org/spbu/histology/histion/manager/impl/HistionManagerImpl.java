@@ -9,6 +9,7 @@ import javafx.beans.InvalidationListener;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.scene.shape.MeshView;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service = HistionManager.class)
@@ -16,6 +17,13 @@ public class HistionManagerImpl implements HistionManager {
 
     private final ObservableMap<Integer, Histion> observableMap = 
             FXCollections.observableMap(new ConcurrentHashMap<>());
+    
+    private final ObservableMap<Integer, MeshView> shapeMap = 
+            FXCollections.observableMap(new ConcurrentHashMap());
+    
+    public ObservableMap<Integer, MeshView> getShapeMap() {
+        return shapeMap;
+    }
     
     @Override
     public void addListener(MapChangeListener<? super Integer, ? super Histion> m1) {

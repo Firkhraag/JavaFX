@@ -48,7 +48,10 @@ public class FacetTabController implements Initializable {
     BooleanProperty change = new SimpleBooleanProperty(false);
     
     Group root;
-    ArrayList<Line3D> lineList = new ArrayList<>();
+    private ArrayList<Line3D> lineList = new ArrayList<>();
+    //private ArrayList<Line3D3> line3List = new ArrayList<>();
+    //private ArrayList<Line3D5> line5List = new ArrayList<>();
+    
     double width, height;
     IntegerProperty count;
     private ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
@@ -66,8 +69,11 @@ public class FacetTabController implements Initializable {
         this.height = height;
     }
     
-    public void setLineList(ArrayList<Line3D> lineList) {
+    public void setLineList(ArrayList<Line3D> lineList) {//,
+            //ArrayList<Line3D3> line3List, ArrayList<Line3D5> line5List) {
         this.lineList = lineList;
+        //this.line3List = line3List;
+        //this.line5List = line5List;
     }
     
     public void setLineData(ObservableList<TwoIntegers> lineData) {
@@ -76,6 +82,11 @@ public class FacetTabController implements Initializable {
     
     public void setTableHeight(double height) {
         table.setPrefHeight(height);
+    }
+    
+    public void setData(ObservableList<TwoIntegers> data) {
+        this.data = data;
+        table.setItems(data);
     }
     
     @Override
@@ -91,8 +102,8 @@ public class FacetTabController implements Initializable {
         //setupP1Column();
         //setupP2Column();
         setTableEditable();
-        data = FXCollections.observableArrayList();
-        table.setItems(data);
+        //data = FXCollections.observableArrayList();
+        //table.setItems(data);
         table.setOnKeyPressed(e -> {
             if (e.getCode() == KeyCode.ESCAPE) {
                 table.getSelectionModel().clearSelection();
@@ -101,18 +112,30 @@ public class FacetTabController implements Initializable {
         table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (oldSelection != null) {
                 lineList.get(oldSelection.getId() - 1).setColor(Color.BLACK);
+                //line3List.get(oldSelection.getId() - 1).setColor(Color.BLACK);
+                //line5List.get(oldSelection.getId() - 1).setColor(Color.BLACK);
             }
             
             if (newSelection != null) {
                 lineList.get(newSelection.getId() - 1).setColor(Color.RED);
+                //line3List.get(newSelection.getId() - 1).setColor(Color.RED);
+                //line5List.get(newSelection.getId() - 1).setColor(Color.RED);
             }
         });
         MenuItem deletePoint = new MenuItem("Delete edge");
         deletePoint.setOnAction((ActionEvent event) -> {
             TwoIntegers item = table.getSelectionModel().getSelectedItem();
             data.remove(item.getId() - 1);
-            root.getChildren().remove(lineList.get(item.getId() - 1));
+            //root.getChildren().remove(lineList.get(item.getId() - 1));
+            root.getChildren().remove(lineList.get(item.getId() - 1).getMeshView());
+            //root.getChildren().remove(lineList.get(item.getId() - 1).getMeshView(2));
+            //root.getChildren().remove(lineList.get(item.getId() - 1).getMeshView(3));
+            //root.getChildren().remove(lineList.get(item.getId() - 1).getMeshView(4));
             lineList.remove(item.getId() - 1);
+            //root.getChildren().remove(line3List.get(item.getId() - 1));
+            //line3List.remove(item.getId() - 1);
+            //root.getChildren().remove(line5List.get(item.getId() - 1));
+            //line5List.remove(item.getId() - 1);
             lineData.remove(item.getId() - 1);
             count.set(count.get() - 1);
             for (int i = 0; i < data.size(); i++)

@@ -4,8 +4,11 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -28,8 +31,10 @@ import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.Node;
 import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
 
@@ -71,6 +76,8 @@ public class PointTabController implements Initializable {
     int initialSize;
     IntegerProperty count;
     Integer cellId, partId;
+    
+    Node avgNode = new Node(0, 0, 0);
     
     public void setIds(Integer cellId, Integer partId) {
         this.cellId = cellId;
@@ -148,9 +155,146 @@ public class PointTabController implements Initializable {
                 data.get(i).setId(i + 1);
             table.getSelectionModel().clearSelection();
         });
+        
+        MenuItem addToX = new MenuItem("Add to X Column");
+        addToX.setOnAction((ActionEvent event) -> {
+            DoubleProperty value = new SimpleDoubleProperty();
+            ChangePoints.display(value);
+            for (TetgenPoint p : data) {
+                p.setX(p.getX() + value.get());
+            }
+            for (Rectangle r : rectangleList) {
+                r.setX(r.getX() + value.get());
+            }
+            table.refresh();
+        });
+        
+        MenuItem addToZ = new MenuItem("Add to Z Column");
+        addToZ.setOnAction((ActionEvent event) -> {
+            DoubleProperty value = new SimpleDoubleProperty();
+            ChangePoints.display(value);
+            for (TetgenPoint p : data) {
+                p.setZ(p.getZ() + value.get());
+            }
+            for (Rectangle r : rectangleList) {
+                r.setY(r.getY() - value.get());
+            }
+            table.refresh();
+        });
+        
+        MenuItem scale = new MenuItem("Scale");
+        scale.setOnAction((ActionEvent event) -> {
+            DoubleProperty value = new SimpleDoubleProperty();
+            ChangePoints.display(value);
+            for (TetgenPoint p : data) {
+                p.setX(p.getX() * value.get());
+                p.setZ(p.getZ() * value.get());
+            }
+            for (int i = 0; i < data.size(); i++) {
+                rectangleList.get(i).setX((data.get(i).getX() + width / 2 - 2));
+                rectangleList.get(i).setY(((-1) * (data.get(i).getZ() - height / 2) - 2));
+            }
+            /*for (Rectangle r : rectangleList) {
+                r.setX((r.getX() + width / 2 - 2) * value.get());
+                r.setY(((-1) * (r.getY() - height / 2) - 2) * value.get());
+            }*/
+            table.refresh();
+        });
+        
+        MenuItem rotate = new MenuItem("Rotate");
+        rotate.setOnAction((ActionEvent event) -> {
+            DoubleProperty value = new SimpleDoubleProperty();
+            ChangePoints.display(value);
+            double ang = Math.toRadians(value.get());
+            for (TetgenPoint p : data) {
+                double x = p.getX() - avgNode.x;
+                double z = p.getZ() - avgNode.z;
+                double temp = x;
+                x = x*Math.cos(ang) - z*Math.sin(ang);
+                z = temp * Math.sin(ang) + p.getZ() * Math.cos(ang);
+                p.setX(x + avgNode.x);
+                p.setZ(z + avgNode.z);
+                //p.setX(p.getX()*Math.cos(ang) - p.getZ()*Math.sin(ang));
+                //p.setZ(temp * Math.sin(ang) + p.getZ() * Math.cos(ang));
+            }
+            for (int i = 0; i < data.size(); i++) {
+                rectangleList.get(i).setX((data.get(i).getX() + width / 2 - 2));
+                rectangleList.get(i).setY(((-1) * (data.get(i).getZ() - height / 2) - 2));
+            }
+            /*for (Rectangle r : rectangleList) {
+                r.setX((r.getX() + width / 2 - 2) * value.get());
+                r.setY(((-1) * (r.getY() - height / 2) - 2) * value.get());
+            }*/
+            table.refresh();
+        });
+        
+        MenuItem allignWithClosestLayer = new MenuItem("Allign with the closest layer");
+        allignWithClosestLayer.setOnAction((ActionEvent event) -> {
+            if (data.size() > 0) {
+                double y = data.get(0).getY();
+                DoubleProperty diff = new SimpleDoubleProperty(10000);
+                IntegerProperty otherPart = new SimpleIntegerProperty(-1);
+                hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
+                    if (p.getId() != partId) {
+                        //System.out.println("21343242423");
+                        if (Math.abs(p.getPointData().get(0).getY() - y) < diff.get()) {
+                            diff.set(Math.abs(p.getPointData().get(0).getY() - y));
+                            System.out.println(diff.get());
+                            otherPart.set(p.getId());
+                        }
+                    }
+                });
+                if (otherPart.get() != -1) {
+                    Node avg = hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(otherPart.get()).getAvgNode();
+                    /*Node avgNode = new Node(0, 0, 0);
+                    for (TetgenPoint p : data) {
+                        avgNode.x += p.getX();
+                        avgNode.z += p.getZ();
+                    }
+                    avgNode.x /= data.size();
+                    avgNode.z /= data.size();*/
+                    System.out.println("Avg " + avg.x + " " + avg.z);
+                    for (TetgenPoint p : data) {
+                        p.setX(p.getX() + (avg.x - avgNode.x));
+                        p.setZ(p.getZ() + (avg.z - avgNode.z));
+                    }
+                    for (Rectangle r : rectangleList) {
+                        r.setX(r.getX() + (avg.x - avgNode.x));
+                        r.setY(r.getY() - (avg.z - avgNode.z));
+                    }
+                    table.refresh();
+                }
+            }
+        });
+        
+        MenuItem showCentralPointCoordinates = new MenuItem("Show central point coordinates");
+        showCentralPointCoordinates.setOnAction((ActionEvent event) -> {
+            AlertBox.display("Central point", "X: " + avgNode.x + " ; Z: " + avgNode.z);
+        });
+        
+        /*MenuItem allignWithLowerLayer = new MenuItem("Allign with lower layer");
+        allignWithUpperLayer.setOnAction((ActionEvent event) -> {
+            AlertBox.display("Avg", "");
+        });*/
+        
+        //newX = centerX + (point2x-centerX)*Math.cos(x) - (point2y-centerY)*Math.sin(x);
+
+//newY = centerY + (point2x-centerX)*Math.sin(x) + (point2y-centerY)*Math.cos(x);
+        
+        /*MenuItem addValue = new MenuItem("Add value to column");
+        deletePoint.setOnAction((ActionEvent event) -> {
+            TetgenPoint item = table.getSelectionModel().getSelectedItem();
+            data.remove(item.getId() - 1);
+            root.getChildren().remove(rectangleList.get(item.getId() - 1));
+            rectangleList.remove(item.getId() - 1);
+            count.set(count.get() - 1);
+            for (int i = 0; i < data.size(); i++)
+                data.get(i).setId(i + 1);
+            table.getSelectionModel().clearSelection();
+        });*/
 
         ContextMenu menu = new ContextMenu();
-        menu.getItems().add(deletePoint);
+        menu.getItems().addAll(deletePoint, addToX, addToZ, scale, rotate, allignWithClosestLayer, showCentralPointCoordinates);
         table.setContextMenu(menu);
         table.setStyle("-fx-focus-color: transparent;\n" +
             "    -fx-faint-focus-color: transparent;");
@@ -158,7 +302,17 @@ public class PointTabController implements Initializable {
     }
     
     public void addPoint(TetgenPoint p) {
+        if (data.size() > 0) {
+            p.setY(data.get(0).getY());
+        }
         data.add(p);
+        avgNode = new Node(0, 0, 0);
+        for (TetgenPoint point : data) {
+            avgNode.x += point.getX();
+            avgNode.z += point.getZ();
+        }
+        avgNode.x /= data.size();
+        avgNode.z /= data.size();
     }
     
     @FXML

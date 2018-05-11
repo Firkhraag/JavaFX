@@ -4,6 +4,7 @@ import java.util.List;
 import javafx.beans.InvalidationListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
+import javafx.scene.shape.MeshView;
 
 public interface HistionManager {
     
@@ -24,5 +25,7 @@ public interface HistionManager {
     public List<Histion> getAllHistions();
     
     public ObservableMap<Integer, Histion> getHistionMap();
+    
+    public ObservableMap<Integer, MeshView> getShapeMap();
     
 }

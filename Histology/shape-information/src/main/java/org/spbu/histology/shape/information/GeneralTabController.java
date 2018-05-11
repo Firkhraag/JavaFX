@@ -20,7 +20,10 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.Line;
+import org.spbu.histology.model.LineEquations;
 import org.spbu.histology.model.Names;
+import org.spbu.histology.model.Node;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.TwoIntegers;
 
@@ -63,9 +66,11 @@ public class GeneralTabController implements Initializable {
 
     private ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
     private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
-    ObservableList<TwoIntegers> lineList;
+    private ObservableList<TwoIntegers> lineList;
     
-    BooleanProperty change;
+    //private ObservableList<TwoIntegers> data;
+    
+    private BooleanProperty change;
     
     public void setCell(Cell c, BooleanProperty change,
             ObservableList<TwoIntegers> lineData, ObservableList<TetgenPoint> pointData) {
@@ -84,6 +89,10 @@ public class GeneralTabController implements Initializable {
         diffuseColorPicker.setValue(c.getDiffuseColor());
         specularColorPicker.setValue(c.getSpecularColor());
     }
+    
+    /*public void setData(ObservableList<TwoIntegers> data) {
+        this.data = data;
+    }*/
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -195,13 +204,29 @@ public class GeneralTabController implements Initializable {
         }
     }
     
-    private void findFacets() {
+    private void findFacets(ArrayList<Line> lines) {
         int p, initialP;
         ArrayList<Integer> pl = new ArrayList<>();
         ArrayList<TetgenPoint> planePointsList = new ArrayList<>();
+        //ArrayList<Line> lines = new ArrayList<>();
         
         int cur;
         for (int j = 0; j < lineList.size(); j++) {
+   
+            TetgenPoint point1 = pointData.get(lineList.get(j).getPoint1() - 1);
+            TetgenPoint point2 = pointData.get(lineList.get(j).getPoint2() - 1);
+            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
+                lines.add(new Line(new Node(point1.getX(), point1.getZ(), point1.getY()),
+                        new Node(point2.getX(), point2.getZ(), point2.getY())));
+            }
+                        /*for (int j = i + 1; j < pl.size(); j++) {
+                            TetgenPoint point2 = pl.get(j);
+                            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
+                                lines.add(new Line(new Node(point1.getX(), point1.getZ(), point1.getY()),
+                                        new Node(point2.getX(), point2.getZ(), point2.getY())));
+                            }
+                        }*/
+            
             p = lineList.get(j).getPoint1();
             planePointsList.add(pointData.get(p - 1));
             planePointsList.add(pointData.get(lineList.get(j).getPoint2() - 1));
@@ -261,6 +286,7 @@ public class GeneralTabController implements Initializable {
     @FXML
     private void buttonAction() {
         double xRot, yRot, xTran, yTran, zTran;
+        ArrayList<Line> lines = new ArrayList<>();
         try {
             xRot = Double.parseDouble(xRotationField.getText());
             yRot = Double.parseDouble(yRotationField.getText());
@@ -276,13 +302,16 @@ public class GeneralTabController implements Initializable {
             Names.addCellName(name);
             AlertBox.display("Error", "This name is already used");
         } else {
-            findFacets();
+            findFacets(lines);
             for (ArrayList<Integer> ar : facetData) {
                 System.out.println(ar);
             }
             Cell c = new Cell(cellId, "Cell <" + nameField.getText() + ">",
-                    xRot, yRot, xTran, yTran, zTran, facetData,
+                    xRot, yRot, xTran, yTran, zTran, facetData, lineList,
                     diffuseColorPicker.getValue(), specularColorPicker.getValue(), 0, true);
+            
+            LineEquations.addLine(c.getId(), lines);
+            
             hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
                 System.out.println(p.getId() + " " + p.getName());
                 c.addChild(p);
@@ -296,6 +325,13 @@ public class GeneralTabController implements Initializable {
                 hm.getHistionMap().get(0).addChild(newCell);
             });
             Names.addCellName(nameField.getText());
+            
+            for (TwoIntegers ti : lineList) {
+                pointData.get(ti.getPoint2() - 1);
+                pointData.get(ti.getPoint1() - 1);
+            }
+            
+            
             Stage stage = (Stage) createButton.getScene().getWindow();
             stage.close();
         }

@@ -28,9 +28,9 @@ public class Node {
 
         Node node = (Node) o;
 
-        return node.x == x &&
-                node.y == y &&
-                node.z == z;
+        return Math.abs(node.x - x) < 0.000001 &&
+                Math.abs(node.y - y) < 0.000001 &&
+                Math.abs(node.z - z) < 0.000001;
     }
             
 }

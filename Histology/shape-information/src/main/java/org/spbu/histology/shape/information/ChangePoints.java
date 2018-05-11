@@ -1,7 +1,9 @@
-package org.spbu.histology.toolbar;
+package org.spbu.histology.shape.information;
 
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
 import javafx.stage.*;
 import javafx.scene.*;
 import javafx.scene.layout.*;
@@ -9,15 +11,13 @@ import javafx.geometry.*;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
-import javafx.scene.shape.Mesh;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.HistionManager;
-import org.spbu.histology.util.MeshUtils;
 
-public class SaveToSTLBox {
+public class ChangePoints {
     
-    public static void display() {
+    public static void display(DoubleProperty value) {
         
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -25,40 +25,26 @@ public class SaveToSTLBox {
         }
         
         Stage window = new Stage();
-        window.setTitle("To STL");
+        window.initStyle(StageStyle.UTILITY);
+        window.setTitle("Change");
 
         
         HBox hBox = new HBox();
-        Label label = new Label("STL file name");
+        Label label = new Label("Change");
         TextField field = new TextField();
+        field.setPrefWidth(100);
         hBox.getChildren().addAll(label, field);
         hBox.setPadding(new Insets(10, 10, 10, 10));
         hBox.setSpacing(20);
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> {
-            ArrayList<Mesh> meshList = new ArrayList<>();
-            //hm.getHistionMap().get(0).getShapeMap().forEach((i, m) -> {
-            hm.getShapeMap().forEach((i, m) -> {
-                meshList.add(m.getMesh());
-            });
-
-            //if (hm.getHistionMap().get(0).getShapeMap().isEmpty()) {
-            if (hm.getShapeMap().isEmpty()) {
-                return;
-            }
-
-            String dir = System.getProperty("user.dir");
-            for (int i = 0; i < 3; i++) {
-                dir = dir.substring(0, dir.lastIndexOf('\\'));
-            }
-            dir = dir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\3D Printer\\";
-
             try {
-                MeshUtils.mesh2STL(dir + field.getText() + ".stl", meshList);
+                double v = Double.parseDouble(field.getText());
+                value.set(v);
+                window.close();
             } catch (Exception ex) {
-
+                
             }
-            window.close();
         });
         closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));
 
@@ -66,7 +52,7 @@ public class SaveToSTLBox {
         layout.getChildren().addAll(hBox, closeButton);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 350, 150);
+        Scene scene = new Scene(layout, 220, 150);
         window.setScene(scene);
         window.showAndWait();
     }

@@ -22,6 +22,6 @@ public final class LoadAction implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Platform.runLater(() -> LoadBox.display());
+        //Platform.runLater(() -> LoadBox.display());
     }
 }

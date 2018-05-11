@@ -11,21 +11,19 @@ public class Histion extends HistologyObject<Cell> {
     
     private static int count = 0;
 
-    public Histion(String name, double xRot, double yRot, double xPos, 
-            double yPos, double zPos) {
+    public Histion(String name, double xPos, double yPos, double zPos) {
         super(count++, name);
-        this.xRotate.set(xRot);
-        this.yRotate.set(yRot);
+        //this.xRotate.set(xRot);
+        //this.yRotate.set(yRot);
         this.xCoordinate.set(xPos);
         this.yCoordinate.set(yPos);
         this.zCoordinate.set(zPos);
     }
     
-    public Histion(Integer id, String name, double xRot, double yRot, double xPos,
-            double yPos, double zPos) {
+    public Histion(Integer id, String name, double xPos, double yPos, double zPos) {
         super(id, name);
-        this.xRotate.set(xRot);
-        this.yRotate.set(yRot);
+        //this.xRotate.set(xRot);
+        //this.yRotate.set(yRot);
         this.xCoordinate.set(xPos);
         this.yCoordinate.set(yPos);
         this.zCoordinate.set(zPos);
@@ -33,8 +31,8 @@ public class Histion extends HistologyObject<Cell> {
     
     public Histion(Histion h) {
         super(count++, h.getName());
-        this.xRotate.set(h.getXRotate());
-        this.yRotate.set(h.getYRotate());
+        //this.xRotate.set(h.getXRotate());
+        //this.yRotate.set(h.getYRotate());
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
@@ -42,14 +40,14 @@ public class Histion extends HistologyObject<Cell> {
     
     public Histion(Integer id, Histion h) {
         super(id, h.getName());
-        this.xRotate.set(h.getXRotate());
-        this.yRotate.set(h.getYRotate());
+        //this.xRotate.set(h.getXRotate());
+        //this.yRotate.set(h.getYRotate());
         this.xCoordinate.set(h.getXCoordinate());
         this.yCoordinate.set(h.getYCoordinate());
         this.zCoordinate.set(h.getZCoordinate());
     }
     
-    private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
+    /*private final DoubleProperty xRotate = new SimpleDoubleProperty(0);
     public final DoubleProperty xRotateProperty() {
         return this.xRotate;
     }
@@ -73,7 +71,7 @@ public class Histion extends HistologyObject<Cell> {
     
     public final void setYRotate(double yRotate) {
         this.yRotateProperty().set(yRotate);
-    }
+    }*/
     
     private final DoubleProperty xCoordinate = new SimpleDoubleProperty(0);
     public final DoubleProperty xCoordinateProperty() {
@@ -114,7 +112,7 @@ public class Histion extends HistologyObject<Cell> {
         this.zCoordinateProperty().set(zCoordinate);
     }
     
-    private ObservableMap<Integer, MeshView> shapeMap = 
+    /*private ObservableMap<Integer, MeshView> shapeMap = 
             FXCollections.observableMap(new ConcurrentHashMap());
     
     public ObservableMap<Integer, MeshView> getShapeMap() {
@@ -123,7 +121,7 @@ public class Histion extends HistologyObject<Cell> {
     
     public void setShapeMap(ObservableMap<Integer, MeshView> shapeMap) {
         this.shapeMap = FXCollections.observableMap(new ConcurrentHashMap(shapeMap));
-    }
+    }*/
 
     @Override
     public void addChild(Cell c) {

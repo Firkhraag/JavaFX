@@ -41,7 +41,7 @@ public class AddBox {
         closeButton.setOnAction(e -> {
             if (!Names.containsCellName(field.getText())) {
                 hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
-                        0, 0, 0, 0, 0, FXCollections.observableArrayList(),
+                        0, 0, 0, 0, 0, FXCollections.observableArrayList(), FXCollections.observableArrayList(),
                         Color.RED, Color.RED, histionId, false));
                 Names.addCellName(field.getText());
                 window.close();

@@ -72,8 +72,8 @@ public class HistionInformationController implements Initializable  {
         hId = histionId;
         String name = hm.getHistionMap().get(histionId).getName();
         nameField.setText(name);
-        xRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXRotate()));
-        yRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getYRotate()));
+        //xRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXRotate()));
+        //yRotationField.setText(String.valueOf(hm.getHistionMap().get(histionId).getYRotate()));
         xPositionField.setText(String.valueOf(hm.getHistionMap().get(histionId).getXCoordinate()));
         yPositionField.setText(String.valueOf(hm.getHistionMap().get(histionId).getYCoordinate()));
         zPositionField.setText(String.valueOf(hm.getHistionMap().get(histionId).getZCoordinate()));
@@ -93,8 +93,8 @@ public class HistionInformationController implements Initializable  {
             return;
         }
         hm.getHistionMap().get(hId).setName(nameField.getText());
-        hm.getHistionMap().get(hId).setXRotate(xRot);
-        hm.getHistionMap().get(hId).setYRotate(yRot);
+        //hm.getHistionMap().get(hId).setXRotate(xRot);
+        //hm.getHistionMap().get(hId).setYRotate(yRot);
         hm.getHistionMap().get(hId).setXCoordinate(xTran);
         hm.getHistionMap().get(hId).setYCoordinate(yTran);
         hm.getHistionMap().get(hId).setZCoordinate(zTran);

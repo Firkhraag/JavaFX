@@ -1,4 +1,4 @@
-package org.spbu.histology.toolbar;
+package org.spbu.histology.space.editor;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,6 +22,8 @@ import org.openide.util.Lookup;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.Line;
+import org.spbu.histology.model.LineEquations;
 import org.spbu.histology.model.Names;
 import org.spbu.histology.model.Part;
 import org.spbu.histology.model.TetgenPoint;
@@ -37,12 +39,21 @@ public class LoadBox {
         }
         
         Stage window = new Stage();
-        window.setTitle("Load");
+        //window.initStyle(StageStyle.UTILITY);
+        window.setTitle("Load histion");
 
         String tempdir = System.getProperty("user.dir");
         for (int i = 0; i < 3; i++)
             tempdir = tempdir.substring(0, tempdir.lastIndexOf('\\'));
         tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Histions\\";
+        /*switch (mode) {
+            case 1:
+                tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Histions\\";
+                break;
+            case 2:
+                tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Cells\\";
+                break;
+        }*/
         final String dir = tempdir;
         File directory = new File(dir);
         ObservableList<String> textFiles = FXCollections.observableArrayList();
@@ -72,10 +83,10 @@ public class LoadBox {
             if (!comboBox.getSelectionModel().isEmpty()) {
                 String selected = (String) comboBox.getSelectionModel().getSelectedItem();
                 try {
-                    if (hm.getHistionMap().isEmpty())
+                    /*if (hm.getHistionMap().isEmpty())
                         //hm.addHistion(new Histion("Main histion",0,0,0,0,0));
-                        hm.addHistion(new Histion("Main histion",0,0,0));
-                    else {
+                        hm.addHistion(new Histion("Main histion",0,0,0));*/
+                    //else {
                         if (rb1.isSelected()) {
                             hm.getHistionMap().get(0).getItems().forEach(c -> {
                                 String name = c.getName();
@@ -83,7 +94,7 @@ public class LoadBox {
                                 hm.getHistionMap().get(0).deleteChild(c.getId());
                             });
                         }
-                     }
+                    //}
                     Histion main = hm.getHistionMap().get(0);
                     BufferedReader br = new BufferedReader(new FileReader(dir + selected));
                     String line = br.readLine();
@@ -151,6 +162,9 @@ public class LoadBox {
                         
                         line = br.readLine();
                         int partNum = Integer.parseInt(line);
+                        
+                        ArrayList<TetgenPoint> pd = new ArrayList<>();
+                        int num = 1;
                         for (int j = 0; j < partNum; j++) {
                             ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
                             Part p = new Part("Part", FXCollections.observableArrayList(), c.getId());
@@ -167,8 +181,11 @@ public class LoadBox {
                                 line = line.substring(line.indexOf(" ") + 1, line.length());
                                 b = Double.parseDouble(line);
                                 pointData.add(new TetgenPoint(q + 1, r, g, b));
+                                pd.add(new TetgenPoint(num, r, g, b));
+                                num++;
                             }
                             p.setPointData(pointData);
+                            p.setAvgNode();
                             c.addChild(p);
                         }
                         line = br.readLine();
@@ -185,7 +202,32 @@ public class LoadBox {
                         }
                         c.setFacetData(facetData);
     
-                        ObservableList<TwoIntegers> data = FXCollections.observableArrayList();
+                        ArrayList<TwoIntegers> lineList = new ArrayList<>();
+                        for (ArrayList<Integer> f : facetData) {
+                            for (int j = 1; j < f.size(); j++) {
+                                TwoIntegers ti = new TwoIntegers(j , f.get(j - 1), f.get(j));
+                                if (!lineList.contains(ti))
+                                    lineList.add(ti);
+                            }
+                            TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
+                            if (!lineList.contains(ti)) {
+                                lineList.add(ti);
+                            }
+                        }
+                        
+                        ArrayList<Line> lines = new ArrayList<>();
+                        for (int j = 0; j < lineList.size(); j++) {
+
+                            TetgenPoint point1 = pd.get(lineList.get(j).getPoint1() - 1);
+                            TetgenPoint point2 = pd.get(lineList.get(j).getPoint2() - 1);
+                            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
+                                lines.add(new Line(new org.spbu.histology.model.Node(point1.getX(), point1.getZ(), point1.getY()),
+                                        new org.spbu.histology.model.Node(point2.getX(), point2.getZ(), point2.getY())));
+                            }
+                        }
+                        LineEquations.addLine(c.getId(), lines);
+                        
+                        /*ObservableList<TwoIntegers> data = FXCollections.observableArrayList();
                         
                         for (ArrayList<Integer> f : facetData) {
                             for (int j = 1; j < f.size(); j++) {
@@ -195,7 +237,7 @@ public class LoadBox {
                             TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
                             data.add(ti);
                         }
-                        c.setEdges(data);
+                        c.setEdges(data);*/
                         
                         main.addChild(c);
                         //String name = c.getName();

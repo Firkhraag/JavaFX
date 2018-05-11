@@ -86,6 +86,16 @@ public class Cell extends HistologyObject<Part> {
         this.facetData = FXCollections.observableArrayList(facetData);
     }
     
+    private ObservableList<TwoIntegers> edges;
+    
+    public ObservableList<TwoIntegers> getEdges() {
+        return edges;
+    }
+    
+    public void setEdges(ObservableList<TwoIntegers> edges) {
+        this.edges = FXCollections.observableArrayList(edges);
+    }
+    
     private final ObjectProperty<Color> diffuseColor = new SimpleObjectProperty(this, "diffuseColor");
     public final ObjectProperty<Color> diffuseColorProperty() {
         return this.diffuseColor;
@@ -142,10 +152,20 @@ public class Cell extends HistologyObject<Part> {
         this.transformedPointData = FXCollections.observableArrayList(transformedPointData);
     }
     
+    /*private ArrayList<TwoPoints> lineData = new ArrayList();
+    
+    public ArrayList<TwoPoints> getLineData() {
+        return lineData;
+    }
+    
+    public void setLineData(ArrayList<TwoPoints> transformedPointData) {
+        this.lineData = new ArrayList(lineData);
+    }*/
+    
     private static Integer count = 0;
     
     public Cell(String name, double xRot, double yRot, double x, double y, double z,
-            ObservableList<ArrayList<Integer>> facetData, //int maxNumberOfPoints, 
+            ObservableList<ArrayList<Integer>> facetData, ObservableList<TwoIntegers> edges, 
             Color diffCol, Color specCol, Integer histionId, boolean show) {  
         super(count++, name);
         this.xRotate.set(xRot);
@@ -154,6 +174,7 @@ public class Cell extends HistologyObject<Part> {
         this.yCoordinate.set(y);
         this.zCoordinate.set(z);
         this.facetData = FXCollections.observableArrayList(facetData);
+        this.edges = FXCollections.observableArrayList(edges);
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         this.histionId = histionId;
@@ -161,7 +182,7 @@ public class Cell extends HistologyObject<Part> {
     }
     
     public Cell(Integer id, String name, double xRot, double yRot, double x, double y, double z,
-            ObservableList<ArrayList<Integer>> facetData, Color diffCol,
+            ObservableList<ArrayList<Integer>> facetData, ObservableList<TwoIntegers> edges, Color diffCol,
             Color specCol, Integer histionId, boolean show) {  
         super(id, name);
         this.xRotate.set(xRot);
@@ -170,6 +191,7 @@ public class Cell extends HistologyObject<Part> {
         this.yCoordinate.set(y);
         this.zCoordinate.set(z);
         this.facetData = FXCollections.observableArrayList(facetData);
+        this.edges = FXCollections.observableArrayList(edges);
         this.diffuseColor.set(diffCol);
         this.specularColor.set(specCol);
         this.histionId = histionId;
@@ -184,6 +206,7 @@ public class Cell extends HistologyObject<Part> {
         this.yCoordinate.set(c.getYCoordinate());
         this.zCoordinate.set(c.getZCoordinate());
         this.facetData = FXCollections.observableArrayList(c.getFacetData());
+        this.edges = FXCollections.observableArrayList(c.getEdges());
         this.diffuseColor.set(c.getDiffuseColor());
         this.specularColor.set(c.getSpecularColor());
         this.histionId = c.getHistionId();
@@ -198,6 +221,7 @@ public class Cell extends HistologyObject<Part> {
         this.yCoordinate.set(c.getYCoordinate());
         this.zCoordinate.set(c.getZCoordinate());
         this.facetData = FXCollections.observableArrayList(c.getFacetData());
+        this.edges = FXCollections.observableArrayList(c.getEdges());
         this.diffuseColor.set(c.getDiffuseColor());
         this.specularColor.set(c.getSpecularColor());
         this.histionId = histionId;
