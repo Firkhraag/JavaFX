@@ -1495,11 +1495,11 @@ public final class SpaceViewerTopComponent extends TopComponent {
 
         axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
         
-        xAxis.setTranslateX(0);
+        /*xAxis.setTranslateX(0);
         xAxis.setTranslateY(0);
         xAxis.setTranslateZ(0);
 
-        xAxis.setMaterial(redMaterial);
+        xAxis.setMaterial(redMaterial);*/
         
         final Box xAxisShapeGroup = new Box(axisLen, 2, 2);
         final Box yAxisShapeGroup = new Box(2, axisLen, 2);

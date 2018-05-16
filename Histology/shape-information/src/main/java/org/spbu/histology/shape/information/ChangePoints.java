@@ -25,7 +25,7 @@ public class ChangePoints {
         }
         
         Stage window = new Stage();
-        window.initStyle(StageStyle.UTILITY);
+        //window.initStyle(StageStyle.UTILITY);
         window.setTitle("Change");
 
         

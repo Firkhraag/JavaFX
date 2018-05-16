@@ -113,6 +113,16 @@ public class PointTabController implements Initializable {
         this.rectangleList = rectangleList;
     }
     
+    private void findAvgNode() {
+        avgNode = new Node(0, 0, 0);
+        for (TetgenPoint point : data) {
+            avgNode.x += point.getX();
+            avgNode.z += point.getZ();
+        }
+        avgNode.x /= data.size();
+        avgNode.z /= data.size();
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         
@@ -166,6 +176,7 @@ public class PointTabController implements Initializable {
             for (Rectangle r : rectangleList) {
                 r.setX(r.getX() + value.get());
             }
+            findAvgNode();
             table.refresh();
         });
         
@@ -179,6 +190,7 @@ public class PointTabController implements Initializable {
             for (Rectangle r : rectangleList) {
                 r.setY(r.getY() - value.get());
             }
+            findAvgNode();
             table.refresh();
         });
         
@@ -198,13 +210,30 @@ public class PointTabController implements Initializable {
                 r.setX((r.getX() + width / 2 - 2) * value.get());
                 r.setY(((-1) * (r.getY() - height / 2) - 2) * value.get());
             }*/
+            findAvgNode();
             table.refresh();
         });
         
         MenuItem rotate = new MenuItem("Rotate");
         rotate.setOnAction((ActionEvent event) -> {
-            DoubleProperty value = new SimpleDoubleProperty();
-            ChangePoints.display(value);
+            DoubleProperty value = new SimpleDoubleProperty(0);
+            DoubleProperty k = new SimpleDoubleProperty(0);
+            //DoubleProperty b = new SimpleDoubleProperty(0);
+            //ChangePoints.display(value);
+            RotateBox.display(value, k);
+            if (k.get() != 0) {
+                value.set(Math.toDegrees(Math.atan(k.get())));
+                /*double v1 = k.get() + Math.sqrt(k.get() * k.get() + (k.get() * k.get() - 1) * b.get() * b.get()) / (k.get() * k.get() - 1);
+                double v2 = k.get() - Math.sqrt(k.get() * k.get() + (k.get() * k.get() - 1) * b.get() * b.get()) / (k.get() * k.get() - 1);
+                if (Math.abs(v1) < 1) {
+                    System.out.println("true");
+                    value.set(Math.acos(v1));
+                } else if (Math.abs(v2) < 1) {
+                    System.out.println("true");
+                    value.set(Math.acos(v2));
+                }*/
+            }
+            if (value.get() != 0) {
             double ang = Math.toRadians(value.get());
             for (TetgenPoint p : data) {
                 double x = p.getX() - avgNode.x;
@@ -225,7 +254,9 @@ public class PointTabController implements Initializable {
                 r.setX((r.getX() + width / 2 - 2) * value.get());
                 r.setY(((-1) * (r.getY() - height / 2) - 2) * value.get());
             }*/
+            findAvgNode();
             table.refresh();
+            }
         });
         
         MenuItem allignWithClosestLayer = new MenuItem("Allign with the closest layer");
@@ -265,6 +296,7 @@ public class PointTabController implements Initializable {
                     table.refresh();
                 }
             }
+            findAvgNode();
         });
         
         MenuItem showCentralPointCoordinates = new MenuItem("Show central point coordinates");
@@ -306,13 +338,7 @@ public class PointTabController implements Initializable {
             p.setY(data.get(0).getY());
         }
         data.add(p);
-        avgNode = new Node(0, 0, 0);
-        for (TetgenPoint point : data) {
-            avgNode.x += point.getX();
-            avgNode.z += point.getZ();
-        }
-        avgNode.x /= data.size();
-        avgNode.z /= data.size();
+        findAvgNode();
     }
     
     @FXML

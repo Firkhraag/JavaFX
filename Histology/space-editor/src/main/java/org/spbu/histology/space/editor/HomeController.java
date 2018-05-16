@@ -330,6 +330,77 @@ public class HomeController implements Initializable {
         return new Node(x, y, z);
     }
     
+    Node intersect3(Line line1, Line line2) {
+        double x, y, z;
+        x = 10000;
+        y = 10000;
+        z = -1;
+        if ((!line1.vert) && (line2.vert)) {
+            x = line2.b;
+            y = line1.k * x + line1.b;
+            if ((((y < line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y > line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001)))
+                || (((y > line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y < line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001)))) {
+                if ((x > line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.000001)) {
+                        z = 0;
+                    }
+            }
+            /*if (((((y < line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y > line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))
+                || (((y > line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y < line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001))))
+                && ((((x < line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.0001)) && ((x > line1.p2.x) || (Math.abs(y - line1.p2.x) < 0.0001)))
+                        || (((x > line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.0001)) && ((x < line1.p2.x) || (Math.abs(y - line1.p2.x) < 0.0001))))) {
+                z = 0;
+            }*/
+        }
+        else if ((!line1.vert) && (!line2.vert)) {
+            if (Math.abs(line1.k - line2.k) > 0.001) {
+                x = (line1.b - line2.b) / (line2.k - line1.k);
+                y = line1.k * x + line1.b;
+                /*System.out.println("---");
+                System.out.println(line1.p1.x + " " + line1.p1.y);
+                System.out.println(line1.p2.x + " " + line1.p2.y);
+                System.out.println(x + " " + y);*/
+                /*System.out.println(((((y < line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y > line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))
+                        || (((y > line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y < line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))));*/
+                //System.out.println((((x > line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.0001)) && ((x < line1.p2.x) || (Math.abs(x - line1.p2.x) < 0.0001)))
+                //        );
+                //System.out.println(((((y < line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y > line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))
+                //        || (((y > line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y < line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))));
+                //System.out.println((Math.abs(x - line1.p1.x)));
+                //System.out.println((Math.abs(x - line1.p2.x)));
+                //System.out.println(((((x < line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.0001)) && ((x > line1.p2.x) || (Math.abs(x - line1.p2.x) < 0.0001)))
+                //        || (((x > line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.0001)) && ((x < line1.p2.x) || (Math.abs(x - line1.p2.x) < 0.0001)))));
+                if (((((y < line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y > line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001)))
+                        || (((y > line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y < line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001))))
+                        && ((((x < line2.p1.x) || (Math.abs(x - line2.p1.x) < 0.000001)) && ((x > line2.p2.x) || (Math.abs(x - line2.p2.x) < 0.000001)))
+                        || (((x > line2.p1.x) || (Math.abs(x - line2.p1.x) < 0.000001)) && ((x < line2.p2.x) || (Math.abs(x - line2.p2.x) < 0.000001))))) {
+                    if ((x < line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.000001)) {
+                        z = 0;
+                    }
+                    //System.out.println("True");
+                }
+            }
+        } else if ((line1.vert) && (!line2.vert)) {
+            x = line1.b;
+            y = line2.k * x + line2.b;
+            //System.out.println(((((y < line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y > line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))
+            //    || (((y > line1.p1.y) || (Math.abs(y - line1.p1.y) < 0.0001)) && ((y < line1.p2.y) || (Math.abs(y - line1.p2.y) < 0.0001)))));
+            /*if ((((y < line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.0001)) && ((y > line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.0001)))
+                || (((y > line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.0001)) && ((y < line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.0001)))) {
+                z = 0;
+            }*/
+            if (((((y < line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y > line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001)))
+                    || (((y > line2.p1.y) || (Math.abs(y - line2.p1.y) < 0.000001)) && ((y < line2.p2.y) || (Math.abs(y - line2.p2.y) < 0.000001))))
+                    && ((((x < line2.p1.x) || (Math.abs(x - line2.p1.x) < 0.000001)) && ((x > line2.p2.x) || (Math.abs(x - line2.p2.x) < 0.000001)))
+                    || (((x > line2.p1.x) || (Math.abs(x - line2.p1.x) < 0.000001)) && ((x < line2.p2.x) || (Math.abs(x - line2.p2.x) < 0.000001))))) {
+                if ((x < line1.p1.x) || (Math.abs(x - line1.p1.x) < 0.000001)) {
+                        z = 0;
+                    }
+                //System.out.println("True");
+            }
+        }
+        return new Node(x, y, z);
+    }
+    
     /*public boolean contains(Node test) {
         int i;
         int j;
@@ -481,6 +552,19 @@ public class HomeController implements Initializable {
                         hm.getHistionMap().get(hId).getItems().forEach(c -> {
                             //System.out.println("------------");
                             if (c.getShow()) {
+                                double minY = 10000;
+                                double maxY = -10000;
+                                for (TetgenPoint p : c.getTransformedPointData()) {
+                                    if (p.getY() < minY) {
+                                        minY = p.getY();
+                                    }
+                                    if (p.getY() > maxY) {
+                                        maxY = p.getY();
+                                    }
+                                }
+                                if (maxY - minY > ySpace.get()) {
+                                    ySpace.set(maxY - minY);
+                                }
                                 for (Line line : LineEquations.getLineMap().get(c.getId())) {
                                     if (Math.abs(point.getY() - line.p1.z) < 0.000001) {
                                         Node p1 = intersect(new Line(new Node(point.getX(), point.getZ(), point.getY()), new Node(point.getX() + 1, point.getZ(), point.getY())), line);
@@ -545,7 +629,7 @@ public class HomeController implements Initializable {
                         });
                     }
                     
-                    System.out.println(xzSpace.get());
+                    //System.out.println(xzSpace.get());
                     ArrayList<Double> yArr = new ArrayList<>();
                     for (TetgenPoint point : pl) {
                         if (!yArr.contains(point.getY()))
@@ -553,10 +637,12 @@ public class HomeController implements Initializable {
                     }
                     //ArrayList<Double> usedYs = new ArrayList<>();
                     final IntegerProperty count = new SimpleIntegerProperty(0);
+                    final IntegerProperty count2 = new SimpleIntegerProperty(0);
                     for (TetgenPoint point : pl) {
                         //usedYs.add(point.getY());
                         for (Double y : yArr) {
                             count.set(0);
+                            count2.set(0);
                             if (Math.abs(point.getY() - y) < 0.000001)
                                 continue;
                             hm.getHistionMap().get(hId).getItems().forEach(c -> {
@@ -565,8 +651,16 @@ public class HomeController implements Initializable {
                                         if (Math.abs(y - line.p1.z) < 0.000001) {
                                             {
                                                 Node p1 = intersect2(new Line(new Node(point.getX(), point.getZ(), point.getY()), new Node(point.getX() + 1, point.getZ(), point.getY())), line);
+                                                Node p2 = intersect3(new Line(new Node(point.getX(), point.getZ(), point.getY()), new Node(point.getX() - 1, point.getZ(), point.getY())), line);
                                                 if (p1.z == 0) {
                                                     count.set(count.get() + 1);
+                                                    //count++;
+                                                    //if (Math.abs(point.getX() - p1.x) > xSpace.get()) {
+                                                    //    xSpace.set(Math.abs(point.getX() - p1.x));
+                                                    //}
+                                                }
+                                                if (p2.z == 0) {
+                                                    count2.set(count2.get() + 1);
                                                     //count++;
                                                     //if (Math.abs(point.getX() - p1.x) > xSpace.get()) {
                                                     //    xSpace.set(Math.abs(point.getX() - p1.x));
@@ -577,13 +671,24 @@ public class HomeController implements Initializable {
                                     }
                                 }
                             });
-                            if (count.get() % 2 == 1) {
+                            /*System.out.println("-----");
+                            System.out.println(count.get());
+                            System.out.println(count2.get());*/
+                            if ((count.get() % 2 == 1) || (count2.get() % 2 == 1)) {
+                            //if (count.get() % 2 == 1) {
                                 if (Math.abs(point.getY() - y) > ySpace.get()) {
+                                    //if (Math.abs(Math.abs(point.getY() - y) - 700) > 0.001 )
                                     ySpace.set(Math.abs(point.getY() - y));
+                                    System.out.println("-------");
+                                    //System.out.println(count.get());
+                                    System.out.println(ySpace.get());
+                                    System.out.println(point.getX() + " " + point.getY() + " " + point.getZ());
                                 }
                             }
                         }
                     }
+                    System.out.println("****");
+                    System.out.println(ySpace.get());
                     
                     /*for (TetgenPoint point : pl) {
                         
