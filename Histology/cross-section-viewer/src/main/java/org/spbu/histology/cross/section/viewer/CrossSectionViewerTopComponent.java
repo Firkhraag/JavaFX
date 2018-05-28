@@ -47,10 +47,9 @@ import org.spbu.histology.model.CrossSection;
     "HINT_CrossSectionViewerTopComponent=This is a CrossSectionViewer window"
 })
 public final class CrossSectionViewerTopComponent extends TopComponent {
-    
+
     private JFXPanel fxPanel;
     private Group root = new Group();
-    //public BooleanProperty initialized = new SimpleBooleanProperty(false);
     private final double paneSize = 4000;
     private double scale = 1.0;
 
@@ -62,7 +61,7 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         setLayout(new BorderLayout());
         init();
     }
-    
+
     private void init() {
         fxPanel = new JFXPanel();
         add(fxPanel, BorderLayout.CENTER);
@@ -94,7 +93,8 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
                     }
                 }
                 event.consume();
-        }});
+            }
+        });
         scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -107,51 +107,48 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         fxPanel.setScene(scene);
         CrossSection.initialized.set(true);
     }
-    
+
     public void clear() {
         root.getChildren().clear();
     }
-    
+
     public void clearPolygonArray(ArrayList<Polygon> polygons) {
         polygons.forEach(p -> root.getChildren().remove(p));
     }
-    
+
     public void clearLineArray(ArrayList<Line> lines) {
         lines.forEach(l -> root.getChildren().remove(l));
     }
-    
+
     public void show(ArrayList<Polygon> polygons) {
-        if (fxPanel == null)
-            return;  
+        if (fxPanel == null) {
+            return;
+        }
         polygons.forEach(polygon -> {
             polygon.setTranslateX(paneSize / 2);
             polygon.setTranslateY(paneSize / 2);
             root.getChildren().add(polygon);
         });
     }
-    
+
     public void showLines(ArrayList<Line> lineList) {
-        if (fxPanel == null)
-            return;  
+        if (fxPanel == null) {
+            return;
+        }
         lineList.forEach(line -> {
             line.setTranslateX(paneSize / 2);
             line.setTranslateY(paneSize / 2);
-            /*line.setStartX(tp.getPoint1().getX() + paneSize / 2);
-            line.setStartY(tp.getPoint1().getZ() + paneSize / 2);
-            line.setEndX(tp.getPoint2().getX() + paneSize / 2);
-            line.setEndY(tp.getPoint2().getZ() + paneSize / 2);*/
             root.getChildren().add(line);
         });
     }
 
-    private final MapChangeListener<Integer, ArrayList<Line>> lineListener =
-            (change) -> {
-                if (change.wasRemoved()) {  
+    private final MapChangeListener<Integer, ArrayList<Line>> lineListener
+            = (change) -> {
+                if (change.wasRemoved()) {
                     for (Line l : change.getValueRemoved()) {
                         root.getChildren().remove(l);
                     }
                 }
-                //else if (change.wasAdded()) {
                 if (change.wasAdded()) {
                     for (Line l : change.getValueAdded()) {
                         l.setTranslateX(paneSize / 2);
@@ -160,15 +157,14 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
                     }
                 }
             };
-    
-    private final MapChangeListener<Integer, ArrayList<Polygon>> polygonListener =
-            (change) -> {
-                if (change.wasRemoved()) {  
+
+    private final MapChangeListener<Integer, ArrayList<Polygon>> polygonListener
+            = (change) -> {
+                if (change.wasRemoved()) {
                     for (Polygon p : change.getValueRemoved()) {
                         root.getChildren().remove(p);
                     }
                 }
-                //else if (change.wasAdded()) {
                 if (change.wasAdded()) {
                     for (Polygon p : change.getValueAdded()) {
                         p.setTranslateX(paneSize / 2);
@@ -177,7 +173,7 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
                     }
                 }
             };
-    
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

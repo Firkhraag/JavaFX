@@ -156,14 +156,16 @@ public class PointTabController implements Initializable {
         });
         MenuItem deletePoint = new MenuItem("Delete point");
         deletePoint.setOnAction((ActionEvent event) -> {
-            TetgenPoint item = table.getSelectionModel().getSelectedItem();
-            data.remove(item.getId() - 1);
-            root.getChildren().remove(rectangleList.get(item.getId() - 1));
-            rectangleList.remove(item.getId() - 1);
-            count.set(count.get() - 1);
-            for (int i = 0; i < data.size(); i++)
-                data.get(i).setId(i + 1);
-            table.getSelectionModel().clearSelection();
+            if (!(table.getSelectionModel().getSelectedItem() == null)) {
+                TetgenPoint item = table.getSelectionModel().getSelectedItem();
+                data.remove(item.getId() - 1);
+                root.getChildren().remove(rectangleList.get(item.getId() - 1));
+                rectangleList.remove(item.getId() - 1);
+                count.set(count.get() - 1);
+                for (int i = 0; i < data.size(); i++)
+                    data.get(i).setId(i + 1);
+                table.getSelectionModel().clearSelection();
+            }
         });
         
         MenuItem addToX = new MenuItem("Add to X Column");
@@ -234,28 +236,30 @@ public class PointTabController implements Initializable {
                 }*/
             }
             if (value.get() != 0) {
-            double ang = Math.toRadians(value.get());
-            for (TetgenPoint p : data) {
-                double x = p.getX() - avgNode.x;
-                double z = p.getZ() - avgNode.z;
-                double temp = x;
-                x = x*Math.cos(ang) - z*Math.sin(ang);
-                z = temp * Math.sin(ang) + p.getZ() * Math.cos(ang);
-                p.setX(x + avgNode.x);
-                p.setZ(z + avgNode.z);
-                //p.setX(p.getX()*Math.cos(ang) - p.getZ()*Math.sin(ang));
-                //p.setZ(temp * Math.sin(ang) + p.getZ() * Math.cos(ang));
-            }
-            for (int i = 0; i < data.size(); i++) {
-                rectangleList.get(i).setX((data.get(i).getX() + width / 2 - 2));
-                rectangleList.get(i).setY(((-1) * (data.get(i).getZ() - height / 2) - 2));
-            }
-            /*for (Rectangle r : rectangleList) {
+                double ang = Math.toRadians(value.get());
+                for (TetgenPoint p : data) {
+                    double x = p.getX() - avgNode.x;
+                    double z = p.getZ() - avgNode.z;
+                    double temp = x;
+                    x = x * Math.cos(ang) - z * Math.sin(ang);
+                    z = temp * Math.sin(ang) + z * Math.cos(ang);
+                    p.setX(x + avgNode.x);
+                    p.setZ(z + avgNode.z);
+                    //p.setX(x);
+                    //p.setZ(z);
+                    //p.setX(p.getX()*Math.cos(ang) - p.getZ()*Math.sin(ang));
+                    //p.setZ(temp * Math.sin(ang) + p.getZ() * Math.cos(ang));
+                }
+                for (int i = 0; i < data.size(); i++) {
+                    rectangleList.get(i).setX((data.get(i).getX() + width / 2 - 2));
+                    rectangleList.get(i).setY(((-1) * (data.get(i).getZ() - height / 2) - 2));
+                }
+                /*for (Rectangle r : rectangleList) {
                 r.setX((r.getX() + width / 2 - 2) * value.get());
                 r.setY(((-1) * (r.getY() - height / 2) - 2) * value.get());
             }*/
-            findAvgNode();
-            table.refresh();
+                findAvgNode();
+                table.refresh();
             }
         });
         
@@ -301,7 +305,7 @@ public class PointTabController implements Initializable {
         
         MenuItem showCentralPointCoordinates = new MenuItem("Show central point coordinates");
         showCentralPointCoordinates.setOnAction((ActionEvent event) -> {
-            AlertBox.display("Central point", "X: " + avgNode.x + " ; Z: " + avgNode.z);
+            CentralPointBox.display(avgNode.x, avgNode.z);
         });
         
         /*MenuItem allignWithLowerLayer = new MenuItem("Allign with lower layer");

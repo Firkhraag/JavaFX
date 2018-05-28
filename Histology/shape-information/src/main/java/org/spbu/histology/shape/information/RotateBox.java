@@ -33,13 +33,12 @@ public class RotateBox {
 
         
         HBox hBox = new HBox();
-        
         HBox hBox2 = new HBox();
         //HBox hBox3 = new HBox();
         
         Label label = new Label("Change");
         TextField field = new TextField();
-        field.setDisable(true);
+        //field.setDisable(true);
         field.setPrefWidth(100);
         
         Label labelK = new Label("k");

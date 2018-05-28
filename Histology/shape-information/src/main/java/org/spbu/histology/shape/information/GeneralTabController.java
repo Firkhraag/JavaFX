@@ -307,7 +307,8 @@ public class GeneralTabController implements Initializable {
                 System.out.println(ar);
             }
             Cell c = new Cell(cellId, "Cell <" + nameField.getText() + ">",
-                    xRot, yRot, xTran, yTran, zTran, facetData, lineList,
+                    //xRot, yRot, xTran, yTran, zTran, facetData, lineList,
+                    xRot, yRot, xTran, yTran, zTran, facetData,
                     diffuseColorPicker.getValue(), specularColorPicker.getValue(), 0, true);
             
             LineEquations.addLine(c.getId(), lines);

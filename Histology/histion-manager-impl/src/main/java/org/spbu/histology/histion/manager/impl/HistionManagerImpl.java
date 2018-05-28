@@ -15,16 +15,16 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service = HistionManager.class)
 public class HistionManagerImpl implements HistionManager {
 
-    private final ObservableMap<Integer, Histion> observableMap = 
-            FXCollections.observableMap(new ConcurrentHashMap<>());
-    
-    private final ObservableMap<Integer, MeshView> shapeMap = 
-            FXCollections.observableMap(new ConcurrentHashMap());
-    
+    private final ObservableMap<Integer, Histion> observableMap
+            = FXCollections.observableMap(new ConcurrentHashMap<>());
+
+    private final ObservableMap<Integer, MeshView> shapeMap
+            = FXCollections.observableMap(new ConcurrentHashMap());
+
     public ObservableMap<Integer, MeshView> getShapeMap() {
         return shapeMap;
     }
-    
+
     @Override
     public void addListener(MapChangeListener<? super Integer, ? super Histion> m1) {
         observableMap.addListener(m1);
@@ -54,24 +54,24 @@ public class HistionManagerImpl implements HistionManager {
     public void updateHistion(Histion h, Integer histionId) {
         observableMap.put(histionId, h);
     }
-    
+
     @Override
     public void deleteHistion(Integer id) {
         observableMap.remove(id);
-        
+
     }
 
     @Override
     public List<Histion> getAllHistions() {
         List<Histion> copyList = new ArrayList<>();
-        observableMap.values().stream().forEach(s ->
-            copyList.add(s));
+        observableMap.values().stream().forEach(s
+                -> copyList.add(s));
         return copyList;
     }
-    
+
     @Override
     public ObservableMap<Integer, Histion> getHistionMap() {
         return observableMap;
     }
-    
+
 }

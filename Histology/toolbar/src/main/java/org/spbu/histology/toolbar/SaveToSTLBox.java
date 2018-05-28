@@ -37,12 +37,10 @@ public class SaveToSTLBox {
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> {
             ArrayList<Mesh> meshList = new ArrayList<>();
-            //hm.getHistionMap().get(0).getShapeMap().forEach((i, m) -> {
             hm.getShapeMap().forEach((i, m) -> {
                 meshList.add(m.getMesh());
             });
 
-            //if (hm.getHistionMap().get(0).getShapeMap().isEmpty()) {
             if (hm.getShapeMap().isEmpty()) {
                 return;
             }

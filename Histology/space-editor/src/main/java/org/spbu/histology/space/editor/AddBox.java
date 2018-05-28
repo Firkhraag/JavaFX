@@ -18,18 +18,17 @@ import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Names;
 
 public class AddBox {
-    
+
     public static void display(String title, String message, Integer histionId) {
-        
+
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
-        
+
         Stage window = new Stage();
         window.setTitle(title);
 
-        
         HBox hBox = new HBox();
         Label label = new Label();
         label.setText(message);
@@ -41,12 +40,13 @@ public class AddBox {
         closeButton.setOnAction(e -> {
             if (!Names.containsCellName(field.getText())) {
                 hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
-                        0, 0, 0, 0, 0, FXCollections.observableArrayList(), FXCollections.observableArrayList(),
+                        0, 0, 0, 0, 0, FXCollections.observableArrayList(),
                         Color.RED, Color.RED, histionId, false));
                 Names.addCellName(field.getText());
                 window.close();
-            } else
+            } else {
                 AlertBox.display("Error", "This name is already used");
+            }
         });
         closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));
 

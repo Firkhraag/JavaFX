@@ -18,7 +18,7 @@ public class AlertBox {
         Label label = new Label();
         label.setText(message);
         Button closeButton = new Button("OK");
-        closeButton.setPadding(new Insets(0,20,0,20));
+        closeButton.setPadding(new Insets(0, 20, 0, 20));
         closeButton.setOnAction(e -> window.close());
 
         VBox layout = new VBox(10);

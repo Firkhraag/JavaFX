@@ -18,12 +18,12 @@ import org.spbu.histology.model.Names;
 public class ConfirmBox {
 
     public static void display(String title, String message, Integer cellId, Integer partId) {
-        
+
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
-        
+
         Stage window = new Stage();
         window.setTitle(title);
 
@@ -32,7 +32,7 @@ public class ConfirmBox {
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(10, 10, 10, 150));
         hBox.setSpacing(20);
-        
+
         Button confirmButton = new Button("Yes");
         confirmButton.setOnAction(e -> {
             if (partId != -1) {
@@ -48,10 +48,10 @@ public class ConfirmBox {
             }
             window.close();
         });
-        
+
         Button closeButton = new Button("Cancel");
         closeButton.setOnAction(e -> window.close());
-        
+
         hBox.getChildren().addAll(confirmButton, closeButton);
 
         VBox layout = new VBox(10);

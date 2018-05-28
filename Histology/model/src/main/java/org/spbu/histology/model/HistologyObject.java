@@ -20,40 +20,39 @@ public abstract class HistologyObject<T extends HistologyObject<?>> {
         return this.name;
     }
 
-
     public final String getName() {
         return this.nameProperty().get();
     }
-
 
     public final void setName(final String name) {
         this.nameProperty().set(name);
     }
 
     private Integer id;
-    
+
     public Integer getId() {
         return this.id;
     }
-    
+
     public void setId(Integer id) {
         this.id = id;
     }
-    
-    private final ObservableMap<Integer, T> itemMap = 
-            FXCollections.observableMap(new ConcurrentHashMap());
+
+    private final ObservableMap<Integer, T> itemMap
+            = FXCollections.observableMap(new ConcurrentHashMap());
 
     public ObservableMap<Integer, T> getItemMap() {
         return itemMap;
     }
-    
+
     public ObservableList<T> getItems() {
         ObservableList<T> copyList = FXCollections.observableArrayList();
-        itemMap.values().stream().forEach(s ->
-            copyList.add(s));
+        itemMap.values().stream().forEach(s
+                -> copyList.add(s));
         return copyList.sorted((i1, i2) -> Integer.compare(i1.getId(), i2.getId()));
     }
-    
+
     public abstract void addChild(T obj);
+
     public abstract void deleteChild(Integer id);
 }

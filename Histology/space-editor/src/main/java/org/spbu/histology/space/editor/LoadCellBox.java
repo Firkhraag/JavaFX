@@ -14,8 +14,6 @@ import javafx.scene.control.Label;
 
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.ToggleGroup;
 import javafx.scene.paint.Color;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
@@ -30,34 +28,34 @@ import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.TwoIntegers;
 
 public class LoadCellBox {
-    
+
     public static void display() {
-        
+
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
-        
+
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
         window.setTitle("Load cell");
 
         String tempdir = System.getProperty("user.dir");
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < 3; i++) {
             tempdir = tempdir.substring(0, tempdir.lastIndexOf('\\'));
+        }
         tempdir = tempdir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Cells\\";
         final String dir = tempdir;
         File directory = new File(dir);
         ObservableList<String> textFiles = FXCollections.observableArrayList();
         for (File file : directory.listFiles()) {
             if (file.getName().endsWith((".txt"))) {
-              textFiles.add(file.getName());
+                textFiles.add(file.getName());
             }
         }
         HBox hBox = new HBox();
         Label label = new Label("File name");
         final ComboBox comboBox = new ComboBox(textFiles);
-        
+
         hBox.getChildren().addAll(label, comboBox);
         hBox.setPadding(new Insets(10, 10, 10, 10));
         hBox.setSpacing(20);
@@ -66,16 +64,11 @@ public class LoadCellBox {
             if (!comboBox.getSelectionModel().isEmpty()) {
                 String selected = (String) comboBox.getSelectionModel().getSelectedItem();
                 try {
-                    /*if (hm.getHistionMap().isEmpty())
-                        //hm.addHistion(new Histion("Main histion",0,0,0,0,0));
-                        hm.addHistion(new Histion("Main histion",0,0,0));*/
                     Histion main = hm.getHistionMap().get(0);
                     BufferedReader br = new BufferedReader(new FileReader(dir + selected));
                     String line = br.readLine();
-                    
-                    //main.setXRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+
                     line = line.substring(line.indexOf(" ") + 1, line.length());
-                    //main.setYRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
                     line = line.substring(line.indexOf(" ") + 1, line.length());
                     main.setXCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
                     line = line.substring(line.indexOf(" ") + 1, line.length());
@@ -86,12 +79,11 @@ public class LoadCellBox {
                     int cellNum = Integer.parseInt(line);
                     for (int i = 0; i < cellNum; i++) {
                         ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
-                        Cell c = new Cell("Name", 0, 0, 0, 0, 0,
-                            FXCollections.observableArrayList(), FXCollections.observableArrayList(),
+                        Cell c = new Cell("Name", 0, 0, 0, 0, 0, FXCollections.observableArrayList(),
                                 Color.BLUE, Color.LIGHTBLUE, 0, true);
-                        double r,g,b;
+                        double r, g, b;
                         line = br.readLine();
-                        
+
                         String name = line;
                         name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
                         int count = 1;
@@ -102,8 +94,7 @@ public class LoadCellBox {
                             count++;
                         }
                         c.setName("Cell <" + name + ">");
-                        //c.setName(line);
-                            
+
                         line = br.readLine();
                         c.setXRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
                         line = line.substring(line.indexOf(" ") + 1, line.length());
@@ -114,7 +105,7 @@ public class LoadCellBox {
                         c.setYCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
                         line = line.substring(line.indexOf(" ") + 1, line.length());
                         c.setZCoordinate(Double.parseDouble(line));
-                            
+
                         line = br.readLine();
                         r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
                         line = line.substring(line.indexOf(" ") + 1, line.length());
@@ -122,7 +113,7 @@ public class LoadCellBox {
                         line = line.substring(line.indexOf(" ") + 1, line.length());
                         b = Double.parseDouble(line);
                         c.setDiffuseColor(Color.color(r, g, b));
-                            
+
                         line = br.readLine();
                         r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
                         line = line.substring(line.indexOf(" ") + 1, line.length());
@@ -130,13 +121,13 @@ public class LoadCellBox {
                         line = line.substring(line.indexOf(" ") + 1, line.length());
                         b = Double.parseDouble(line);
                         c.setSpecularColor(Color.color(r, g, b));
-                            
+
                         line = br.readLine();
                         c.setShow(Boolean.parseBoolean(line));
-                        
+
                         line = br.readLine();
                         int partNum = Integer.parseInt(line);
-                        
+
                         ArrayList<TetgenPoint> pd = new ArrayList<>();
                         int num = 1;
                         for (int j = 0; j < partNum; j++) {
@@ -144,7 +135,7 @@ public class LoadCellBox {
                             Part p = new Part("Part", FXCollections.observableArrayList(), c.getId());
                             line = br.readLine();
                             p.setName(line);
-                            
+
                             line = br.readLine();
                             int pointNum = Integer.parseInt(line);
                             for (int q = 0; q < pointNum; q++) {
@@ -175,20 +166,21 @@ public class LoadCellBox {
                             facetData.add(list);
                         }
                         c.setFacetData(facetData);
-                        
+
                         ArrayList<TwoIntegers> lineList = new ArrayList<>();
                         for (ArrayList<Integer> f : facetData) {
                             for (int j = 1; j < f.size(); j++) {
-                                TwoIntegers ti = new TwoIntegers(j , f.get(j - 1), f.get(j));
-                                if (!lineList.contains(ti))
+                                TwoIntegers ti = new TwoIntegers(j, f.get(j - 1), f.get(j));
+                                if (!lineList.contains(ti)) {
                                     lineList.add(ti);
+                                }
                             }
                             TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
                             if (!lineList.contains(ti)) {
                                 lineList.add(ti);
                             }
                         }
-                        
+
                         ArrayList<Line> lines = new ArrayList<>();
                         for (int j = 0; j < lineList.size(); j++) {
 
@@ -200,32 +192,12 @@ public class LoadCellBox {
                             }
                         }
                         LineEquations.addLine(c.getId(), lines);
-    
-                        /*ObservableList<TwoIntegers> data = FXCollections.observableArrayList();
-                        
-                        for (ArrayList<Integer> f : facetData) {
-                            for (int j = 1; j < f.size(); j++) {
-                                TwoIntegers ti = new TwoIntegers(j , f.get(j - 1), f.get(j));
-                                data.add(ti);
-                            }
-                            TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
-                            data.add(ti);
-                        }
-                        c.setEdges(data);*/
-                        
+
                         main.addChild(c);
-                        //String name = c.getName();
                         name = c.getName();
                         Names.addCellName(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
                     }
                     br.close();
-                    /*hm.getHistionMap().get(0).getItems().forEach(c -> {
-                        Cell newCell = new Cell(c.getId(), c);
-                        c.getItems().forEach(p -> {
-                            newCell.addChild(p);
-                        });
-                        hm.getHistionMap().get(0).addChild(newCell);
-                    });*/
                 } catch (Exception ex) {
                     System.out.println("error");
                 }
@@ -234,7 +206,7 @@ public class LoadCellBox {
         });
 
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(hBox,closeButton);
+        layout.getChildren().addAll(hBox, closeButton);
         layout.setAlignment(Pos.CENTER);
 
         Scene scene = new Scene(layout, 300, 150);

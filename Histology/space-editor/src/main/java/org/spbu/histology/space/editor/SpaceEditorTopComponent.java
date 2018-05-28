@@ -10,7 +10,6 @@ import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -45,22 +44,23 @@ import org.openide.util.NbBundle.Messages;
     "HINT_ToolsTopComponent=This is a SpaceEditor window"
 })
 public final class SpaceEditorTopComponent extends TopComponent {
-    
+
     private JFXPanel fxPanel;
     private HomeController homeController;
     private CameraViewController cameraViewController;
     private CrossSectionController crossSectionController;
+    private GroupPositionController groupPositionController;
     //private FXMLLoader fxmlLoader;
 
     public SpaceEditorTopComponent() {
         initComponents();
         setName(Bundle.CTL_ToolsTopComponent());
         setToolTipText(Bundle.HINT_ToolsTopComponent());
-        
+
         setLayout(new BorderLayout());
         init();
     }
-    
+
     private void init() {
         fxPanel = new JFXPanel();
         add(fxPanel, BorderLayout.CENTER);
@@ -68,40 +68,43 @@ public final class SpaceEditorTopComponent extends TopComponent {
         Platform.runLater(() -> {
             createScene(0);
             fxPanel.addComponentListener(new ComponentAdapter() {
-            public void componentResized(ComponentEvent e) {
-                switch (ChosenTool.getToolNumber()) {
-                    case 0:
-                        homeController.setTreeViewSize(getWidth(), getHeight());
-                        break;
-                    case 1:
-                        cameraViewController.setScrollPanel(getWidth(), getHeight());
-                        break;
-                    case 2:
-                        crossSectionController.setScrollPanel(getWidth(), getHeight());
-                        break;
-                    default:
-                        homeController.setTreeViewSize(getWidth(), getHeight());
-                        break;
+                public void componentResized(ComponentEvent e) {
+                    switch (ChosenTool.getToolNumber()) {
+                        case 0:
+                            homeController.setTreeViewSize(getWidth(), getHeight());
+                            break;
+                        case 1:
+                            cameraViewController.setScrollPanel(getWidth(), getHeight());
+                            break;
+                        case 2:
+                            crossSectionController.setScrollPanel(getWidth(), getHeight());
+                            break;
+                        case 3:
+                            groupPositionController.setScrollPanel(getWidth(), getHeight());
+                            break;
+                        default:
+                            homeController.setTreeViewSize(getWidth(), getHeight());
+                            break;
+                    }
                 }
-            }
-        });
+            });
         });
     }
-    
+
     ChangeListener<Integer> cl = (v, oldValue, newValue) -> {
         Platform.runLater(() -> {
             createScene(newValue);
         });
     };
-    
+
     private void addToolBarListener(ChangeListener cl) {
-        ChosenTool.toolProperty().addListener(cl); 
+        ChosenTool.toolProperty().addListener(cl);
     }
-    
+
     private void removeToolBarListener(ChangeListener cl) {
         ChosenTool.toolProperty().removeListener(cl);
     }
-    
+
     private void createScene(Integer toolNum) {
         if (!(cameraViewController == null)) {
             cameraViewController.removeListeners();
@@ -127,30 +130,34 @@ public final class SpaceEditorTopComponent extends TopComponent {
                 case 2:
                     location = getClass().getResource("CrossSection.fxml");
                     break;
+                case 3:
+                    location = getClass().getResource("GroupPosition.fxml");
+                    break;
                 default:
                     location = getClass().getResource("Home.fxml");
                     break;
             }
             FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(location);
-            //fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
 
-            Parent root = (Parent)fxmlLoader.load(location.openStream());
+            Parent root = (Parent) fxmlLoader.load(location.openStream());
             Scene scene = new Scene(root);
             fxPanel.setScene(scene);
             switch (toolNum) {
                 case 0:
-                    homeController = (HomeController)fxmlLoader.getController();
+                    homeController = (HomeController) fxmlLoader.getController();
                     break;
                 case 1:
-                    cameraViewController = (CameraViewController)fxmlLoader.getController();
+                    cameraViewController = (CameraViewController) fxmlLoader.getController();
                     break;
                 case 2:
-                    crossSectionController = (CrossSectionController)fxmlLoader.getController();
+                    crossSectionController = (CrossSectionController) fxmlLoader.getController();
+                    break;
+                case 3:
+                    groupPositionController = (GroupPositionController) fxmlLoader.getController();
                     break;
                 default:
-                    homeController = (HomeController)fxmlLoader.getController();
+                    homeController = (HomeController) fxmlLoader.getController();
                     break;
             }
             switch (toolNum) {
@@ -162,6 +169,9 @@ public final class SpaceEditorTopComponent extends TopComponent {
                     break;
                 case 2:
                     crossSectionController.setScrollPanel(getWidth(), getHeight());
+                    break;
+                case 3:
+                    groupPositionController.setScrollPanel(getWidth(), getHeight());
                     break;
                 default:
                     homeController.setTreeViewSize(getWidth(), getHeight());

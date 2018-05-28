@@ -5,7 +5,7 @@ import javafx.scene.shape.MeshView;
 import org.spbu.histology.fxyz.Text3DMesh;
 
 public class DigitMeshes {
-    
+
     final static ArrayList<MeshView> digit0Meshes = new ArrayList<>();
     final static ArrayList<MeshView> digit1Meshes = new ArrayList<>();
     final static ArrayList<MeshView> digit2Meshes = new ArrayList<>();
@@ -16,9 +16,9 @@ public class DigitMeshes {
     final static ArrayList<MeshView> digit7Meshes = new ArrayList<>();
     final static ArrayList<MeshView> digit8Meshes = new ArrayList<>();
     final static ArrayList<MeshView> digit9Meshes = new ArrayList<>();
-    
+
     public static ArrayList<MeshView> getMeshList(int num) {
-        
+
         switch (num) {
             case 0:
                 if (digit0Meshes.isEmpty()) {
@@ -103,5 +103,5 @@ public class DigitMeshes {
         }
         return new ArrayList<>();
     }
-    
+
 }

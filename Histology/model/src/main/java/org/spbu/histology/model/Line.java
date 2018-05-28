@@ -1,14 +1,12 @@
 package org.spbu.histology.model;
 
 public class Line {
+
     public Node p1;
     public Node p2;
     public double k;
     public double b;
     public boolean vert;
-
-    /*Line() {
-    }*/
 
     public Line(Node x, Node y) {
         p1 = x;
@@ -23,18 +21,4 @@ public class Line {
             k = 0;
         }
     }
-    /*const Line operator = (
-    const Line
-    & rv
-
-    
-        )
-	{
-		p1 = rv.p1;
-        p2 = rv.p2;
-        k = rv.k;
-        b = rv.b;
-        vert = rv.vert;
-        return  * this;
-    }*/
 };

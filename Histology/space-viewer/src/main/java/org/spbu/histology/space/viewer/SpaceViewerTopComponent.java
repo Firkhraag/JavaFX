@@ -31,19 +31,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
+import javafx.concurrent.Service;
 import javafx.concurrent.Task;
 import javafx.geometry.Point3D;
-import javafx.scene.CacheHint;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import org.openide.LifecycleManager;
-//import org.spbu.histology.cross.section.viewer.CrossSectionViewerTopComponent;
 import org.spbu.histology.fxyz.Line3D;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.CrossSection;
@@ -52,7 +52,7 @@ import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.fxyz.Text3DMesh;
 import org.spbu.histology.model.AlertBox;
-import org.spbu.histology.model.GroupTransforms;
+import org.spbu.histology.model.GroupPosition;
 import org.spbu.histology.model.HideCells;
 import org.spbu.histology.model.Node;
 import org.spbu.histology.model.TwoIntegers;
@@ -102,12 +102,10 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     private Rotate rotateXShapeGroup = new Rotate(0, Rotate.X_AXIS);
     private Rotate rotateYShapeGroup = new Rotate(0, Rotate.Y_AXIS);
-    private Rotate rotateZShapeGroup = new Rotate(0, Rotate.Z_AXIS);
     
     private Rotate rotateXCrossSection = new Rotate(0, Rotate.X_AXIS);
     private Rotate rotateYCrossSection = new Rotate(0, Rotate.Y_AXIS);
     
-    //private Scene scene;
     private PerspectiveCamera camera;
     private Group root = new Group();
     private Group shapeGroup = new Group();
@@ -123,9 +121,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final ObservableMap<Integer, TriangleMesh> meshMap = 
             FXCollections.observableMap(new ConcurrentHashMap());
     
-    //private final ObservableMap<Integer, MeshView> shapeMap = 
-    //        FXCollections.observableMap(new ConcurrentHashMap());
-    
     private final ObservableMap<Integer, ArrayList<Line3D>> lineMap = 
             FXCollections.observableMap(new ConcurrentHashMap());
     
@@ -140,13 +135,18 @@ public final class SpaceViewerTopComponent extends TopComponent {
     private final ObservableMap<Integer, int[]> tetrahedronsList = 
             FXCollections.observableMap(new ConcurrentHashMap());
     
-    private final ObservableMap<Integer, ArrayList<TwoPoints>> includedNodesMap =
-            FXCollections.observableMap(new ConcurrentHashMap());
+    double A = 0;
+    double B = -1;
+    double C = 0;
+    double D = 0;
+    double crossRotX = 0;
+    double crossRotY = 0;
+    double crossPosX = 0;
+    double crossPosY = 0;
+    double crossPosZ = 0;
     
-    /*private final ObservableMap<Integer, ArrayList<Polygon>> polygonList = 
+    private final ObservableMap<Integer, List<TwoPoints>> nodesMap = 
             FXCollections.observableMap(new ConcurrentHashMap());
-    private final ObservableMap<Integer, ArrayList<Line>> linesList = 
-            FXCollections.observableMap(new ConcurrentHashMap());*/
     
     private final MapChangeListener<Integer, Cell> cellListener =
             (change) -> {
@@ -154,105 +154,53 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     Cell c = (Cell)change.getValueAdded();
                     Cell removedShape = (Cell)change.getValueRemoved();
                     if (c.getShow()) {
-                        //if (shapeMap.get(removedShape.getId()) != null) {
                         if (hm.getShapeMap().get(removedShape.getId()) != null) {
                             CrossSection.removePolygon(c.getId());
                             CrossSection.removeLine(c.getId());
-                            //CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(c.getId()));
-                            //CrossSectionViewerTopComponent.clearLineArray(linesList.get(c.getId()));
-                            //shapeGroup.getChildren().remove(shapeMap.get(removedShape.getId()));
                             shapeGroup.getChildren().remove(hm.getShapeMap().get(removedShape.getId()));
                             for (Line3D l : lineMap.get(removedShape.getId())) {
                                 shapeGroup.getChildren().remove(l.getMeshView());
-                                //shapeGroup.getChildren().remove(l.getMeshView(2));
-                                //shapeGroup.getChildren().remove(l.getMeshView(3));
-                                //shapeGroup.getChildren().remove(l.getMeshView(4));
                             }
-                            /*for (Line3D3 l : line3Map.get(removedShape.getId())) {
-                                shapeGroup.getChildren().remove(l);
-                            }
-                            for (Line3D5 l : line5Map.get(removedShape.getId())) {
-                                shapeGroup.getChildren().remove(l);
-                            }*/
                         }
                         addCell(c);
                     } else if (!c.getShow() && removedShape.getShow()) {
                         Integer removedCellId = removedShape.getId();
-                        //shapeGroup.getChildren().remove(shapeMap.get(removedCellId));
                         shapeGroup.getChildren().remove(hm.getShapeMap().get(removedCellId));
                         for (Line3D l : lineMap.get(removedCellId)) {
                             shapeGroup.getChildren().remove(l.getMeshView());
-                            //shapeGroup.getChildren().remove(l.getMeshView(2));
-                            //shapeGroup.getChildren().remove(l.getMeshView(3));
-                            //shapeGroup.getChildren().remove(l.getMeshView(4));
                         }
-                        /*for (Line3D3 l : line3Map.get(removedCellId)) {
-                            shapeGroup.getChildren().remove(l);
-                        }
-                        for (Line3D5 l : line5Map.get(removedCellId)) {
-                            shapeGroup.getChildren().remove(l);
-                        }*/
                         lineMap.remove(removedCellId);
-                        /*line3Map.remove(removedCellId);
-                        line5Map.remove(removedCellId);*/
-                        //shapeMap.remove(removedCellId);
                         hm.getShapeMap().remove(removedCellId);
                         nodesList.remove(removedCellId);
-                        
                         nodesListTemp.remove(removedCellId);
-                        
                         tetrahedronsList.remove(removedCellId);
-                        //facesList.remove(removedCellId);
                         colorsList.remove(removedCellId);
                         CrossSection.removePolygon(removedCellId);
                         CrossSection.removeLine(removedCellId);
-                        //CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(removedCellId));
-                        //CrossSectionViewerTopComponent.clearLineArray(linesList.get(removedCellId));
-                        //polygonList.remove(removedCellId);
-                        //linesList.remove(removedCellId);
+                        nodesMap.remove(removedCellId);
                     }
                 }
                 else if (change.wasRemoved()) {  
                     Cell removedCell = (Cell)change.getValueRemoved();
                     if (removedCell.getShow()) {
                         Integer removedCellId = removedCell.getId();
-                        //shapeGroup.getChildren().remove(shapeMap.get(removedCellId));
                         shapeGroup.getChildren().remove(hm.getShapeMap().get(removedCellId));
                         for (Line3D l : lineMap.get(removedCellId)) {
                             shapeGroup.getChildren().remove(l.getMeshView());
-                            //shapeGroup.getChildren().remove(l.getMeshView(2));
-                            //shapeGroup.getChildren().remove(l.getMeshView(3));
-                            //shapeGroup.getChildren().remove(l.getMeshView(4));
                         }
-                        /*for (Line3D3 l : line3Map.get(removedCellId)) {
-                            shapeGroup.getChildren().remove(l);
-                        }
-                        for (Line3D5 l : line5Map.get(removedCellId)) {
-                            shapeGroup.getChildren().remove(l);
-                        }*/
                         lineMap.remove(removedCellId);
-                        /*line3Map.remove(removedCellId);
-                        line5Map.remove(removedCellId);*/
-                        //shapeMap.remove(removedCellId);
                         hm.getShapeMap().remove(removedCellId);
                         nodesList.remove(removedCellId);
-                        
                         nodesListTemp.remove(removedCellId);
-                        
                         tetrahedronsList.remove(removedCellId);
-                        //facesList.remove(removedCellId);
                         colorsList.remove(removedCellId);
                         CrossSection.removePolygon(removedCellId);
                         CrossSection.removeLine(removedCellId);
-                        //CrossSectionViewerTopComponent.clearPolygonArray(polygonList.get(removedCellId));
-                        //CrossSectionViewerTopComponent.clearLineArray(linesList.get(removedCellId));
-                        //polygonList.remove(removedCellId);
-                        //linesList.remove(removedCellId);
+                        nodesMap.remove(removedCellId);
                     }
                 }
                 else if (change.wasAdded()) {
                     Cell addedCell = (Cell)change.getValueAdded();
-                    //System.out.println("Cell was added");
                     if (addedCell.getShow()) {
                         addCell(addedCell);
                     }
@@ -265,7 +213,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 else if (change.wasRemoved()) {  
                 }
                 else if (change.wasAdded()) {
-                    //System.out.println("NOOOOOOO");
                     Histion addedHistion = (Histion)change.getValueAdded();
                     for (Cell c : addedHistion.getItems()) {
                         if (c.getShow()) {
@@ -299,8 +246,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             }
         });
         
-        //System.out.println(Runtime.getRuntime().freeMemory());
-        
         try {
             latch.await();
             CameraView.setCamera("0", "0", "0", "0", "-1000", String.valueOf(35.0));
@@ -322,12 +267,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
         fxPanel.setScene(scene);  
         
         addRotateTransformsToGroup();
-        
-        //root.setCache(true);
-        //root.setCacheHint(CacheHint.SPEED);
     }
-    //Color c = Color.BLACK;
-    //Color c2 = Color.YELLOW;
+    
     private void addPolygon(ArrayList<Line> lineList, ArrayList<Node> pl, ArrayList<Polygon> polList, Integer id) {
         Double[] polPoints = new Double[pl.size() * 2];
         int k = 0;
@@ -338,8 +279,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             if (i != pl.size() - 1) {
                 Line line = new Line();
                 
-                //line.setStroke(c);
-                
                 line.setStartX(pl.get(i).x);
                 line.setStartY(pl.get(i).z);
                 line.setEndX(pl.get(i + 1).x);
@@ -348,8 +287,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             } else {
                 Line line = new Line();
                 
-                //line.setStroke(c2);
-                
                 line.setStartX(pl.get(i).x);
                 line.setStartY(pl.get(i).z);
                 line.setEndX(pl.get(0).x);
@@ -357,48 +294,14 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 lineList.add(line);
             }
         }
-        /*if (c == Color.BLACK) {
-            c = Color.BLUE;
-        } else if (c == Color.BLUE) {
-            c = Color.BLACK;
-        }*/
+        
         Polygon polygon = new Polygon();
         polygon.getPoints().addAll(polPoints);
         polygon.setFill(colorsList.get(id));
         polList.add(polygon);
     }
     
-    /*private void addPolygon(ArrayList<Line> lineList, ArrayList<Point3D> pl, ArrayList<Polygon> polList, Integer id) {
-        Double[] polPoints = new Double[pl.size() * 2];
-        int k = 0;
-        for (int i = 0; i < pl.size(); i++) {
-            polPoints[k] = pl.get(i).getX();
-            polPoints[k + 1] = pl.get(i).getZ();
-            k += 2;
-            if (i != pl.size() - 1) {
-                Line line = new Line();
-                line.setStartX(pl.get(i).getX());
-                line.setStartY(pl.get(i).getZ());
-                line.setEndX(pl.get(i + 1).getX());
-                line.setEndY(pl.get(i + 1).getZ());
-                lineList.add(line);
-            } else {
-                Line line = new Line();
-                line.setStartX(pl.get(i).getX());
-                line.setStartY(pl.get(i).getZ());
-                line.setEndX(pl.get(0).getX());
-                line.setEndY(pl.get(0).getZ());
-                lineList.add(line);
-            }
-        }
-        Polygon polygon = new Polygon();
-        polygon.getPoints().addAll(polPoints);
-        polygon.setFill(colorsList.get(id));
-        polList.add(polygon);
-    }*/
-    
     private void findPolygons(List<TwoPoints> lineList, Integer id) {
-    //        ArrayList<Polygon> polList, ArrayList<Line> lList) {
         ArrayList<Polygon> polList = new ArrayList<>();
         ArrayList<Line> lList = new ArrayList<>();
         Node p;
@@ -434,28 +337,21 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 //break;
             }
         }
+        
         addPolygon(lList, pl, polList, id);
         
         CrossSection.addPolygon(id, polList);
         CrossSection.addLine(id, lList);
-        
-        //polygonList.put(id, polList);
-        //linesList.put(id, lList);
     }
     
     private void intersectionsWithEdges(Integer id) {
         List<List<Node>> points = new ArrayList<>();
-        //ArrayList<Node> intersectionNodes = new ArrayList<>();
         List<TwoPoints> nodes = new ArrayList<>();
-        
-        //ArrayList<Polygon> polList = new ArrayList<>();
-        //ArrayList<Line> lList = new ArrayList<>();
         
         double[] nl = nodesList.get(id);
         int[] tl = tetrahedronsList.get(id);
         for (int i = 0; i < tl.length; i += 4) {
             ArrayList<Node> intersectionNodes = new ArrayList<>();
-            //intersectionNodes.clear();
             
             findIntersection(new Node(nl[(tl[i] - 1) * 3], nl[(tl[i] - 1) * 3 + 1], nl[(tl[i] - 1) * 3 + 2]),
                     new Node(nl[(tl[i + 1] - 1) * 3], nl[(tl[i + 1] - 1) * 3 + 1], nl[(tl[i + 1] - 1) * 3 + 2]),
@@ -479,21 +375,15 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         return temp1 < temp2 ? -1 : 1;
                     });
                     
-                    //ArrayList<Node> temp = new ArrayList<>();
                     boolean already = false;
-                    //temp.add(intersectionNodes.get(0));
-                    //temp.add(intersectionNodes.get(1));
-                    //temp.add(intersectionNodes.get(2));
                     List<Node> temp = intersectionNodes.subList(0, 3);
                     for (List<Node> pl : points) {
                         if (pl.containsAll(temp) && temp.containsAll(pl)) {
-                            //System.out.println("Found");
                             already = true;
                             break;
                         }
                     }
                     if (!already)
-                        //points.add(new ArrayList<>(temp));
                         points.add(temp);
                     List<Node> temp2 = new ArrayList<>();
                     temp2.add(intersectionNodes.get(0));
@@ -516,7 +406,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         }
                     }
                     if (!already)
-                        //points.add(new ArrayList<>(intersectionNodes));
                         points.add(intersectionNodes);
                 }
             }
@@ -550,19 +439,15 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 nodes.add(tp3);
         }
         
-        if (nodes.size() > 0) {
-            findPolygons(nodes, id);
-        } else {
-            CrossSection.addPolygon(id, new ArrayList<>());
-            CrossSection.addLine(id, new ArrayList<>());
-        }
+        nodesMap.put(id, nodes);
     }
     
     private void findIntersection(final Node p1, final Node p2, final Node p3, final Node p4, ArrayList<Node> intersectionNodes) {
-        double firstEquation = CrossSection.getA() * p1.x + CrossSection.getB() * p1.y + CrossSection.getC() * p1.z + CrossSection.getD();
-        double secondEquation = CrossSection.getA() * p2.x + CrossSection.getB() * p2.y + CrossSection.getC() * p2.z + CrossSection.getD();
-        double thirdEquation = CrossSection.getA() * p3.x + CrossSection.getB() * p3.y + CrossSection.getC() * p3.z + CrossSection.getD();
-        double fourthEquation = CrossSection.getA() * p4.x + CrossSection.getB() * p4.y + CrossSection.getC() * p4.z + CrossSection.getD();
+        
+        double firstEquation = A * p1.x + B * p1.y + C * p1.z + D;
+        double secondEquation = A * p2.x + B * p2.y + C * p2.z + D;
+        double thirdEquation = A * p3.x + B * p3.y + C * p3.z + D;
+        double fourthEquation = A * p4.x + B * p4.y + C * p4.z + D;
         
         boolean first = false;
         boolean second = false;
@@ -584,10 +469,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             intersectionNodes.add(p4);
             fourth = true;
         }
-        /*if (intersectionNodes.size() == 3) {
-            return;
-        }
-        if (intersectionNodes.isEmpty()) {*/
         if (intersectionNodes.size() != 3) {
             if ((!first) && (!second)) {
                 if (firstEquation * secondEquation < 0) {
@@ -595,11 +476,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p2.y - p1.y;
                     double a3 = p2.z - p1.z;
                     double t = 1 / (secondEquation - firstEquation) * (-1) * firstEquation;
-                    /*double x = a1 * t + p1.x;
-                    double y = a2 * t + p1.y;
-                    double z = a3 * t + p1.z;*/
-                    //System.out.println("Inter4");
-                    //System.out.println(x + " " + y + " " + z);
                     intersectionNodes.add(new Node(a1 * t + p1.x, a2 * t + p1.y, a3 * t + p1.z));
                 }
             }
@@ -609,11 +485,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p3.y - p1.y;
                     double a3 = p3.z - p1.z;
                     double t = 1 / (thirdEquation - firstEquation) * (-1) * firstEquation;
-                    /*double x = a1 * t + p1.x;
-                    double y = a2 * t + p1.y;
-                    double z = a3 * t + p1.z;*/
-                    //System.out.println("Inter4");
-                    //System.out.println(x + " " + y + " " + z);
                     intersectionNodes.add(new Node(a1 * t + p1.x, a2 * t + p1.y, a3 * t + p1.z));
                 }
             }
@@ -623,11 +494,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p4.y - p1.y;
                     double a3 = p4.z - p1.z;
                     double t = 1 / (fourthEquation - firstEquation) * (-1) * firstEquation;
-                    /*double x = a1 * t + p1.x;
-                    double y = a2 * t + p1.y;
-                    double z = a3 * t + p1.z;*/
-                    //System.out.println("Inter4");
-                    //System.out.println(x + " " + y + " " + z);
                     intersectionNodes.add(new Node(a1 * t + p1.x, a2 * t + p1.y, a3 * t + p1.z));
                 }
             }
@@ -637,11 +503,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p2.y - p3.y;
                     double a3 = p2.z - p3.z;
                     double t = 1 / (secondEquation - thirdEquation) * (-1) * thirdEquation;
-                    /*double x = a1 * t + p3.x;
-                    double y = a2 * t + p3.y;
-                    double z = a3 * t + p3.z;*/
-                    //System.out.println("Inter4");
-                    //System.out.println(x + " " + y + " " + z);
                     intersectionNodes.add(new Node(a1 * t + p3.x, a2 * t + p3.y, a3 * t + p3.z));
                 }
             }
@@ -651,11 +512,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p2.y - p4.y;
                     double a3 = p2.z - p4.z;
                     double t = 1 / (secondEquation - fourthEquation) * (-1) * fourthEquation;
-                    //double x = a1 * t + p4.x;
-                    //double y = a2 * t + p4.y;
-                    //double z = a3 * t + p4.z;
-                    //System.out.println("Inter4");
-                    //System.out.println(x + " " + y + " " + z);
                     intersectionNodes.add(new Node(a1 * t + p4.x, a2 * t + p4.y, a3 * t + p4.z));
                 }
             }
@@ -665,147 +521,23 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     double a2 = p4.y - p3.y;
                     double a3 = p4.z - p3.z;
                     double t = 1 / (fourthEquation - thirdEquation) * (-1) * thirdEquation;
-                    /*double x = a1 * t + p3.x;
-                    double y = a2 * t + p3.y;
-                    double z = a3 * t + p3.z;*/
                     intersectionNodes.add(new Node(a1 * t + p3.x, a2 * t + p3.y, a3 * t + p3.z));
                 }
             }
         }
-        
-        /*if ((absValueOfFirstEquation < 0.000001) && (absValueOfSecondEquation < 0.000001) && (absValueOfThirdEquation < 0.000001)) {
-            intersectionNodes.add(p1);
-            intersectionNodes.add(p2);
-            intersectionNodes.add(p3);
-        } else if ((absValueOfFirstEquation < 0.000001) && (absValueOfSecondEquation < 0.000001) && (absValueOfFourthEquation < 0.000001)) {
-            intersectionNodes.add(p1);
-            intersectionNodes.add(p2);
-            intersectionNodes.add(p4);
-        } else if ((absValueOfThirdEquation < 0.000001) && (absValueOfSecondEquation < 0.000001) && (absValueOfFourthEquation < 0.000001)) {
-            intersectionNodes.add(p3);
-            intersectionNodes.add(p2);
-            intersectionNodes.add(p4);
-        } else if ((absValueOfThirdEquation < 0.000001) && (absValueOfFirstEquation < 0.000001) && (absValueOfFourthEquation < 0.000001)) {
-            intersectionNodes.add(p3);
-            intersectionNodes.add(p1);
-            intersectionNodes.add(p4);
-        }
-        
-        if ((absValueOfFirstEquation < 0.000001) && (absValueOfSecondEquation < 0.000001)) {
-            //System.out.println("Inter1");
-            //if (!intersectionNodes.contains(p1))
-            if (absValueOfThirdEquation < 0.000001) {
-                intersectionNodes.add(p1);
-                intersectionNodes.add(p2);
-                intersectionNodes.add(p3);
-            } else if (absValueOfFourthEquation < 0.000001) {
-                intersectionNodes.add(p1);
-                intersectionNodes.add(p2);
-                intersectionNodes.add(p4);
-            }
-            //intersectionNodes.add(p1);
-            //if (!intersectionNodes.contains(p2))
-            //intersectionNodes.add(p2);
-        } else if (absValueOfFirstEquation < 0.000001) {
-            //System.out.println("Inter2");
-            //if (!intersectionNodes.contains(p1))
-            intersectionNodes.add(p1);
-        } else if (absValueOfSecondEquation < 0.000001) {
-            //System.out.println("Inter3");
-            //if (!intersectionNodes.contains(p2))
-            intersectionNodes.add(p2);
-        } else if (firstEquation * secondEquation < 0) {
-            double a1 = p2.x - p1.x;
-            double a2 = p2.y - p1.y;
-            double a3 = p2.z - p1.z;
-            double t = 1 / (secondEquation - firstEquation) * (-1) * firstEquation;
-            double x = a1 * t + p1.x;
-            double y = a2 * t + p1.y;
-            double z = a3 * t + p1.z;
-            //System.out.println("Inter4");
-            //System.out.println(x + " " + y + " " + z);
-            intersectionNodes.add(new Node(x, y, z));
-        }*/
     }
-    
-    /*private void findIntersection(final Node p1, final Node p2, ArrayList<Node> intersectionNodes) {
-        double firstEquation = CrossSection.getA() * p1.x + CrossSection.getB() * p1.y + CrossSection.getC() * p1.z + CrossSection.getD();
-        double secondEquation = CrossSection.getA() * p2.x + CrossSection.getB() * p2.y + CrossSection.getC() * p2.z + CrossSection.getD();
-        double absValueOfFirstEquation = Math.abs(firstEquation);
-        double absValueOfSecondEquation = Math.abs(secondEquation);
-        if ((absValueOfFirstEquation < 0.000001) && (absValueOfSecondEquation < 0.000001)) {
-            //System.out.println("Inter1");
-            if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(p1);
-            if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(p2);
-        } else if (absValueOfFirstEquation < 0.000001) {
-            //System.out.println("Inter2");
-            if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(p1);
-        } else if (absValueOfSecondEquation < 0.000001) {
-            //System.out.println("Inter3");
-            if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(p2);
-        } else if (firstEquation * secondEquation < 0) {
-            double a1 = p2.x - p1.x;
-            double a2 = p2.y - p1.y;
-            double a3 = p2.z - p1.z;
-            double t = 1 / (secondEquation - firstEquation) * (-1) * firstEquation;
-            double x = a1 * t + p1.x;
-            double y = a2 * t + p1.y;
-            double z = a3 * t + p1.z;
-            //System.out.println("Inter4");
-            //System.out.println(x + " " + y + " " + z);
-            intersectionNodes.add(new Node(x, y, z));
-        }
-    }*/
-    
-    /*private void findIntersection(final Point3D p1, final Point3D p2, ArrayList<Point3D> intersectionNodes) {
-        double firstEquation = CrossSection.getA() * p1.getX() + CrossSection.getB() * p1.getY() + CrossSection.getC() * p1.getZ() + CrossSection.getD();
-        double secondEquation = CrossSection.getA() * p2.getX() + CrossSection.getB() * p2.getY() + CrossSection.getC() * p2.getZ() + CrossSection.getD();
-        double absValueOfFirstEquation = Math.abs(firstEquation);
-        double absValueOfSecondEquation = Math.abs(secondEquation);
-        if ((absValueOfFirstEquation < 0.0001) && (absValueOfSecondEquation < 0.0001)) {
-            //System.out.println("Inter1");
-            if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(p1);
-            if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(p2);
-        } else if (absValueOfFirstEquation < 0.0001) {
-            //System.out.println("Inter2");
-            if (!intersectionNodes.contains(p1))
-                intersectionNodes.add(p1);
-        } else if (absValueOfSecondEquation < 0.0001) {
-            //System.out.println("Inter3");
-            if (!intersectionNodes.contains(p2))
-                intersectionNodes.add(p2);
-        } else if (firstEquation * secondEquation < 0) {
-            double a1 = p2.getX() - p1.getX();
-            double a2 = p2.getY() - p1.getY();
-            double a3 = p2.getZ() - p1.getZ();
-            double t = 1 / (secondEquation - firstEquation) * (-1) * firstEquation;
-            double x = a1 * t + p1.getX();
-            double y = a2 * t + p1.getY();
-            double z = a3 * t + p1.getZ();
-            System.out.println("Inter4");
-            System.out.println(x + " " + y + " " + z);
-            intersectionNodes.add(new Point3D(x, y, z));
-        }
-    }*/
     
     private void rotateTillHorizontalPanel(ArrayList<Node> intersectionNodes) {
         try {
-            double angX = -Math.toRadians(Double.parseDouble(CrossSection.getXRotate()));
-            double angY = -Math.toRadians(Double.parseDouble(CrossSection.getYRotate()));
+            double angX = -Math.toRadians(crossRotX);
+            double angY = -Math.toRadians(crossRotY);
             double cosAngX = Math.cos(angX);
             double cosAngY = Math.cos(angY);
             double sinAngX = Math.sin(angX);
             double sinAngY = Math.sin(angY);
-            double xCoord = Double.parseDouble(CrossSection.getXCoordinate());
-            double yCoord = Double.parseDouble(CrossSection.getYCoordinate());
-            double zCoord = Double.parseDouble(CrossSection.getZCoordinate());
-            //double x,y,z,temp;
+            double xCoord = crossPosX;
+            double yCoord = crossPosY;
+            double zCoord = crossPosZ;
 
             for (int i = 0; i < intersectionNodes.size(); i++) {
                 double x = intersectionNodes.get(i).x - xCoord;
@@ -828,41 +560,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             
         }
     }
-    
-    /*private void rotateTillHorizontalPanel(ArrayList<Point3D> intersectionNodes) {
-        try {
-            double angX = -Math.toRadians(Double.parseDouble(CrossSection.getXRotate()));
-            double angY = -Math.toRadians(Double.parseDouble(CrossSection.getYRotate()));
-            double cosAngX = Math.cos(angX);
-            double cosAngY = Math.cos(angY);
-            double sinAngX = Math.sin(angX);
-            double sinAngY = Math.sin(angY);
-            double xCoord = Double.parseDouble(CrossSection.getXCoordinate());
-            double yCoord = Double.parseDouble(CrossSection.getYCoordinate());
-            double zCoord = Double.parseDouble(CrossSection.getZCoordinate());
-            double x,y,z,temp;
-
-            for (int i = 0; i < intersectionNodes.size(); i++) {
-                x = intersectionNodes.get(i).getX() - xCoord;
-                y = intersectionNodes.get(i).getY() - yCoord;
-                z = intersectionNodes.get(i).getZ() - zCoord;
-                
-                temp = x;
-                x = x * cosAngY + z * sinAngY;
-                z = -temp * sinAngY + z * cosAngY;
-                
-                z = y * sinAngX + z * cosAngX;
-                
-                temp = x;
-                x = x * cosAngY + z * (-sinAngY);
-                z = -temp * (-sinAngY) + z * cosAngY;
-                
-                intersectionNodes.set(i, new Point3D(x + xCoord, 0, z + zCoord));
-            }
-        } catch (Exception ex) {
-            
-        }
-    }*/
     
     private void applyTransformations(double xRot, double yRot, 
             double xTran, double yTran, double zTran, Point3D nodeAvg,
@@ -905,24 +602,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     nodesListTemp.put(c.getId(), new double[nodesListTemp.get(cell.getId()).length]);
                     
                     tetrahedronsList.put(c.getId(), new int[tetrahedronsList.get(cell.getId()).length]);
-                    //facesList.put(c.getId(), new int[facesList.get(cell.getId()).length]);
-                    //double[] nodesArr = nodesList.get(cell.getId());
                     for (int i = 0; i < nodesList.get(cell.getId()).length; i += 3) {
-                        /*double x = nodesList.get(cell.getId())[i];
-                        double y = nodesList.get(cell.getId())[i + 1];
-                        double z = nodesList.get(cell.getId())[i + 2];
-                        System.out.println(x + " " + y + " " + z);
-                        x += hm.getHistionMap().get(c.getHistionId()).getXCoordinate();
-                        y += hm.getHistionMap().get(c.getHistionId()).getYCoordinate();
-                        z += hm.getHistionMap().get(c.getHistionId()).getZCoordinate();*/
-                        
-                        /*nodesList.get(c.getId())[i] = nodesList.get(cell.getId())[i] +
-                                hm.getHistionMap().get(c.getHistionId()).getXCoordinate();
-                        nodesList.get(c.getId())[i + 1] = nodesList.get(cell.getId())[i + 1] +
-                                hm.getHistionMap().get(c.getHistionId()).getYCoordinate();
-                        nodesList.get(c.getId())[i + 2] = nodesList.get(cell.getId())[i + 2] +
-                                hm.getHistionMap().get(c.getHistionId()).getZCoordinate();*/
-                        
                         nodesListTemp.get(c.getId())[i] = nodesListTemp.get(cell.getId())[i] +
                                 hm.getHistionMap().get(c.getHistionId()).getXCoordinate();
                         nodesListTemp.get(c.getId())[i + 1] = nodesListTemp.get(cell.getId())[i + 1] +
@@ -931,12 +611,10 @@ public final class SpaceViewerTopComponent extends TopComponent {
                                 hm.getHistionMap().get(c.getHistionId()).getZCoordinate();
                     }
                     double ang = rotateXShapeGroup.getAngle() + mouseDeltaY * 0.1;
-                    //double angRadX = Math.toRadians(ang);
                     double angXCos = Math.cos(Math.toRadians(ang));
                     double angXSin = Math.sin(Math.toRadians(ang));
 
                     ang = rotateYShapeGroup.getAngle() - mouseDeltaX * 0.1;
-                    //double angRadY = Math.toRadians(ang);
                     double angYSin = Math.sin(Math.toRadians(ang));
                     double angYCos = Math.cos(Math.toRadians(ang));
                     if (c.getShow()) {
@@ -960,18 +638,8 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     for (int i = 0; i < tetrahedronsList.get(cell.getId()).length; i++) {
                         tetrahedronsList.get(c.getId())[i] = tetrahedronsList.get(cell.getId())[i];
                     }
-                    //System.arraycopy(nodesList.get(cell.getId()), 0, nodesList.get(c.getId()), 0, nodesList.get(cell.getId()).length);
-                    //System.arraycopy(tetrahedronsList.get(cell.getId()), 0, tetrahedronsList.get(c.getId()), 0, tetrahedronsList.get(cell.getId()).length);
-                    //System.arraycopy(facesList.get(cell.getId()), 0, facesList.get(c.getId()), 0, facesList.get(cell.getId()).length);
-                    /*for (int i = 0; i < nodesList.size(); i += 3) {
-                        System.out.println(i);
-                        nodesList.get(c.getId())[i] += hm.getHistionMap().get(c.getHistionId()).getXCoordinate();
-                        nodesList.get(c.getId())[i + 1] += hm.getHistionMap().get(c.getHistionId()).getYCoordinate();
-                        nodesList.get(c.getId())[i + 2] += hm.getHistionMap().get(c.getHistionId()).getZCoordinate();
-                    }*/
                     
                     colorsList.put(c.getId(), c.getDiffuseColor());
-                    //MeshView newMeshView = new MeshView(shapeMap.get(cell.getId()).getMesh());
                     MeshView newMeshView = new MeshView(hm.getShapeMap().get(cell.getId()).getMesh());
                     final PhongMaterial phongMaterial = new PhongMaterial();
                     phongMaterial.setDiffuseColor(c.getDiffuseColor());
@@ -981,7 +649,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                     newMeshView.setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
                     newMeshView.setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
                     shapeGroup.getChildren().add(newMeshView);
-                    //shapeMap.put(c.getId(), newMeshView);
                     hm.getShapeMap().put(c.getId(), newMeshView);
                     
                     ArrayList<Line3D> lineArr = new ArrayList<>();
@@ -991,48 +658,20 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         line.getMeshView().setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
                         line.getMeshView().setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
                         shapeGroup.getChildren().add(line.getMeshView());
-                        /*line.getMeshView(1).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        line.getMeshView(2).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        line.getMeshView(3).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        line.getMeshView(4).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        line.getMeshView(1).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        line.getMeshView(2).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        line.getMeshView(3).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        line.getMeshView(4).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        line.getMeshView(1).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        line.getMeshView(2).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        line.getMeshView(3).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        line.getMeshView(4).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        shapeGroup.getChildren().add(line.getMeshView(1));
-                        shapeGroup.getChildren().add(line.getMeshView(2));
-                        shapeGroup.getChildren().add(line.getMeshView(3));
-                        shapeGroup.getChildren().add(line.getMeshView(4));*/
-                        //l.getMeshView(1).setTranslateX(-100);
                         lineArr.add(line);
-                        //System.out.println("555");
                     }
-                    /*for (Line3D l : lineArr) {
-                        //System.out.println("7777");
-                        l.getMeshView(1).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        l.getMeshView(2).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        l.getMeshView(3).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        l.getMeshView(4).setTranslateX(hm.getHistionMap().get(c.getHistionId()).getXCoordinate());
-                        l.getMeshView(1).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        l.getMeshView(2).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        l.getMeshView(3).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        l.getMeshView(4).setTranslateY(hm.getHistionMap().get(c.getHistionId()).getYCoordinate());
-                        l.getMeshView(1).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        l.getMeshView(2).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        l.getMeshView(3).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                        l.getMeshView(4).setTranslateZ(hm.getHistionMap().get(c.getHistionId()).getZCoordinate());
-                    }*/
                     lineMap.put(c.getId(), lineArr);
                     intersectionsWithEdges(c.getId());
+                    if (nodesMap.get(c.getId()).size() > 0) {
+                        findPolygons(nodesMap.get(c.getId()), c.getId());
+                    } else {
+                        CrossSection.addPolygon(c.getId(), new ArrayList<>());
+                        CrossSection.addLine(c.getId(), new ArrayList<>());
+                    }
                 }
             });
             return;
         }
-        System.out.println(c.getId());
         ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
         
         double xRot = c.getXRotate();
@@ -1055,26 +694,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
         applyTransformations(xRot, yRot, xTran, yTran, zTran, nodeAvg, pointData);
         
         c.setTransformedPointData(pointData);
-        
-        /*dataSize = 0;
-        nodeAvg = new Point3D(0, 0, 0);
-        Histion h = hm.getHistionMap().get(c.getHistionId());
-        h.getItems().forEach(cell -> {
-            if (cell.getShow()) {
-                for (TetgenPoint point : cell.getTransformedPointData()) {
-                    nodeAvg = new Point3D(nodeAvg.getX() + point.getX(), nodeAvg.getY() + point.getY(), nodeAvg.getZ() + point.getZ());
-                }
-                dataSize += cell.getTransformedPointData().size();
-            }
-        });
-        nodeAvg = new Point3D(nodeAvg.getX() / dataSize, nodeAvg.getY() / dataSize, nodeAvg.getZ() / dataSize);
-        xRot = h.getXRotate();
-        yRot = h.getYRotate();
-        xTran = h.getXCoordinate();
-        yTran = h.getYCoordinate();
-        zTran = h.getZCoordinate();
-        applyTransformations(xRot, yRot, xTran, yTran, zTran, nodeAvg, pointData);*/
-        
+   
         int numberOfNodes = pointData.size();
         double[] nodeList = new double[numberOfNodes * 3];
         int count = 0;
@@ -1106,7 +726,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         count = 0;
         for (int i = 0; i < numberOfFacets; i++) {
             for (int j = 0; j < numberOfVerticesInPolygon[i]; j++) {
-                //vertexList[count] = facetData.get(i).getVertex(j + 1);
                 vertexList[count] = facetData.get(i).get(j);
                 count++;
             }
@@ -1139,13 +758,12 @@ public final class SpaceViewerTopComponent extends TopComponent {
         nodesListTemp.put(c.getId(), new double[tr.getNodeList().length]);
         
         tetrahedronsList.put(c.getId(), new int[tr.getTetrahedronList().length]);
-        //facesList.put(c.getId(), new int[tr.getFaceList().length]);
+        
         System.arraycopy(tr.getNodeList(), 0, nodesList.get(c.getId()), 0, tr.getNodeList().length);
         
         System.arraycopy(tr.getNodeList(), 0, nodesListTemp.get(c.getId()), 0, tr.getNodeList().length);
         
         System.arraycopy(tr.getTetrahedronList(), 0, tetrahedronsList.get(c.getId()), 0, tr.getTetrahedronList().length);
-        //System.arraycopy(tr.getFaceList(), 0, facesList.get(c.getId()), 0, tr.getFaceList().length);
         
         final PhongMaterial phongMaterial = new PhongMaterial();
         phongMaterial.setDiffuseColor(c.getDiffuseColor());
@@ -1163,86 +781,36 @@ public final class SpaceViewerTopComponent extends TopComponent {
         MeshView shape= new MeshView(shapeMesh);
         shape.setDrawMode(DrawMode.FILL);
         shape.setMaterial(phongMaterial);
-        
-        /*final PhongMaterial blackMaterial = new PhongMaterial();
-        blackMaterial.setDiffuseColor(Color.BLACK);
-        blackMaterial.setSpecularColor(Color.BLACK);
-        MeshView shape2= new MeshView(shapeMesh);
-        shape2.setDrawMode(DrawMode.LINE);
-        shape2.setMaterial(blackMaterial);
-        shape2.setScaleX(1.1);
-        shape2.setScaleY(1.1);
-        shape2.setScaleZ(1.1);*/
 
         String n = c.getName();
         n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">")); 
         if (!HideCells.getCellNameToHideList().contains(n))
             shapeGroup.getChildren().add(shape);
-        //shapeGroup.getChildren().add(shape2);
-        //shapeMap.put(c.getId(), shape);
         hm.getShapeMap().put(c.getId(), shape);
         
         ArrayList<Point3D> linePointsList = new ArrayList<>();
         ArrayList<TwoIntegers> lineData = new ArrayList<>();
         ArrayList<Line3D> lineList = new ArrayList<>();
-        /*ArrayList<Line3D3> line3List = new ArrayList<>();
-        ArrayList<Line3D5> line5List = new ArrayList<>();*/
         
-        /*for (ArrayList<Integer> f : facetData) {
-            for (int i = 1; i < f.size(); i++) {
-                
-            }
-        }*/
-        //int cou = 0;
         for (ArrayList<Integer> f : facetData) {
-            //cou++;
-            //System.out.println(cou);
-            //if (cou == 3)
-            //    System.out.println("***" + linePointsList.size());
-            //if (cou == 3)
-            //    break;
             for (int i = 1; i < f.size(); i++) {
-                //if (cou == 3)
-                //System.out.println("---" + i);
                 TwoIntegers ti = new TwoIntegers(0, f.get(i - 1), f.get(i));
                 if (!lineData.contains(ti)) {
-                    //if (cou == 3)
-                    //System.out.println("1");
-                    //linePointsList.clear();
                     linePointsList.add(new Point3D(pointData.get(ti.getPoint1() - 1).getX(),
                             pointData.get(ti.getPoint1() - 1).getY(),
                             pointData.get(ti.getPoint1() - 1).getZ()));
                     linePointsList.add(new Point3D(pointData.get(ti.getPoint2() - 1).getX(),
                             pointData.get(ti.getPoint2() - 1).getY(),
                             pointData.get(ti.getPoint2() - 1).getZ()));
-                    /*if (i == f.size() - 1) {
-                        //if (cou == 3)
-                        //    System.out.println("2");
-                        Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
-                        lineList.add(line);
-                        if (!HideCells.getCellNameToHideList().contains(n)) {
-                            //if (cou == 3)
-                            shapeGroup.getChildren().add(line.getMeshView());
-                        }
-                        linePointsList.clear();
-                    }*/
                     
-                    //Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
-                    //lineList.add(line);
-                    //if (!HideCells.getCellNameToHideList().contains(n))
-                    //    shapeGroup.getChildren().add(line.getMeshView());
                     lineData.add(ti);
                 } else {
                     if (linePointsList.size() > 0) {
-                        //if (cou == 3)
-                        //    System.out.println("3");
                         Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
                         lineList.add(line);
                         if (!HideCells.getCellNameToHideList().contains(n)) {
-                            //if (cou == 3)
                             shapeGroup.getChildren().add(line.getMeshView());
                         }
-                        //lineData.add(ti);
                         linePointsList.clear();
                     }
                 }
@@ -1250,7 +818,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
             
             TwoIntegers ti = new TwoIntegers(0, f.get(f.size() - 1), f.get(0));
             if (!lineData.contains(ti)) {
-                //linePointsList.clear();
                 linePointsList.add(new Point3D(pointData.get(ti.getPoint1() - 1).getX(),
                         pointData.get(ti.getPoint1() - 1).getY(),
                         pointData.get(ti.getPoint1() - 1).getZ()));
@@ -1260,78 +827,27 @@ public final class SpaceViewerTopComponent extends TopComponent {
                 Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
                 lineList.add(line);
                 if (!HideCells.getCellNameToHideList().contains(n))
-                    //if (cou == 3)
                     shapeGroup.getChildren().add(line.getMeshView());
             } else {
                 if (linePointsList.size() > 0) {
-                    //if (cou == 3)
-                    //    System.out.println("3");
                     Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
                     lineList.add(line);
                     if (!HideCells.getCellNameToHideList().contains(n)) {
-                        //if (cou == 3)
                         shapeGroup.getChildren().add(line.getMeshView());
                     }
-                    //lineData.add(ti);
-                    //linePointsList.clear();
                 }
             }
             linePointsList.clear();
-            
-            /*TwoIntegers ti = new TwoIntegers(0, f.get(f.size() - 1), f.get(0));
-            if (!lineData.contains(ti)) {
-                linePointsList.clear();
-                linePointsList.add(new Point3D(pointData.get(ti.getPoint1() - 1).getX(),
-                        pointData.get(ti.getPoint1() - 1).getY(),
-                        pointData.get(ti.getPoint1() - 1).getZ()));
-                linePointsList.add(new Point3D(pointData.get(ti.getPoint2() - 1).getX(),
-                        pointData.get(ti.getPoint2() - 1).getY(),
-                        pointData.get(ti.getPoint2() - 1).getZ()));
-                Line3D line = new Line3D(linePointsList, 2f, Color.BLACK);
-                lineList.add(line);
-                if (!HideCells.getCellNameToHideList().contains(n))
-                    shapeGroup.getChildren().add(line.getMeshView());
-            }*/
         }
         
-        //System.out.println(lineList.size());
-        /*TwoIntegers ti;
-        //System.out.println(facetData.size());
-        //int count1 = 0;
-        for (ArrayList<Integer> f : facetData) {
-            //count1++;
-            //System.out.println("---");
-            //System.out.println(count1);
-            for (int i = 1; i < f.size(); i++) {
-                //System.out.println(i);
-                ti = new TwoIntegers(i, f.get(i - 1), f.get(i));
-                linePointsList.add(new Point3D(pointData.get(ti.getPoint1() - 1).getX(),
-                        pointData.get(ti.getPoint1() - 1).getY(),
-                        pointData.get(ti.getPoint1() - 1).getZ()));
-                linePointsList.add(new Point3D(pointData.get(ti.getPoint2() - 1).getX(),
-                        pointData.get(ti.getPoint2() - 1).getY(),
-                        pointData.get(ti.getPoint2() - 1).getZ()));
-            }
-            ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
-            linePointsList.add(new Point3D(pointData.get(ti.getPoint1() - 1).getX(),
-                    pointData.get(ti.getPoint1() - 1).getY(),
-                    pointData.get(ti.getPoint1() - 1).getZ()));
-            linePointsList.add(new Point3D(pointData.get(ti.getPoint2() - 1).getX(),
-                    pointData.get(ti.getPoint2() - 1).getY(),
-                    pointData.get(ti.getPoint2() - 1).getZ()));
-            Line3D line = new Line3D(linePointsList, 3f, Color.BLACK);
-            lineList.add(line);
-            shapeGroup.getChildren().add(line.getMeshView(1));
-            shapeGroup.getChildren().add(line.getMeshView(2));
-            shapeGroup.getChildren().add(line.getMeshView(3));
-            shapeGroup.getChildren().add(line.getMeshView(4));
-        }
-        lineMap.put(c.getId(), lineList);*/
         lineMap.put(c.getId(), lineList);
-        //hm.getHistionMap().get(0).setShapeMap(shapeMap);
         intersectionsWithEdges(c.getId());  
-        /*for (int i = 0; i < 100; i++)
-        System.out.println("Ended");*/
+        if (nodesMap.get(c.getId()).size() > 0) {
+            findPolygons(nodesMap.get(c.getId()), c.getId());
+        } else {
+            CrossSection.addPolygon(c.getId(), new ArrayList<>());
+            CrossSection.addLine(c.getId(), new ArrayList<>());
+        }
     }
     
     private void buildCrossSectionPlane() {
@@ -1495,24 +1011,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
 
         axisGroup.getChildren().addAll(xAxis, yAxis, zAxis);
         
-        /*xAxis.setTranslateX(0);
-        xAxis.setTranslateY(0);
-        xAxis.setTranslateZ(0);
-
-        xAxis.setMaterial(redMaterial);*/
-        
-        final Box xAxisShapeGroup = new Box(axisLen, 2, 2);
-        final Box yAxisShapeGroup = new Box(2, axisLen, 2);
-        
-        //final PhongMaterial redMaterialShapeGroup = new PhongMaterial();
-        //shapeGroupMaterial.setDiffuseColor(Color.rgb(0, 0, 0, 0.0));
-        //shapeGroupMaterial.setSpecularColor(Color.rgb(0, 0, 0, 0.0));
-        shapeGroupMaterial.setDiffuseColor(Color.rgb(0, 0, 0));
-        shapeGroupMaterial.setSpecularColor(Color.rgb(0, 0, 0));
-        xAxisShapeGroup.setMaterial(shapeGroupMaterial);
-        yAxisShapeGroup.setMaterial(shapeGroupMaterial);
-        shapeGroupAxisGroup.getChildren().addAll(xAxisShapeGroup, yAxisShapeGroup);
-        
         root.getChildren().addAll(axisGroup);
         root.getChildren().addAll(shapeGroupAxisGroup);
     }
@@ -1524,101 +1022,105 @@ public final class SpaceViewerTopComponent extends TopComponent {
         camera.setFarClip(4000);
         camera.setFieldOfView(35.0);
         scene.setCamera(camera);     
-        //root.getChildren().add(cameraXform);
-        //cameraXform.getChildren().add(camera);
     }
     
     private void addRotateTransformsToGroup() {
         shapeGroup.getTransforms().clear();
-        //shapeGroup.getTransforms().addAll(rotateYShapeGroup, rotateXShapeGroup);
-        //axisGroup.getTransforms().addAll(rotateYShapeGroup, rotateXShapeGroup);
-        //shapeGroup.getTransforms().addAll(rotateZShapeGroup, rotateYShapeGroup, rotateXShapeGroup);
-        //shapeGroup.getTransforms().addAll(rotateZShapeGroup, rotateYShapeGroup, rotateXShapeGroup);
-        //shapeGroup.getTransforms().addAll(rotateYShapeGroup, rotateZShapeGroup, rotateXShapeGroup);
         shapeGroup.getTransforms().addAll(rotateYShapeGroup, rotateXShapeGroup);
-        //shapeGroup.getTransforms().addAll(rotateXShapeGroup, rotateZShapeGroup, rotateYShapeGroup);
-        //shapeGroup.getTransforms().addAll(rotateZShapeGroup, rotateXShapeGroup, rotateYShapeGroup);
     }
     
-    //final XForm cameraXform = new XForm();
-    //final XForm cameraXform2 = new XForm();
-    //final XForm cameraXform3 = new XForm();
-    
-    boolean isDone = true;
-    
-    class DoWork extends Task<Boolean> {
-        
+    Service<Void> process = new Service() {
         @Override
-        protected Boolean call() throws Exception {
-            double ang = rotateXShapeGroup.getAngle() + mouseDeltaY * 0.1;
-            double angRadX = Math.toRadians(ang);
-            rotateXShapeGroup.setAngle(ang);
+        protected Task<Void> createTask() {
+            return new Task() {
+                @Override
+                protected Void call() throws Exception {
+                    hm.getAllHistions().forEach(h -> {
+                        h.getItems().forEach(c -> {
+                            if (c.getShow()) {
+                                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
+                                    double x = nodesListTemp.get(c.getId())[i];
+                                    double y = nodesListTemp.get(c.getId())[i + 1];
+                                    double z = nodesListTemp.get(c.getId())[i + 2];
+                                    double tempVal = y;
+                                    y = y * angXCos - z * angXSin;
+                                    z = tempVal * angXSin + z * angXCos;
 
-            ang = rotateYShapeGroup.getAngle() - mouseDeltaX * 0.1;
-            double angRadY = Math.toRadians(ang);
-            rotateYShapeGroup.setAngle(ang);
-            hm.getAllHistions().forEach(h -> {
-                h.getItems().forEach(c -> {
-                    for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                        if (isCancelled()) {
-                            break;
-                        }
-                        double x = nodesListTemp.get(c.getId())[i];
-                        double y = nodesListTemp.get(c.getId())[i + 1];
-                        double z = nodesListTemp.get(c.getId())[i + 2];
-                        double tempVal = y;
-                        y = y * Math.cos(angRadX) - z * Math.sin(angRadX);
-                        z = tempVal * Math.sin(angRadX) + z * Math.cos(angRadX);
+                                    tempVal = x;
+                                    x = x * angYCos + z * angYSin;
+                                    z = -tempVal * angYSin + z * angYCos;
 
-                        tempVal = x;
-                        x = x * Math.cos(angRadY) + z * Math.sin(angRadY);
-                        z = -tempVal * Math.sin(angRadY) + z * Math.cos(angRadY);
-
-                        nodesList.get(c.getId())[i] = x;
-                        nodesList.get(c.getId())[i + 1] = y;
-                        nodesList.get(c.getId())[i + 2] = z;
-
-                    }
-                });
-            });
-            hm.getAllHistions().forEach(h -> {
-                    h.getItems().forEach(c -> {
-                        if (c.getShow())
-                            if (!isCancelled())
+                                    nodesList.get(c.getId())[i] = x + trX;
+                                    nodesList.get(c.getId())[i + 1] = y + trY;
+                                    nodesList.get(c.getId())[i + 2] = z + trZ;
+                                }
                                 intersectionsWithEdges(c.getId());
-                            //System.out.println(c.getId());
+                            }
+                        });
                     });
-                });
-            if (!isCancelled()) {
-                isDone = true;
-                return true;
-            }
-            else {
-                isDone = false;
-                return false;
-            }
+
+                    Platform.runLater(() -> {
+                        nodesMap.forEach((i, n) -> {
+                            if (n.size() > 0) {
+                                findPolygons(n, i);
+                            } else {
+                                CrossSection.addPolygon(i, new ArrayList<>());
+                                CrossSection.addLine(i, new ArrayList<>());
+                            }
+                        });
+                    });
+                    return null;
+                }
+            };
         }
+    };
     
-}
-    DoWork task = new DoWork();
+    Service<Void> processCrossSection = new Service() {
+        @Override
+        protected Task<Void> createTask() {
+            return new Task() {
+                @Override
+                protected Void call() throws Exception {
+                    hm.getAllHistions().forEach(h -> {
+                        h.getItems().forEach(c -> {
+                            if (c.getShow()) {
+                                intersectionsWithEdges(c.getId());
+                            }
+                        });
+                    });
+                    
+                    Platform.runLater(() -> {
+                        nodesMap.forEach((i, n) -> {
+                            if (n.size() > 0) {
+                                findPolygons(n, i);
+                            } else {
+                                CrossSection.addPolygon(i, new ArrayList<>());
+                                CrossSection.addLine(i, new ArrayList<>());
+                            }
+                        });
+                    });
+                    return null;
+                }
+            };
+        }
+    };
+    
     double mouseDeltaX; 
     double mouseDeltaY; 
     
     double oldValXRot = 0;
     double oldValYRot = 0;
-    /*double oldValXPos = 0;
-    double oldValYPos = 0;
-    double oldValZPos = 0;*/
     
-    /*ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-        double newVal = (double)newValue;
-        if (change) {
-            if (Math.abs(newVal - oldValXRot) > 1) {
-                oldValXRot = newVal;
-                xRotation.setText(newValue + "");
-            }
-        }
-    };*/
+    double angXCos = 1;
+    double angYCos = 1;
+    double angXSin = 0;
+    double angYSin = 0;
+    
+    double trX = 0;
+    double trY = 0;
+    double trZ = 0;
+    
+    boolean startProcess = true;
     
     private void handleMouseEvents(Scene scene) {
         
@@ -1631,115 +1133,58 @@ public final class SpaceViewerTopComponent extends TopComponent {
             mouseOldY = me.getSceneY();
         });
         
+        process.setExecutor(Executors.newFixedThreadPool(1, runnable -> {
+            Thread t = new Thread(runnable);
+            t.setDaemon(true);
+            return t ;
+        }));
+        
         scene.setOnMouseDragged(me -> {
             
             if (me.isSecondaryButtonDown()) {
-                //shapeGroupMaterial.setDiffuseColor(Color.rgb(0, 0, 0, 0.8));
-                //shapeGroupMaterial.setSpecularColor(Color.rgb(0, 0, 0, 0.8));
+                
+                final Box xAxisShapeGroup = new Box(2000, 2, 2);
+                final Box yAxisShapeGroup = new Box(2, 2000, 2);
+                
+                shapeGroupMaterial.setDiffuseColor(Color.rgb(0, 0, 0));
+                shapeGroupMaterial.setSpecularColor(Color.rgb(0, 0, 0));
+                xAxisShapeGroup.setMaterial(shapeGroupMaterial);
+                yAxisShapeGroup.setMaterial(shapeGroupMaterial);
+                shapeGroupAxisGroup.getChildren().addAll(xAxisShapeGroup, yAxisShapeGroup);
+                
                 mousePosX = me.getSceneX();
                 mousePosY = me.getSceneY();
-                //double mouseDeltaX = (mousePosX - mouseOldX); 
-                //double mouseDeltaY = (mousePosY - mouseOldY); 
                 mouseDeltaX = (mousePosX - mouseOldX); 
                 mouseDeltaY = (mousePosY - mouseOldY); 
-                //double modifier = 1.0;
-                //double modifierFactor = 0.1;
                 
+                double ang1 = rotateXShapeGroup.getAngle()+mouseDeltaY*0.1;
                 
-                /*GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(
-                        GroupTransforms.getXRotate())+mouseDeltaY*0.1));
-                GroupTransforms.setYRotate(String.valueOf(Double.parseDouble(GroupTransforms.getYRotate())-mouseDeltaX*0.1));*/
-                
-                double ang = rotateXShapeGroup.getAngle()+mouseDeltaY*0.1;
-                //double angRadX = Math.toRadians(ang);
-                double angXCos = Math.cos(Math.toRadians(ang));
-                double angXSin = Math.sin(Math.toRadians(ang));
-                rotateXShapeGroup.setAngle(ang);
+                if ((ang1 >= 360) || (ang1 <= -360)) {
+                    ang1 = ang1 % 360;
+                }
+                rotateXShapeGroup.setAngle(ang1);
 
-                ang = rotateYShapeGroup.getAngle() - mouseDeltaX * 0.1;
-                //double angRadY = Math.toRadians(ang);
-                double angYSin = Math.sin(Math.toRadians(ang));
-                double angYCos = Math.cos(Math.toRadians(ang));
-                rotateYShapeGroup.setAngle(ang);
+                double ang2 = rotateYShapeGroup.getAngle() - mouseDeltaX * 0.1;
+                if ((ang2 >= 360) || (ang2 <= -360)) {
+                    ang2 = ang2 % 360;
+                }
+                rotateYShapeGroup.setAngle(ang2);
                 
+                startProcess = false;
+                GroupPosition.setXRotate(String.valueOf(ang1));
+                GroupPosition.setYRotate(String.valueOf(ang2));
+                startProcess = true;
                 
-                
-                if ((Math.abs(rotateXShapeGroup.getAngle()+mouseDeltaY*0.1 - oldValXRot) > 2) ||
-                        (Math.abs(ang - oldValYRot) > 2)) {
-                    oldValXRot = rotateXShapeGroup.getAngle()+mouseDeltaY*0.1;
-                    oldValYRot = ang;
-                hm.getAllHistions().forEach(h -> {
-                    h.getItems().forEach(c -> {
-                        if (c.getShow()) {
-                            for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                                double x = nodesListTemp.get(c.getId())[i];
-                                double y = nodesListTemp.get(c.getId())[i + 1];
-                                double z = nodesListTemp.get(c.getId())[i + 2];
-                                double tempVal = y;
-                                y = y * angXCos - z * angXSin;
-                                z = tempVal * angXSin + z * angXCos;
-
-                                tempVal = x;
-                                x = x * angYCos + z * angYSin;
-                                z = -tempVal * angYSin + z * angYCos;
-
-                                nodesList.get(c.getId())[i] = x;
-                                nodesList.get(c.getId())[i + 1] = y;
-                                nodesList.get(c.getId())[i + 2] = z;
-
-                            }
-                            intersectionsWithEdges(c.getId());
-                        }
-                    });
-                });
+                if (!process.isRunning()) {
+                    angXCos = Math.cos(Math.toRadians(ang1));
+                    angXSin = Math.sin(Math.toRadians(ang1));
+                    angYSin = Math.sin(Math.toRadians(ang2));
+                    angYCos = Math.cos(Math.toRadians(ang2));
+                    process.restart();
                 }
                 
-                //GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(GroupTransforms.getXRotate())+(mousePosY - mouseOldY)*0.1));
-                //GroupTransforms.setYRotate(String.valueOf(Double.parseDouble(GroupTransforms.getYRotate())-(mousePosX - mouseOldX)*0.1));
-                
-                //GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(GroupTransforms.getXRotate())+(mousePosY - mouseOldY)*0.1*Math.sin(Math.toRadians(rotateYCam.getAngle()))));
-                /*System.out.println(mouseDeltaY);
-                if (mouseDeltaY < 0) {
-                    if (Double.parseDouble(GroupTransforms.getXRotate()) > -90)
-                        GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(GroupTransforms.getXRotate())+mouseDeltaY*0.1* Math.cos(Math.toRadians(rotateYCam.getAngle()))));
-                    if (rotateZShapeGroup.getAngle() < 90)
-                        rotateZShapeGroup.setAngle(rotateZShapeGroup.getAngle()-mouseDeltaY*0.1* Math.sin(Math.toRadians(rotateYCam.getAngle())));
-                }
-                if (mouseDeltaY > 0) {
-                    if (Double.parseDouble(GroupTransforms.getXRotate()) < 90)
-                        GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(GroupTransforms.getXRotate())+mouseDeltaY*0.1* Math.cos(Math.toRadians(rotateYCam.getAngle()))));
-                    if (rotateZShapeGroup.getAngle() > -90)
-                        rotateZShapeGroup.setAngle(rotateZShapeGroup.getAngle()-mouseDeltaY*0.1* Math.sin(Math.toRadians(rotateYCam.getAngle())));
-                }*/
-                //if (Double.parseDouble(GroupTransforms.getXRotate()) < 90 && Double.parseDouble(GroupTransforms.getXRotate()) > -90)
-                //    GroupTransforms.setXRotate(String.valueOf(Double.parseDouble(GroupTransforms.getXRotate())+mouseDeltaY*0.1* Math.cos(Math.toRadians(rotateYCam.getAngle()))));
-                //rotateZShapeGroup.setAngle(rotateZShapeGroup.getAngle()-mouseDeltaY*0.1* Math.sin(Math.toRadians(rotateYCam.getAngle())));
-                //GroupTransforms.setYRotate(String.valueOf(Double.parseDouble(GroupTransforms.getYRotate())-mouseDeltaX*0.1));
-                //rotateZShapeGroup.setAngle(rotateZShapeGroup.getAngle()+(mousePosY - mouseOldY)*0.1*Math.sin(Math.toRadians(rotateYCam.getAngle())));
-                //cameraXform.ry.setAngle(cameraXform.ry.getAngle() - mouseDeltaX*modifierFactor*modifier*2.0);  // +
-                //cameraXform.rx.setAngle(cameraXform.rx.getAngle() + mouseDeltaY*modifierFactor*modifier*2.0);
                 mouseOldX = mousePosX;
                 mouseOldY = mousePosY;
-                
-                /*for (int i = 0; i < test.size(); i++) {
-
-                    shapeGroup.getChildren().remove(test.get(i));
-                }
-                test.clear();
-                hm.getHistionMap().get(0).getItems().forEach(c -> {
-                    for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                        Box b = new Box(5, 5, 5);
-                        b.setTranslateX(nodesList.get(c.getId())[i]);
-                        b.setTranslateY(nodesList.get(c.getId())[i + 1]);
-                        b.setTranslateZ(nodesList.get(c.getId())[i + 2]);
-                        shapeGroup.getChildren().add(b);
-                        test.add(b);
-                    }
-                });*/
-                
-                
-                //redMaterialShapeGroup.setDiffuseColor(Color.rgb(0, 0, 0, 0));
-                //redMaterialShapeGroup.setSpecularColor(Color.rgb(0, 0, 0, 0));
             }
             
             if (me.isPrimaryButtonDown()) {
@@ -1758,54 +1203,55 @@ public final class SpaceViewerTopComponent extends TopComponent {
             if (me.isMiddleButtonDown()) {
                 mousePosX = me.getSceneX();
                 mousePosY = me.getSceneY();
-                double mouseDeltaX = (mousePosX - mouseOldX); 
-                double mouseDeltaY = (mousePosY - mouseOldY);
-                shapeGroup.setTranslateX(shapeGroup.getTranslateX() + mouseDeltaX * Math.cos(Math.toRadians(rotateYCam.getAngle())));
-                shapeGroup.setTranslateY(shapeGroup.getTranslateY() + mouseDeltaY);
-                shapeGroup.setTranslateZ(shapeGroup.getTranslateZ() - mouseDeltaX * Math.sin(Math.toRadians(rotateYCam.getAngle())));
-                shapeGroupAxisGroup.setTranslateX(shapeGroup.getTranslateX() + mouseDeltaX * Math.cos(Math.toRadians(rotateYCam.getAngle())));
-                shapeGroupAxisGroup.setTranslateY(shapeGroup.getTranslateY() + mouseDeltaY);
-                shapeGroupAxisGroup.setTranslateZ(shapeGroup.getTranslateZ() - mouseDeltaX * Math.sin(Math.toRadians(rotateYCam.getAngle())));
+                mouseDeltaX = (mousePosX - mouseOldX);
+                mouseDeltaY = (mousePosY - mouseOldY);
+                
+                double pos1 = shapeGroup.getTranslateX() + mouseDeltaX * Math.cos(Math.toRadians(rotateYCam.getAngle()));
+                double pos2 = shapeGroup.getTranslateY() + mouseDeltaY;
+                double pos3 = shapeGroup.getTranslateZ() - mouseDeltaX * Math.sin(Math.toRadians(rotateYCam.getAngle()));
+                
+                shapeGroup.setTranslateX(pos1);
+                shapeGroup.setTranslateY(pos2);
+                shapeGroup.setTranslateZ(pos3);
+                
+                shapeGroupAxisGroup.setTranslateX(pos1);
+                shapeGroupAxisGroup.setTranslateY(pos2);
+                shapeGroupAxisGroup.setTranslateZ(pos3);
+                
+                startProcess = false;
+                GroupPosition.setXCoordinate(String.valueOf(pos1));
+                GroupPosition.setYCoordinate(String.valueOf(pos2));
+                GroupPosition.setZCoordinate(String.valueOf(pos3));
+                startProcess = true;
+                
+                if (!process.isRunning()) {
+                    trX = shapeGroup.getTranslateX() + mouseDeltaX * Math.cos(Math.toRadians(rotateYCam.getAngle()));
+                    trY = shapeGroup.getTranslateY() + mouseDeltaY;
+                    trZ = shapeGroup.getTranslateZ() - mouseDeltaX * Math.sin(Math.toRadians(rotateYCam.getAngle()));
+                    process.restart();
+                }
+                
                 mouseOldX = mousePosX;
                 mouseOldY = mousePosY;
             }
         });
         
         scene.setOnMouseReleased(me -> {
-            //shapeGroupMaterial.setDiffuseColor(Color.rgb(0, 0, 0, 0));
-            //shapeGroupMaterial.setSpecularColor(Color.rgb(0, 0, 0, 0));
+            shapeGroupAxisGroup.getChildren().clear();
+            
+            if (!process.isRunning()) {
+                double ang1 = rotateXShapeGroup.getAngle();
+                double ang2 = rotateYShapeGroup.getAngle();
+                angXCos = Math.cos(Math.toRadians(ang1));
+                angXSin = Math.sin(Math.toRadians(ang1));
+                angYSin = Math.sin(Math.toRadians(ang2));
+                angYCos = Math.cos(Math.toRadians(ang2));
+                trX = shapeGroup.getTranslateX();
+                trY = shapeGroup.getTranslateY();
+                trZ = shapeGroup.getTranslateZ();
+                process.restart();
+            }
 
-            double ang = rotateXShapeGroup.getAngle() + mouseDeltaY * 0.1;
-            double angXCos = Math.cos(Math.toRadians(ang));
-            double angXSin = Math.sin(Math.toRadians(ang));
-
-            ang = rotateYShapeGroup.getAngle() - mouseDeltaX * 0.1;
-            double angYSin = Math.sin(Math.toRadians(ang));
-            double angYCos = Math.cos(Math.toRadians(ang));
-            hm.getAllHistions().forEach(h -> {
-                h.getItems().forEach(c -> {
-                    if (c.getShow()) {
-                        for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                            double x = nodesListTemp.get(c.getId())[i];
-                            double y = nodesListTemp.get(c.getId())[i + 1];
-                            double z = nodesListTemp.get(c.getId())[i + 2];
-                            double tempVal = y;
-                            y = y * angXCos - z * angXSin;
-                            z = tempVal * angXSin + z * angXCos;
-
-                            tempVal = x;
-                            x = x * angYCos + z * angYSin;
-                            z = -tempVal * angYSin + z * angYCos;
-
-                            nodesList.get(c.getId())[i] = x;
-                            nodesList.get(c.getId())[i + 1] = y;
-                            nodesList.get(c.getId())[i + 2] = z;
-
-                        }
-                        intersectionsWithEdges(c.getId());
-                    }
-                });
-            });
         });
         
         scene.setOnScroll((ScrollEvent e) -> {
@@ -1856,52 +1302,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                         break;
                     case E:
                         CameraView.setYCoordinate(String.valueOf(camera.getTranslateY() - 10));
-                        break;
-                    case R:
-                        shapeGroup.setScaleX(shapeGroup.getScaleX() + 0.05);
-                        shapeGroup.setScaleY(shapeGroup.getScaleY() + 0.05);
-                        shapeGroup.setScaleZ(shapeGroup.getScaleZ() + 0.05);
-                        hm.getAllHistions().forEach(h -> {
-                            h.getItems().forEach(c -> {
-                                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                                    nodesList.get(c.getId())[i] *= 1.05;
-                                    nodesList.get(c.getId())[i + 1] *= 1.05;
-                                    nodesList.get(c.getId())[i + 2] *= 1.05;
-
-                                }
-                            });
-                        });
-                        hm.getAllHistions().forEach(h -> {
-                            h.getItems().forEach(c -> {
-                                if (c.getShow()) {
-                                    intersectionsWithEdges(c.getId());
-                                }
-                                //System.out.println(c.getId());
-                            });
-                        });
-                        break;
-                    case T:
-                        shapeGroup.setScaleX(shapeGroup.getScaleX() - 0.05);
-                        shapeGroup.setScaleY(shapeGroup.getScaleY() - 0.05);
-                        shapeGroup.setScaleZ(shapeGroup.getScaleZ() - 0.05);
-                        hm.getAllHistions().forEach(h -> {
-                            h.getItems().forEach(c -> {
-                                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                                    nodesList.get(c.getId())[i] *= 0.95;
-                                    nodesList.get(c.getId())[i + 1] *= 0.95;
-                                    nodesList.get(c.getId())[i + 2] *= 0.95;
-
-                                }
-                            });
-                        });
-                        hm.getAllHistions().forEach(h -> {
-                            h.getItems().forEach(c -> {
-                                if (c.getShow()) {
-                                    intersectionsWithEdges(c.getId());
-                                }
-                                //System.out.println(c.getId());
-                            });
-                        });
                         break;
                 }
             }
@@ -2002,9 +1402,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
                             String n = c.getName();
                             n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">"));
                             if (n.equals(name)) {
-                                //shapeGroup.getChildren().remove(shapeMap.get(c.getId()));
                                 shapeGroup.getChildren().remove(hm.getShapeMap().get(c.getId()));
-                                //shapeGroup.getChildren().remove(lineList.);
                                 for (Line3D l : lineMap.get(c.getId())) {
                                     shapeGroup.getChildren().remove(l.getMeshView());
                                 }
@@ -2019,7 +1417,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
                             String n = c.getName();
                             n = n.substring(n.indexOf("<") + 1, n.lastIndexOf(">"));
                             if (n.equals(name)) {
-                                //shapeGroup.getChildren().add(shapeMap.get(c.getId()));
                                 shapeGroup.getChildren().add(hm.getShapeMap().get(c.getId()));
                                 for (Line3D l : lineMap.get(c.getId())) {
                                     shapeGroup.getChildren().add(l.getMeshView());
@@ -2057,18 +1454,10 @@ public final class SpaceViewerTopComponent extends TopComponent {
     double oldValXPosCross = 0;
     double oldValYPosCross = 0;
     double oldValZPosCross = 0;
-    boolean shouldBeChanged = false;
     
     ChangeListener<String> crossSectionXRotListener = (v, oldValue, newValue) -> {
         try {
             double ang = Double.parseDouble(newValue);
-            if (Math.abs(ang - oldValXRotCross) > 2) {
-                oldValXRotCross = ang;
-                shouldBeChanged = true;
-            }
-            /*if ((ang >= 0) && (ang <= 90)) {
-                CrossSection.xRotateProperty().set(String.valueOf(ang));
-            }    */   
             rotateXCrossSection.setAngle(ang);
         } catch (Exception ex) {
             
@@ -2077,10 +1466,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
     ChangeListener<String> crossSectionYRotListener = (v, oldValue, newValue) -> {
         try {
             double ang = Double.parseDouble(newValue);
-            if (Math.abs(ang - oldValYRotCross) > 2) {
-                oldValYRotCross = ang;
-                shouldBeChanged = true;
-            }
             if ((ang >= 360) || (ang <= -360)) {
                 ang = ang % 360;
                 CrossSection.yRotateProperty().set(String.valueOf(ang));
@@ -2095,10 +1480,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         try {
             double pos = Double.parseDouble(newValue);
             if ((pos <= 900) && (pos >= -900)) {
-                if (Math.abs(pos - oldValXPosCross) > 10) {
-                    oldValXPosCross = pos;
-                    shouldBeChanged = true;
-                }
                 crossSectionPlane.setTranslateX(pos);
                 crossSectionXAxis.setTranslateX(pos);
                 crossSectionYAxis.setTranslateX(pos);
@@ -2111,10 +1492,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         try {
             double pos = Double.parseDouble(newValue);
             if ((pos <= 900) && (pos >= -900)) {
-                if (Math.abs(pos - oldValYPosCross) > 10) {
-                    oldValYPosCross = pos;
-                    shouldBeChanged = true;
-                }
                 crossSectionPlane.setTranslateY(pos);
                 crossSectionXAxis.setTranslateY(pos);
                 crossSectionYAxis.setTranslateY(pos);
@@ -2127,10 +1504,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         try {
             double pos = Double.parseDouble(newValue);
             if ((pos <= 900) && (pos >= -900)) {
-                if (Math.abs(pos - oldValZPosCross) > 10) {
-                    oldValZPosCross = pos;
-                    shouldBeChanged = true;
-                }
                 crossSectionPlane.setTranslateZ(pos);
                 crossSectionXAxis.setTranslateZ(pos);
                 crossSectionYAxis.setTranslateZ(pos);
@@ -2170,35 +1543,37 @@ public final class SpaceViewerTopComponent extends TopComponent {
     
     ChangeListener<Boolean> changeListener = (v, oldValue, newValue) -> {
         if (newValue) {
-            //CrossSectionViewerTopComponent.clear();
-            if (shouldBeChanged) {
-                shouldBeChanged = false;
-            hm.getAllHistions().forEach(h -> {
-                h.getItems().forEach(c -> {
-                    if (c.getShow())
-                        intersectionsWithEdges(c.getId());
-                });
-            });
-            }
+                if (!processCrossSection.isRunning()) {
+                    A = CrossSection.getA();
+                    B = CrossSection.getB();
+                    C = CrossSection.getC();
+                    D = CrossSection.getD();
+                    crossRotX = Double.parseDouble(CrossSection.getXRotate());
+                    crossRotY = Double.parseDouble(CrossSection.getYRotate());
+                    crossPosX = Double.parseDouble(CrossSection.getXCoordinate());
+                    crossPosY = Double.parseDouble(CrossSection.getYCoordinate());
+                    crossPosZ = Double.parseDouble(CrossSection.getZCoordinate());
+                    processCrossSection.restart();
+                }
+            //
             CrossSection.setChanged(false);
         }
     };
     
     ChangeListener<Boolean> updateListener = (v, oldValue, newValue) -> {
         if (newValue) {
-            //CrossSectionViewerTopComponent.clear();
-            //polygonList.clear();
-            //linesList.clear();
-            hm.getAllHistions().forEach(h -> {
-                h.getItems().forEach(c -> {
-                    if (c.getShow())
-                        intersectionsWithEdges(c.getId());
-                });
-            });
+            if (!processCrossSection.isRunning()) {
+                processCrossSection.restart();
+            }
         }
     };
     
     private void addCrossSectionListener() {
+        processCrossSection.setExecutor(Executors.newFixedThreadPool(1, runnable -> {
+            Thread t = new Thread(runnable);
+            t.setDaemon(true);
+            return t ;
+        }));
         CrossSection.xRotateProperty().addListener(crossSectionXRotListener);
         CrossSection.yRotateProperty().addListener(crossSectionYRotListener);
         CrossSection.xCoordinateProperty().addListener(crossSectionXPosListener);
@@ -2220,199 +1595,107 @@ public final class SpaceViewerTopComponent extends TopComponent {
         CrossSection.initialized.removeListener(updateListener);
     }
     
-    ArrayList<Box> test = new ArrayList<>();
-    
     ChangeListener<String> groupXRotListener = (v, oldValue, newValue) -> {
-        try {
-            double ang = Double.parseDouble(newValue);
-            //if ((ang >= -90) && (ang <= 90)) {
-                //GroupTransforms.xRotateProperty().set(String.valueOf(ang));
-            //}   
-            /*if ((ang >= 360) || (ang <= -360)) {
-                ang = ang % 360;
-                GroupTransforms.xRotateProperty().set(String.valueOf(ang));
-            }*/
-            rotateXShapeGroup.setAngle(ang);
-            double angRad = Math.toRadians(ang - Double.parseDouble(oldValue));
-            hm.getAllHistions().forEach(h -> {
-                //System.out.println(h.getName());
-                h.getItems().forEach(c -> {
-                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                    //double x = nodesList.get(c.getId())[i];
-                    double y = nodesList.get(c.getId())[i + 1];
-                    double z = nodesList.get(c.getId())[i + 2];
-                    //ang = Math.toRadians(xRot);
-                    double tempVal = y;
-                    //double angRad = Math.toRadians(ang);
-                    y = y * Math.cos(angRad) - z * Math.sin(angRad);
-                    z = tempVal * Math.sin(angRad) + z * Math.cos(angRad);
-                    //nodesList.get(c.getId())[i] = x;
-                    nodesList.get(c.getId())[i + 1] = y;
-                    nodesList.get(c.getId())[i + 2] = z;
-            
-            /*ang = Math.toRadians(yRot);
-            tempVal = pd.getX();
-            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
-            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));*/
-                    
+        if (startProcess) {
+            try {
+                double rot = Double.parseDouble(newValue);
+                rotateXShapeGroup.setAngle(rot);
+                if (!process.isRunning()) {
+                    angXSin = Math.sin(Math.toRadians(rot));
+                    angXCos = Math.cos(Math.toRadians(rot));
+                    process.restart();
                 }
-            });
-            });
-            
-            /*hm.getHistionMap().get(0).getItems().forEach(c -> {
-                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                    //double x = nodesList.get(c.getId())[i];
-                    double y = nodesList.get(c.getId())[i + 1];
-                    double z = nodesList.get(c.getId())[i + 2];
-                    //ang = Math.toRadians(xRot);
-                    double tempVal = y;
-                    //double angRad = Math.toRadians(ang);
-                    y = y * Math.cos(angRad) - z * Math.sin(angRad);
-                    z = tempVal * Math.sin(angRad) + z * Math.cos(angRad);
-                    //nodesList.get(c.getId())[i] = x;
-                    nodesList.get(c.getId())[i + 1] = y;
-                    nodesList.get(c.getId())[i + 2] = z;
-                    
-                }
-            });*/
-            
-            /*for (int i = 0; i < test.size(); i++) {
-                
-                shapeGroup.getChildren().remove(test.get(i));
+            } catch (Exception ex) {
+
             }
-            test.clear();
-            hm.getHistionMap().get(0).getItems().forEach(c -> {
-            for (int i = 0; i < nodesList.get(c.getId()).length; i+=3) {
-                Box b = new Box(5,5,5);
-                b.setTranslateX(nodesList.get(c.getId())[i]);
-                b.setTranslateY(nodesList.get(c.getId())[i + 1]);
-                b.setTranslateZ(nodesList.get(c.getId())[i + 2]);
-                shapeGroup.getChildren().add(b);
-                test.add(b);
-            }
-            });*/
-        } catch (Exception ex) {
-            
         }
     };
     
     ChangeListener<String> groupYRotListener = (v, oldValue, newValue) -> {
-        try {
-            double ang = Double.parseDouble(newValue);
-            /*if ((ang >= 360) || (ang <= -360)) {
-                ang = ang % 360;
-                GroupTransforms.yRotateProperty().set(String.valueOf(ang));
-            }*/
-            rotateYShapeGroup.setAngle(ang);
-            //double[] nl = new double[nodesList.get(c.getId()).length];
-            double angRad = Math.toRadians(ang - Double.parseDouble(oldValue));
-            //double angRad = Math.toRadians(ang);
-            hm.getAllHistions().forEach(h -> {
-                h.getItems().forEach(c -> {
-                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                    
-                    double x = nodesList.get(c.getId())[i];
-                    //double y = nodesList.get(c.getId())[i + 1];
-                    double z = nodesList.get(c.getId())[i + 2];
-                    //ang = Math.toRadians(xRot);
-                    double tempVal = x;
-                    //double angRad = Math.toRadians(ang);
-                    x = x * Math.cos(angRad) + z * Math.sin(angRad);
-                    z = -tempVal * Math.sin(angRad) + z * Math.cos(angRad);
-                    nodesList.get(c.getId())[i] = x;
-                    //nodesList.get(c.getId())[i + 1] = y;
-                    nodesList.get(c.getId())[i + 2] = z;
-            
-            /*ang = Math.toRadians(yRot);
-            tempVal = pd.getX();
-            pd.setX(pd.getX() * Math.cos(ang) + pd.getZ() * Math.sin(ang));
-            pd.setZ(-tempVal * Math.sin(ang) + pd.getZ() * Math.cos(ang));*/
-                    
+        if (startProcess) {
+            try {
+                double rot = Double.parseDouble(newValue);
+                rotateYShapeGroup.setAngle(rot);
+                if (!process.isRunning()) {
+                    angYSin = Math.sin(Math.toRadians(rot));
+                    angYCos = Math.cos(Math.toRadians(rot));
+                    process.restart();
                 }
-            });
-            });
-            /*hm.getHistionMap().get(0).getItems().forEach(c -> {
-                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                    double x = nodesList.get(c.getId())[i];
-                    //double y = nodesList.get(c.getId())[i + 1];
-                    double z = nodesList.get(c.getId())[i + 2];
-                    //ang = Math.toRadians(xRot);
-                    double tempVal = x;
-                    //double angRad = Math.toRadians(ang);
-                    x = x * Math.cos(angRad) + z * Math.sin(angRad);
-                    z = -tempVal * Math.sin(angRad) + z * Math.cos(angRad);
-                    nodesList.get(c.getId())[i] = x;
-                    //nodesList.get(c.getId())[i + 1] = y;
-                    nodesList.get(c.getId())[i + 2] = z;
-                    
-                }
-            });*/
-            
-            /*for (int i = 0; i < test.size(); i++) {
-                
-                shapeGroup.getChildren().remove(test.get(i));
+            } catch (Exception ex) {
+
             }
-            test.clear();
-            hm.getHistionMap().get(0).getItems().forEach(c -> {
-            for (int i = 0; i < nodesList.get(c.getId()).length; i+=3) {
-                Box b = new Box(5,5,5);
-                b.setTranslateX(nodesList.get(c.getId())[i]);
-                b.setTranslateY(nodesList.get(c.getId())[i + 1]);
-                b.setTranslateZ(nodesList.get(c.getId())[i + 2]);
-                shapeGroup.getChildren().add(b);
-                test.add(b);
-                }
-            });*/
-            
-        } catch (Exception ex) {
-            
         }
     };
     
-    /*ChangeListener<String> groupZRotListener = (v, oldValue, newValue) -> {
-        try {
-            double ang = Double.parseDouble(newValue);
-            rotateZShapeGroup.setAngle(ang);
-            //System.out.println(ang);
-            double angRad = Math.toRadians(ang - Double.parseDouble(oldValue));
-            hm.getHistionMap().get(0).getItems().forEach(c -> {
-                for (int i = 0; i < nodesList.get(c.getId()).length; i += 3) {
-                    double x = nodesList.get(c.getId())[i];
-                    double y = nodesList.get(c.getId())[i + 1];
-                    //double z = nodesList.get(c.getId())[i + 2];
-                    //ang = Math.toRadians(xRot);
-                    double tempVal = x;
-                    //double angRad = Math.toRadians(ang);
-                    x = x * Math.cos(angRad) - y * Math.sin(angRad);
-                    y = tempVal * Math.sin(angRad) + y * Math.cos(angRad);
-                    nodesList.get(c.getId())[i] = x;
-                    nodesList.get(c.getId())[i + 1] = y;
-                    //nodesList.get(c.getId())[i + 2] = z;
-                    
+    ChangeListener<String> groupXPosListener = (v, oldValue, newValue) -> {
+        if (startProcess) {
+            try {
+                double pos = Double.parseDouble(newValue);
+                shapeGroup.setTranslateX(pos);
+                shapeGroupAxisGroup.setTranslateX(pos);
+                if (!process.isRunning()) {
+                    trX = pos;
+                    process.restart();
                 }
-            });
-        } catch (Exception ex) {
-            
+            } catch (Exception ex) {
+
+            }
         }
-    };*/
+    };
     
-    private void addGroupListener() {
-        GroupTransforms.xRotateProperty().addListener(groupXRotListener);
-        GroupTransforms.yRotateProperty().addListener(groupYRotListener);
-        //GroupTransforms.zRotateProperty().addListener(groupZRotListener);
+    ChangeListener<String> groupYPosListener = (v, oldValue, newValue) -> {
+        if (startProcess) {
+            try {
+                double pos = Double.parseDouble(newValue);
+                shapeGroup.setTranslateY(pos);
+                shapeGroupAxisGroup.setTranslateY(pos);
+                if (!process.isRunning()) {
+                    trY = pos;
+                    process.restart();
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+    };
+    
+    ChangeListener<String> groupZPosListener = (v, oldValue, newValue) -> {
+        if (startProcess) {
+            try {
+                double pos = Double.parseDouble(newValue);
+                shapeGroup.setTranslateZ(pos);
+                shapeGroupAxisGroup.setTranslateZ(pos);
+                if (!process.isRunning()) {
+                    trZ = pos;
+                    process.restart();
+                }
+            } catch (Exception ex) {
+
+            }
+        }
+    };
+    
+    private void addGroupPositionListener() {
+        GroupPosition.xRotateProperty().addListener(groupXRotListener);
+        GroupPosition.yRotateProperty().addListener(groupYRotListener);
+        GroupPosition.xCoordinateProperty().addListener(groupXPosListener);
+        GroupPosition.yCoordinateProperty().addListener(groupYPosListener);
+        GroupPosition.zCoordinateProperty().addListener(groupZPosListener);
     }
     
-    private void removeGroupListener() {
-        GroupTransforms.xRotateProperty().removeListener(groupXRotListener);
-        GroupTransforms.yRotateProperty().removeListener(groupYRotListener);
-        //GroupTransforms.zRotateProperty().removeListener(groupZRotListener);
+    private void removeGroupPositionListener() {
+        GroupPosition.xRotateProperty().removeListener(groupXRotListener);
+        GroupPosition.yRotateProperty().removeListener(groupYRotListener);
+        GroupPosition.xCoordinateProperty().removeListener(groupXPosListener);
+        GroupPosition.yCoordinateProperty().removeListener(groupYPosListener);
+        GroupPosition.zCoordinateProperty().removeListener(groupZPosListener);
     }
     
     @Override
     public void componentOpened() {
         addCameraViewListener();
         addCrossSectionListener();
-        //addGroupListener();
+        addGroupPositionListener();
         hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
@@ -2423,7 +1706,6 @@ public final class SpaceViewerTopComponent extends TopComponent {
         hm.addListener(histionListener);
         
         if (hm.getHistionMap().isEmpty())
-            //hm.addHistion(new Histion("Main histion",0,0,0,0,0));
             hm.addHistion(new Histion("Main histion",0,0,0));
     }
 
@@ -2431,7 +1713,7 @@ public final class SpaceViewerTopComponent extends TopComponent {
     public void componentClosed() {
         removeCameraViewListener();
         removeCrossSectionListener();
-        //removeGroupListener();
+        removeGroupPositionListener();
         hm.getAllHistions().forEach(h -> {
             h.getItemMap().removeListener(cellListener);
         });
