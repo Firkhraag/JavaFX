@@ -17,7 +17,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
-import org.spbu.histology.model.AlertBox;
+import org.spbu.histology.util.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Line;
@@ -68,13 +68,8 @@ public class GeneralTabController implements Initializable {
     private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
     private ObservableList<TwoIntegers> lineList;
     
-    //private ObservableList<TwoIntegers> data;
-    
-    private BooleanProperty change;
-    
-    public void setCell(Cell c, BooleanProperty change,
-            ObservableList<TwoIntegers> lineData, ObservableList<TetgenPoint> pointData) {
-        this.change = change;
+    public void setCell(Cell c, ObservableList<TwoIntegers> lineData,
+            ObservableList<TetgenPoint> pointData) {
         cellId = c.getId();
         this.pointData = pointData;
         lineList = lineData;
@@ -89,10 +84,6 @@ public class GeneralTabController implements Initializable {
         diffuseColorPicker.setValue(c.getDiffuseColor());
         specularColorPicker.setValue(c.getSpecularColor());
     }
-    
-    /*public void setData(ObservableList<TwoIntegers> data) {
-        this.data = data;
-    }*/
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -132,19 +123,33 @@ public class GeneralTabController implements Initializable {
     }
     
     private void addFacet(ArrayList<Integer> pl) {
-        System.out.println("Add facet");
-        System.out.println(pl);
         ArrayList<Integer> list = new ArrayList<>();
         for (Integer num : pl) {
             list.add(num);
         }
         boolean contains = false;
-        for (ArrayList l : facetData) {
-            if ((list.containsAll(l)) || (l.containsAll(list))) {
+        for (int i = 0; i < facetData.size(); i++) {
+            ArrayList l = facetData.get(i);
+            if (list.containsAll(l)) {
+                contains = true;
+                break;
+            } else if (l.containsAll(list)) {
+                facetData.set(i, list);
                 contains = true;
                 break;
             }
         }
+        /*for (ArrayList l : facetData) {
+            //if ((list.containsAll(l)) || (l.containsAll(list))) {
+            if (list.containsAll(l)) {
+                contains = true;
+                break;
+            } else if (l.containsAll(list)) {
+                l = list;
+                contains = true;
+                break;
+            }
+        }*/
         if (!contains) {
             facetData.add(list);
         }
@@ -208,7 +213,6 @@ public class GeneralTabController implements Initializable {
         int p, initialP;
         ArrayList<Integer> pl = new ArrayList<>();
         ArrayList<TetgenPoint> planePointsList = new ArrayList<>();
-        //ArrayList<Line> lines = new ArrayList<>();
         
         int cur;
         for (int j = 0; j < lineList.size(); j++) {
@@ -219,13 +223,6 @@ public class GeneralTabController implements Initializable {
                 lines.add(new Line(new Node(point1.getX(), point1.getZ(), point1.getY()),
                         new Node(point2.getX(), point2.getZ(), point2.getY())));
             }
-                        /*for (int j = i + 1; j < pl.size(); j++) {
-                            TetgenPoint point2 = pl.get(j);
-                            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
-                                lines.add(new Line(new Node(point1.getX(), point1.getZ(), point1.getY()),
-                                        new Node(point2.getX(), point2.getZ(), point2.getY())));
-                            }
-                        }*/
             
             p = lineList.get(j).getPoint1();
             planePointsList.add(pointData.get(p - 1));
@@ -294,37 +291,28 @@ public class GeneralTabController implements Initializable {
             yTran = Double.parseDouble(yPositionField.getText());
             zTran = Double.parseDouble(zPositionField.getText());
         } catch (Exception ex) {
-            AlertBox.display("Error", "Please enter valid numbers in general tab");
+            AlertBox.display("Ошибка", "Пожалуйста, введите правильные значения");
             return;
         }
         Names.removeCellName(name);
         if (Names.containsCellName(nameField.getText())) {
             Names.addCellName(name);
-            AlertBox.display("Error", "This name is already used");
+            AlertBox.display("Ошибка", "Это название уже используется");
         } else {
             findFacets(lines);
-            for (ArrayList<Integer> ar : facetData) {
+            /*for (ArrayList<Integer> ar : facetData) {
                 System.out.println(ar);
-            }
-            Cell c = new Cell(cellId, "Cell <" + nameField.getText() + ">",
-                    //xRot, yRot, xTran, yTran, zTran, facetData, lineList,
+            }*/
+            Cell c = new Cell(cellId, "Клетка <" + nameField.getText() + ">",
                     xRot, yRot, xTran, yTran, zTran, facetData,
                     diffuseColorPicker.getValue(), specularColorPicker.getValue(), 0, true);
             
             LineEquations.addLine(c.getId(), lines);
             
             hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
-                System.out.println(p.getId() + " " + p.getName());
                 c.addChild(p);
             });
             hm.getHistionMap().get(0).addChild(c);
-            hm.getHistionMap().get(0).getItems().forEach(cell -> {
-                Cell newCell = new Cell(cell.getId(), cell);
-                cell.getItems().forEach(p -> {
-                    newCell.addChild(p);
-                });
-                hm.getHistionMap().get(0).addChild(newCell);
-            });
             Names.addCellName(nameField.getText());
             
             for (TwoIntegers ti : lineList) {

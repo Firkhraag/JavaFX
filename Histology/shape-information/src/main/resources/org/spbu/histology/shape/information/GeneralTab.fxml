@@ -10,32 +10,32 @@
 
 <VBox id="generalBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.GeneralTabController">
     <children>
-        <GridPane fx:id="gridPane">
-            <Label fx:id="nameLabel" text="Name" 
+        <GridPane fx:id="gridPane" alignment="center">
+            <Label fx:id="nameLabel" text="Название" 
                    GridPane.columnIndex="0" GridPane.rowIndex="0" />
             <TextField fx:id="nameField" prefWidth="300"
                    GridPane.columnIndex="1" GridPane.rowIndex="0" />
-            <Label fx:id="xRotationLabel" text="X rotation"
+            <Label fx:id="xRotationLabel" text="Поворот вокруг оси X"
                    GridPane.columnIndex="0" GridPane.rowIndex="1" />
             <TextField fx:id="xRotationField" prefWidth="200" text="0"
                    GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label fx:id="yRotationLabel" text="Y rotation" 
+            <Label fx:id="yRotationLabel" text="Поворот вокруг оси Y" 
                    GridPane.columnIndex="0" GridPane.rowIndex="2" />
             <TextField fx:id="yRotationField" prefWidth="200" text="0"
                    GridPane.columnIndex="1" GridPane.rowIndex="2" />
-            <Label fx:id="xPositionLabel" text="X translation" 
+            <Label fx:id="xPositionLabel" text="Сдвиг по оси X" 
                    GridPane.columnIndex="0" GridPane.rowIndex="3" />
             <TextField fx:id="xPositionField" prefWidth="200" text="0"
                    GridPane.columnIndex="1" GridPane.rowIndex="3" />
-            <Label fx:id="yPositionLabel" text="Y translation" 
+            <Label fx:id="yPositionLabel" text="Сдвиг по оси Y" 
                    GridPane.columnIndex="0" GridPane.rowIndex="4" />
             <TextField fx:id="yPositionField" prefWidth="200" text="0"
                    GridPane.columnIndex="1" GridPane.rowIndex="4" />
-            <Label fx:id="zPositionLabel" text="Z translation" 
+            <Label fx:id="zPositionLabel" text="Сдвиг по оси Z" 
                    GridPane.columnIndex="0" GridPane.rowIndex="5" />
             <TextField fx:id="zPositionField" prefWidth="200" text="0"
                    GridPane.columnIndex="1" GridPane.rowIndex="5" />
-            <Label fx:id="diffuseColorLabel" text="Diffuse Color" 
+            <Label fx:id="diffuseColorLabel" text="Цвет клетки" 
                    GridPane.columnIndex="0" GridPane.rowIndex="6" />
             <ColorPicker fx:id="diffuseColorPicker" 
                    GridPane.columnIndex="1" GridPane.rowIndex="6">
@@ -43,7 +43,7 @@
                     <Color blue="0.0" green="0.0" red="1.0" />
                 </value>
             </ColorPicker>
-            <Label fx:id="specularColorLabel" text="Specular Color" 
+            <Label fx:id="specularColorLabel" text="Цвет блика" 
                    GridPane.columnIndex="0" GridPane.rowIndex="7" />
             <ColorPicker fx:id="specularColorPicker" 
                    GridPane.columnIndex="1" GridPane.rowIndex="7">
@@ -51,7 +51,7 @@
                     <Color blue="0.0" green="0.0" red="1.0" />
                 </value>
             </ColorPicker>
-            <Button fx:id="createButton" text="Done" 
+            <Button fx:id="createButton" text="Готово" 
                     GridPane.columnIndex="0" GridPane.rowIndex="8" onAction="#buttonAction"/>
         </GridPane>
     </children>

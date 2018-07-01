@@ -1,7 +1,5 @@
 package org.spbu.histology.shape.information;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.stage.*;
@@ -25,14 +23,13 @@ public class ChangePoints {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-        window.setTitle("Change");
+        window.setTitle("Изменение");
 
         
         HBox hBox = new HBox();
-        Label label = new Label("Change");
+        Label label = new Label("Значение");
         TextField field = new TextField();
-        field.setPrefWidth(100);
+        field.setPrefWidth(160);
         hBox.getChildren().addAll(label, field);
         hBox.setPadding(new Insets(10, 10, 10, 10));
         hBox.setSpacing(20);
@@ -52,7 +49,7 @@ public class ChangePoints {
         layout.getChildren().addAll(hBox, closeButton);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 220, 150);
+        Scene scene = new Scene(layout, 300, 150);
         window.setScene(scene);
         window.showAndWait();
     }

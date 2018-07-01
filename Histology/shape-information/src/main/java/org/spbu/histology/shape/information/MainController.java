@@ -52,13 +52,13 @@ public class MainController implements Initializable {
     @FXML
     private Tab viewTab;
 
-    private ObservableList<Rectangle> rectangleList = FXCollections.observableArrayList();
-    private IntegerProperty count = new SimpleIntegerProperty(1);
+    private final ObservableList<Rectangle> rectangleList = FXCollections.observableArrayList();
+    private final IntegerProperty count = new SimpleIntegerProperty(1);
     private FacetTabController facetTabController;
     private SubScene scene;
     private PerspectiveCamera camera;
-    private Group root = new Group();
-    private Group shapeGroup = new Group();
+    private final Group root = new Group();
+    private final Group shapeGroup = new Group();
     private final double fov = 35.0;
     private final double nearClip = 0.1;
     private final double farClip = 4000.0;
@@ -66,27 +66,22 @@ public class MainController implements Initializable {
     private double mousePosY;
     private double mouseOldX;
     private double mouseOldY;
-    private Rotate rotateXCam = new Rotate(0, Rotate.X_AXIS);
-    private Rotate rotateYCam = new Rotate(0, Rotate.Y_AXIS);
+    private final Rotate rotateXCam = new Rotate(0, Rotate.X_AXIS);
+    private final Rotate rotateYCam = new Rotate(0, Rotate.Y_AXIS);
     private ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
-    private ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
-    private ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+    private final ObservableList<TwoIntegers> lineData = FXCollections.observableArrayList();
+    private final ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+    private final ObservableList<TwoIntegers> data = FXCollections.observableArrayList();
 
-    private ArrayList<Line3D> lineList = new ArrayList<>();
-    //private ArrayList<Line3D3> line3List = new ArrayList<>();
-    //private ArrayList<Line3D5> line5List = new ArrayList<>();
-    private ArrayList<Box> boxList = new ArrayList<>();
-    private ArrayList<Point3D> linePointsList = new ArrayList<>();
-    private ArrayList<Integer> indexList = new ArrayList<>();
-
-    BooleanProperty change = new SimpleBooleanProperty(false);
-
-    private ObservableList<TwoIntegers> data = FXCollections.observableArrayList();
+    private final ArrayList<Line3D> lineList = new ArrayList<>();
+    private final ArrayList<Box> boxList = new ArrayList<>();
+    private final ArrayList<Point3D> linePointsList = new ArrayList<>();
+    private final ArrayList<Integer> indexList = new ArrayList<>();
 
     public void setCell(Cell c) {
         facetData = c.getFacetData();
 
-        GeneralTabController.setCell(c, change, lineData, pointData);
+        GeneralTabController.setCell(c, lineData, pointData);
         final IntegerProperty num = new SimpleIntegerProperty(1);
         hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getItems().forEach(p -> {
             System.out.println(p.getId() + " " + p.getName());
@@ -148,18 +143,8 @@ public class MainController implements Initializable {
                             lineData.add(tp);
                             linePointsList.add(pickedPoint);
                             Line3D line = new Line3D(linePointsList, 3f, Color.BLACK);
-                            //Line3D3 line3 = new Line3D3(linePointsList, 3f, Color.BLACK);
-                            //Line3D5 line5 = new Line3D5(linePointsList, 3f, Color.BLACK);
                             lineList.add(line);
-                            //line3List.add(line3);
-                            //line5List.add(line5);
-                            //shapeGroup.getChildren().add(line);
-                            //shapeGroup.getChildren().add(line3);
-                            //shapeGroup.getChildren().add(line5);
                             shapeGroup.getChildren().add(line.getMeshView());
-                            //shapeGroup.getChildren().add(line.getMeshView(2));
-                            //shapeGroup.getChildren().add(line.getMeshView(3));
-                            //shapeGroup.getChildren().add(line.getMeshView(4));
                             linePointsList.clear();
                             boxList.get(indexList.get(0) - 1).setMaterial(blackMaterial);
                             indexList.clear();
@@ -169,7 +154,6 @@ public class MainController implements Initializable {
                     } else {
                         linePointsList.add(pickedPoint);
                         indexList.add(boxList.indexOf(b) + 1);
-                        //boxList.get(b).setMaterial();
                         b.setMaterial(redMaterial);
                     }
                 }
@@ -352,11 +336,6 @@ public class MainController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        change.addListener((o, ov, nv) -> {
-            if (nv) {
-                change.set(false);
-            }
-        });
 
         hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
@@ -372,15 +351,11 @@ public class MainController implements Initializable {
 
             leftPart = (Parent) fxmlLoader.load(location.openStream());
             facetTabController = (FacetTabController) fxmlLoader.getController();
-            //facetTabController.setLineList(lineList, line3List, line5List);
             facetTabController.setLineList(lineList);
             facetTabController.setRoot(shapeGroup);
             facetTabController.setCount(count);
             facetTabController.setLineData(lineData);
-            //System.out.println(data.size());
             facetTabController.setData(data);
-            //System.out.println(data.size());
-            //GeneralTabController.setData(data);
 
         } catch (Exception ex) {
             Logger.getLogger(PartInformationInitialization.class.getName()).log(Level.SEVERE, null, ex);

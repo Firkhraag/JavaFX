@@ -1,11 +1,14 @@
 package org.spbu.histology.model;
 
 import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 
 public class Histion extends HistologyObject<Cell> {
 
     private static int count = 0;
+    private Node nodeAvg = new Node(0, 0, 0);
 
     public Histion(String name, double xPos, double yPos, double zPos) {
         super(count++, name);
@@ -76,10 +79,29 @@ public class Histion extends HistologyObject<Cell> {
     public final void setZCoordinate(double zCoordinate) {
         this.zCoordinateProperty().set(zCoordinate);
     }
+    
+    public Node getPointAvg() {
+        return nodeAvg;
+    }
 
     @Override
     public void addChild(Cell c) {
         getItemMap().put(c.getId(), c);
+        if (getId() == 0) {
+            nodeAvg = new Node(0, 0, 0);
+            final IntegerProperty num = new SimpleIntegerProperty(0);
+            getItems().forEach(cell -> {
+                cell.getTransformedPointData().forEach(p -> {
+                    nodeAvg.x += p.getX();
+                    nodeAvg.y += p.getY();
+                    nodeAvg.z += p.getZ();
+                });
+                num.set(num.get() + cell.getTransformedPointData().size());
+            });
+            nodeAvg.x /= num.get();
+            nodeAvg.y /= num.get();
+            nodeAvg.z /= num.get();
+        }
     }
 
     @Override

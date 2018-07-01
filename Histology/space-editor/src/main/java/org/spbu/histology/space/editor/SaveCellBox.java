@@ -1,9 +1,9 @@
 package org.spbu.histology.space.editor;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.FXCollections;
@@ -13,66 +13,75 @@ import javafx.scene.*;
 import javafx.scene.layout.*;
 import javafx.geometry.*;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
+import javax.swing.filechooser.FileSystemView;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 
 public class SaveCellBox {
-
+    
     public static void display(Integer id) {
-
+        
         HistionManager hm = Lookup.getDefault().lookup(HistionManager.class);
         if (hm == null) {
             LifecycleManager.getDefault().exit();
         }
-
+        
         Stage window = new Stage();
-        window.setTitle("Save cell");
-
-        HBox hBox = new HBox();
-        Label label = new Label("File name");
-        TextField field = new TextField();
-
+        window.setTitle("Сохраненить клетку");
+        
         final ToggleGroup group = new ToggleGroup();
 
-        RadioButton rb1 = new RadioButton("Save the whole cell");
+        RadioButton rb1 = new RadioButton("Сохранить все");
         rb1.setToggleGroup(group);
         rb1.setSelected(true);
 
-        RadioButton rb2 = new RadioButton("Save the part between two layers");
+        RadioButton rb2 = new RadioButton("Сохранить часть");
         rb2.setToggleGroup(group);
-
+        
         ObservableList<String> layers1 = FXCollections.observableArrayList();
         ObservableList<String> layers2 = FXCollections.observableArrayList();
-
+        
         hm.getHistionMap().get(0).getItemMap().get(id).getItems().forEach(p -> {
             String y = String.valueOf(p.getPointData().get(0).getY());
-            if (!layers1.contains(y)) {
+            if (!layers1.contains(y))
                 layers1.add(y);
-            }
-            if (!layers2.contains(y)) {
+            if (!layers2.contains(y))
                 layers2.add(y);
+        });
+        
+        FXCollections.sort(layers1, (String o1, String o2) -> {
+            double temp1 = Double.parseDouble(o1);
+            double temp2 = Double.parseDouble(o2);
+            if (temp1 == temp2) {
+                return 0;
             }
+            return temp1 < temp2 ? -1 : 1;
         });
 
-        FXCollections.sort(layers1);
-        FXCollections.sort(layers2);
-
+        FXCollections.sort(layers2, (String o1, String o2) -> {
+            double temp1 = Double.parseDouble(o1);
+            double temp2 = Double.parseDouble(o2);
+            if (temp1 == temp2) {
+                return 0;
+            }
+            return temp1 < temp2 ? -1 : 1;
+        });
+        
         HBox hBox2 = new HBox();
         HBox hBox3 = new HBox();
-        Label firstLayerLabel = new Label("First layer");
+        Label firstLayerLabel = new Label("Первый слой");
         ComboBox<String> firstLayerComboBox = new ComboBox(layers1);
         firstLayerComboBox.setDisable(true);
-        Label secondLayerLabel = new Label("Second layer");
+        Label secondLayerLabel = new Label("Последний слой");
         ComboBox<String> secondLayerComboBox = new ComboBox(layers2);
         secondLayerComboBox.setDisable(true);
-
+        
         firstLayerComboBox.valueProperty().addListener((o, ov, nv) -> {
             layers2.remove(nv);
             if (ov != null) {
@@ -87,14 +96,14 @@ public class SaveCellBox {
                 FXCollections.sort(layers1);
             }
         });
-
+        
         hBox2.getChildren().addAll(firstLayerLabel, firstLayerComboBox);
         hBox2.setPadding(new Insets(10, 10, 10, 10));
         hBox2.setSpacing(35);
         hBox3.getChildren().addAll(secondLayerLabel, secondLayerComboBox);
         hBox3.setPadding(new Insets(10, 10, 10, 10));
         hBox3.setSpacing(20);
-
+        
         rb1.selectedProperty().addListener((o, ov, nv) -> {
             if (nv) {
                 firstLayerComboBox.setDisable(true);
@@ -107,34 +116,48 @@ public class SaveCellBox {
                 secondLayerComboBox.setDisable(false);
             }
         });
-
-        hBox.getChildren().addAll(label, field);
-        hBox.setPadding(new Insets(10, 10, 10, 10));
-        hBox.setSpacing(20);
+        
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> {
             if (rb2.isSelected()) {
                 if ((firstLayerComboBox.getSelectionModel().getSelectedItem() == null)
-                        || (secondLayerComboBox.getSelectionModel().getSelectedItem() == null)) {
+                    || (secondLayerComboBox.getSelectionModel().getSelectedItem() == null))
                     return;
-                }
             }
+            window.hide();
+            FileChooser fileChooser = new FileChooser();
+
+            //Set extension filter
+            FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+            fileChooser.getExtensionFilters().add(extFilter);
+
+            String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+            //System.out.println(userDirectoryString);
+            userDirectoryString += "\\HistologyApp" + System.getProperty("sun.arch.data.model") + "\\Cells";
+            File userDirectory = new File(userDirectoryString);
+            if (!userDirectory.exists()) {
+                userDirectory.mkdirs();
+            }
+            fileChooser.setInitialDirectory(userDirectory);
+
+            //Show save file dialog
+            File file = fileChooser.showSaveDialog(null);
             try {
                 String dir = System.getProperty("user.dir");
-                for (int i = 0; i < 3; i++) {
+                for (int i = 0; i < 3; i++)
                     dir = dir.substring(0, dir.lastIndexOf('\\'));
-                }
                 dir = dir + "\\util\\src\\main\\resources\\org\\spbu\\histology\\util\\Cells\\";
-                BufferedWriter writer = new BufferedWriter(new FileWriter(dir
-                        + field.getText() + ".txt"));
-
-                writer.write(0 + " "
-                        + 0 + " "
-                        + hm.getHistionMap().get(0).getXCoordinate() + " "
-                        + hm.getHistionMap().get(0).getYCoordinate() + " "
-                        + hm.getHistionMap().get(0).getZCoordinate());
+                BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectoryString
+                            + "\\" + file.getName()));
+                
+                writer.write(0 + " " +
+                    0 + " " +
+                    hm.getHistionMap().get(0).getXCoordinate() + " " +
+                    hm.getHistionMap().get(0).getYCoordinate() + " " +
+                    hm.getHistionMap().get(0).getZCoordinate());
                 writer.newLine();
-
+                        
+                //writer.write(hm.getHistionMap().get(0).getItems().size() + "");
                 writer.write("1");
                 writer.newLine();
                 Cell c = hm.getHistionMap().get(0).getItemMap().get(id);
@@ -156,7 +179,7 @@ public class SaveCellBox {
                     writer.newLine();
                     writer.write(c.getShow() + "");
                     writer.newLine();
-
+                    
                     IntegerProperty num = new SimpleIntegerProperty(1);
                     ArrayList<Integer> partIds = new ArrayList<>();
                     if (rb1.isSelected()) {
@@ -179,10 +202,12 @@ public class SaveCellBox {
                         writer.write(partIds.size() + "");
                     }
                     writer.newLine();
-
+                    
                     IntegerProperty num2 = new SimpleIntegerProperty(1);
                     num.set(1);
+                    //IntegerProperty num = new SimpleIntegerProperty(1);
                     c.getItems().forEach(p -> {
+                        //if (p.getPointData().get(0).getY())
                         if (rb1.isSelected()) {
                             try {
                                 writer.write(p.getName());
@@ -294,17 +319,16 @@ public class SaveCellBox {
                 }
                 writer.close();
             } catch (Exception ex) {
-
+                
             }
             window.close();
         });
-        closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));
 
         VBox layout = new VBox(10);
-        layout.getChildren().addAll(hBox, rb1, rb2, hBox2, hBox3, closeButton);
+        layout.getChildren().addAll(rb1, rb2, hBox2, hBox3, closeButton);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 350, 300);  //150
+        Scene scene = new Scene(layout, 350, 260);
         window.setScene(scene);
         window.showAndWait();
     }

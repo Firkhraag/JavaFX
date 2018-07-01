@@ -21,7 +21,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_GroupPositionAction"
 )
 @ActionReference(path = "Toolbars/File", position = 371)
-@Messages("CTL_GroupPositionAction=Group transformations")
+@Messages("CTL_GroupPositionAction=Управление моделью")
 public final class GroupPositionAction implements ActionListener {
 
     @Override

@@ -16,7 +16,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_CameraView"
 )
 @ActionReference(path = "Toolbars/File", position = 325)
-@Messages("CTL_CameraView=Camera view")
+@Messages("CTL_CameraView=Управление камерой")
 public final class CameraViewAction implements ActionListener {
 
     @Override

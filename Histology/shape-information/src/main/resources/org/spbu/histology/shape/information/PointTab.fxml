@@ -13,7 +13,7 @@
         <HBox fx:id="headerHBox">
             <children>
                 <TextField fx:id="nameField" prefWidth="165.0" promptText="Part name"/>
-                <Button fx:id="doneButton" text="Done" onAction="#doneAction"/>
+                <Button fx:id="doneButton" text="Готово" onAction="#doneAction"/>
             </children>
         </HBox>
         <TableView fx:id="table" prefHeight="750.0" prefWidth="252.0">

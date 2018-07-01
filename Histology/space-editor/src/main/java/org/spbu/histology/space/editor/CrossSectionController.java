@@ -1,7 +1,6 @@
 package org.spbu.histology.space.editor;
 
-import org.spbu.histology.model.Node;
-import org.spbu.histology.model.CrossSection;
+import org.spbu.histology.model.CrossSectionPlane;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
@@ -78,12 +77,6 @@ public class CrossSectionController implements Initializable {
 
     private boolean change = true;
 
-    private final double EPS = 0.000001;
-
-    Node p1;
-    Node p2;
-    Node p3;
-
     private final double crossSectPosLim = 900;
 
     ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
@@ -139,9 +132,7 @@ public class CrossSectionController implements Initializable {
                 change = false;
                 xRotSlider.setValue(ang);
                 change = true;
-                CrossSection.setXRotate(newValue);
-                findCoordinates();
-                findPlane(p1, p2, p3);
+                CrossSectionPlane.setXRotate(newValue);
             }
         } catch (Exception ex) {
 
@@ -156,9 +147,7 @@ public class CrossSectionController implements Initializable {
             change = false;
             yRotSlider.setValue(ang);
             change = true;
-            CrossSection.setYRotate(newValue);
-            findCoordinates();
-            findPlane(p1, p2, p3);
+            CrossSectionPlane.setYRotate(newValue);
         } catch (Exception ex) {
 
         }
@@ -171,9 +160,7 @@ public class CrossSectionController implements Initializable {
                 change = false;
                 xPosSlider.setValue(pos);
                 change = true;
-                CrossSection.setXCoordinate(newValue);
-                findCoordinates();
-                findPlane(p1, p2, p3);
+                CrossSectionPlane.setXCoordinate(newValue);
             }
         } catch (Exception ex) {
 
@@ -186,9 +173,7 @@ public class CrossSectionController implements Initializable {
                 change = false;
                 yPosSlider.setValue(pos);
                 change = true;
-                findCoordinates();
-                findPlane(p1, p2, p3);
-                CrossSection.setYCoordinate(newValue);
+                CrossSectionPlane.setYCoordinate(newValue);
             }
         } catch (Exception ex) {
 
@@ -201,9 +186,7 @@ public class CrossSectionController implements Initializable {
                 change = false;
                 zPosSlider.setValue(pos);
                 change = true;
-                CrossSection.setZCoordinate(newValue);
-                findCoordinates();
-                findPlane(p1, p2, p3);
+                CrossSectionPlane.setZCoordinate(newValue);
             }
         } catch (Exception ex) {
 
@@ -247,86 +230,18 @@ public class CrossSectionController implements Initializable {
         yPositionLabel.setPadding(new Insets(10, 0, 0, 0));
         zPositionLabel.setPadding(new Insets(10, 0, 0, 0));
         opaquenessLabel.setPadding(new Insets(10, 0, 0, 0));
-        setInitialValues();
-        opaqueness.textProperty().bindBidirectional(CrossSection.opaquenessProperty());
+        setBindings();
     }
 
-    private void setInitialValues() {
-        xRotation.setText(CrossSection.getXRotate());
-        yRotation.setText(CrossSection.getYRotate());
-        xPosition.setText(CrossSection.getXCoordinate());
-        yPosition.setText(CrossSection.getYCoordinate());
-        zPosition.setText(CrossSection.getZCoordinate());
+    private void setBindings() {
+        xRotation.textProperty().bindBidirectional(CrossSectionPlane.xRotateProperty());
+        yRotation.textProperty().bindBidirectional(CrossSectionPlane.yRotateProperty());
+        xPosition.textProperty().bindBidirectional(CrossSectionPlane.xCoordinateProperty());
+        yPosition.textProperty().bindBidirectional(CrossSectionPlane.yCoordinateProperty());
+        zPosition.textProperty().bindBidirectional(CrossSectionPlane.zCoordinateProperty());
+        opaqueness.textProperty().bindBidirectional(CrossSectionPlane.opaquenessProperty());
     }
-
-    private void findPlane(Node p1, Node p2, Node p3) {
-        try {
-            double A = ((p2.y - p1.y) * (p3.z - p1.z) - (p3.y - p1.y) * (p2.z - p1.z));
-            double B = -((p2.x - p1.x) * (p3.z - p1.z) - (p3.x - p1.x) * (p2.z - p1.z));
-            double C = ((p2.x - p1.x) * (p3.y - p1.y) - (p3.x - p1.x) * (p2.y - p1.y));
-            double D = -p1.x * A - p1.y * B - p1.z * C;
-            if ((Math.abs(A - CrossSection.getA()) > EPS) || (Math.abs(B - CrossSection.getB()) > EPS)
-                    || (Math.abs(C - CrossSection.getC()) > EPS) || (Math.abs(D - CrossSection.getD()) > EPS)) {
-                CrossSection.setA(A);
-                CrossSection.setB(B);
-                CrossSection.setC(C);
-                CrossSection.setD(D);
-                CrossSection.setChanged(true);
-            }
-        } catch (Exception ex) {
-
-        }
-    }
-
-    private void findCoordinates() {
-        try {
-            double temp;
-            double ang;
-            double xPos = Double.parseDouble(xPosition.getText());
-            double yPos = Double.parseDouble(yPosition.getText());
-            double zPos = Double.parseDouble(zPosition.getText());
-
-            p1 = new Node(0, 0, 0);
-            p2 = new Node(1, 0, 0);
-            p3 = new Node(0, 0, 1);
-
-            ang = Math.toRadians(Double.parseDouble(xRotation.getText()));
-            temp = p1.y;
-            p1.y = p1.y * Math.cos(ang) - p1.z * Math.sin(ang);
-            p1.z = temp * Math.sin(ang) + p1.z * Math.cos(ang);
-            temp = p2.y;
-            p2.y = p2.y * Math.cos(ang) - p2.z * Math.sin(ang);
-            p2.z = temp * Math.sin(ang) + p2.z * Math.cos(ang);
-            temp = p3.y;
-            p3.y = p3.y * Math.cos(ang) - p3.z * Math.sin(ang);
-            p3.z = temp * Math.sin(ang) + p3.z * Math.cos(ang);
-
-            ang = Math.toRadians(Double.parseDouble(yRotation.getText()));
-            temp = p1.x;
-            p1.x = p1.x * Math.cos(ang) + p1.z * Math.sin(ang);
-            p1.z = -temp * Math.sin(ang) + p1.z * Math.cos(ang);
-            temp = p2.x;
-            p2.x = p2.x * Math.cos(ang) + p2.z * Math.sin(ang);
-            p2.z = -temp * Math.sin(ang) + p2.z * Math.cos(ang);
-            temp = p3.x;
-            p3.x = p3.x * Math.cos(ang) + p3.z * Math.sin(ang);
-            p3.z = -temp * Math.sin(ang) + p3.z * Math.cos(ang);
-
-            p1.x += xPos;
-            p2.x += xPos;
-            p3.x += xPos;
-            p1.y += yPos;
-            p2.y += yPos;
-            p3.y += yPos;
-            p1.z += zPos;
-            p2.z += zPos;
-            p3.z += zPos;
-
-        } catch (Exception ex) {
-
-        }
-    }
-
+    
     public void setScrollPanel(int width, int height) {
         scrollPane.setPrefSize(width, height);
     }

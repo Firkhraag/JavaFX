@@ -13,8 +13,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
-import org.spbu.histology.model.AlertBox;
+import org.spbu.histology.util.AlertBox;
 import org.spbu.histology.model.HistionManager;
+import org.spbu.histology.model.RecurrenceShifts;
 
 public class HistionRecurrence {
 
@@ -30,11 +31,11 @@ public class HistionRecurrence {
         }
 
         Stage window = new Stage();
-        window.setTitle(title);
+        window.setTitle("Модель");
 
-        CheckBox xCheckBox = new CheckBox("X axis");
-        CheckBox yCheckBox = new CheckBox("Y axis");
-        CheckBox zCheckBox = new CheckBox("Z axis");
+        CheckBox xCheckBox = new CheckBox("Ось X");
+        CheckBox yCheckBox = new CheckBox("Ось Y");
+        CheckBox zCheckBox = new CheckBox("Ось Z");
 
         HBox hBox = new HBox();
         HBox hBox2 = new HBox();
@@ -46,49 +47,49 @@ public class HistionRecurrence {
         HBox hBox9 = new HBox();
         HBox hBox10 = new HBox();
 
-        Label boundaryUpperLabelX = new Label("Upper boundary");
+        Label boundaryUpperLabelX = new Label("Верхняя граница");
         TextField boundaryUpperFieldX = new TextField();
         boundaryUpperFieldX.setPrefWidth(100);
         boundaryUpperFieldX.setDisable(true);
         boundaryUpperFieldX.setText(String.valueOf(xUpperBoundary.get()));
 
-        Label boundaryLowerLabelX = new Label("Lower boundary");
+        Label boundaryLowerLabelX = new Label("Нижняя граница");
         TextField boundaryLowerFieldX = new TextField();
         boundaryLowerFieldX.setPrefWidth(100);
         boundaryLowerFieldX.setDisable(true);
         boundaryLowerFieldX.setText(String.valueOf(xLowerBoundary.get()));
 
-        Label labelXShift = new Label("X shift");
+        Label labelXShift = new Label("Сдвиг по X");
         TextField fieldXShift = new TextField();
         fieldXShift.setPrefWidth(100);
         fieldXShift.setDisable(true);
-        fieldXShift.setText("0");
+        fieldXShift.setText(String.valueOf(RecurrenceShifts.getXShift()));
 
-        Label labelZShift = new Label("Z shift");
+        Label labelZShift = new Label("Сдвиг по Z");
         TextField fieldZShift = new TextField();
         fieldZShift.setPrefWidth(100);
         fieldZShift.setDisable(true);
-        fieldZShift.setText("0");
+        fieldZShift.setText(String.valueOf(RecurrenceShifts.getZShift()));
 
-        Label boundaryUpperLabelY = new Label("Upper boundary");
+        Label boundaryUpperLabelY = new Label("Верхняя граница");
         TextField boundaryUpperFieldY = new TextField();
         boundaryUpperFieldY.setPrefWidth(100);
         boundaryUpperFieldY.setDisable(true);
         boundaryUpperFieldY.setText(String.valueOf(yUpperBoundary.get()));
 
-        Label boundaryLowerLabelY = new Label("Lower boundary");
+        Label boundaryLowerLabelY = new Label("Нижняя граница");
         TextField boundaryLowerFieldY = new TextField();
         boundaryLowerFieldY.setPrefWidth(100);
         boundaryLowerFieldY.setDisable(true);
         boundaryLowerFieldY.setText(String.valueOf(yLowerBoundary.get()));
 
-        Label boundaryUpperLabelZ = new Label("Upper boundary");
+        Label boundaryUpperLabelZ = new Label("Верхняя граница");
         TextField boundaryUpperFieldZ = new TextField();
         boundaryUpperFieldZ.setPrefWidth(100);
         boundaryUpperFieldZ.setDisable(true);
         boundaryUpperFieldZ.setText(String.valueOf(zUpperBoundary.get()));
 
-        Label boundaryLowerLabelZ = new Label("Lower boundary");
+        Label boundaryLowerLabelZ = new Label("Нижняя граница");
         TextField boundaryLowerFieldZ = new TextField();
         boundaryLowerFieldZ.setPrefWidth(100);
         boundaryLowerFieldZ.setDisable(true);
@@ -156,9 +157,11 @@ public class HistionRecurrence {
                     zLowerBoundary.set(-1);
                 }
                 buttonPressed.set(true);
+                RecurrenceShifts.setXShift(xShift.get());
+                RecurrenceShifts.setZShift(zShift.get());
                 window.close();
             } catch (Exception ex) {
-                AlertBox.display("Error", "Wrong type");
+                AlertBox.display("Ошибка", "Неверный тип");
             }
         });
 
@@ -198,7 +201,7 @@ public class HistionRecurrence {
         });
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 260, 500);
+        Scene scene = new Scene(layout, 280, 520);
         window.setScene(scene);
         window.showAndWait();
     }

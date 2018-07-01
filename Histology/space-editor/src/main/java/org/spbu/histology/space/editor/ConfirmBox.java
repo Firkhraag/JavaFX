@@ -1,5 +1,6 @@
 package org.spbu.histology.space.editor;
 
+import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +12,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
+import org.spbu.histology.model.Cell;
+import org.spbu.histology.model.Part;
+import org.spbu.histology.model.TetgenPoint;
 import org.spbu.histology.model.HideCells;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Names;
@@ -36,14 +40,48 @@ public class ConfirmBox {
         Button confirmButton = new Button("Yes");
         confirmButton.setOnAction(e -> {
             if (partId != -1) {
+                Part part = hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId);
+                int count = 0;
+                for (Part pa : hm.getHistionMap().get(0).getItemMap().get(cellId).getItems()) {
+                    if (part == pa)
+                        break;
+                    count += pa.getPointData().size();
+                }
+                boolean deleteFacets = false;
+                for (ArrayList<Integer> facet : hm.getHistionMap().get(0).getItemMap().get(cellId).getFacetData()) {
+                    for (Integer vertex : facet) {
+                        for (TetgenPoint po : part.getPointData()) {
+                            if (vertex == (po.getId() + count)) {
+                                deleteFacets = true;
+                                break;
+                            }
+                        }
+                        if (deleteFacets) {
+                            break;
+                        }
+                    }
+                    if (deleteFacets) {
+                        break;
+                    }
+                }
+                if (deleteFacets) {
+                    hm.getHistionMap().get(0).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
+                }
                 hm.getHistionMap().get(0).getItemMap().get(cellId).deleteChild(partId);
-                hm.getHistionMap().get(0).getItemMap().get(cellId).setFacetData(FXCollections.observableArrayList());
-                hm.getHistionMap().get(0).getItemMap().get(cellId).setShow(false);
+                Cell c = new Cell(cellId, hm.getHistionMap().get(0).getItemMap().get(cellId));
+                hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
+                    c.addChild(p);
+                });
+                if (deleteFacets) {
+                    c.setShow(false);
+                }
+                hm.getHistionMap().get(0).addChild(c);
             } else if (cellId != -1) {
                 String name = hm.getHistionMap().get(0).getItemMap().get(cellId).getName();
                 name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
                 Names.removeCellName(name);
-                HideCells.removeCellNameToHide(name);
+                //HideCells.removeCellNameToHide(name);
+                HideCells.removeCellIdToHide(cellId);
                 hm.getHistionMap().get(0).deleteChild(cellId);
             }
             window.close();

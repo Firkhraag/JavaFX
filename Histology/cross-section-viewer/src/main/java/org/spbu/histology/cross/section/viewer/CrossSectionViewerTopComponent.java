@@ -3,16 +3,16 @@ package org.spbu.histology.cross.section.viewer;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.MapChangeListener;
 import javafx.embed.swing.JFXPanel;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polygon;
 import org.netbeans.api.settings.ConvertAsProperties;
@@ -20,7 +20,9 @@ import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.windows.TopComponent;
 import org.openide.util.NbBundle.Messages;
-import org.spbu.histology.model.CrossSection;
+import org.spbu.histology.model.CrossSectionPlane;
+import org.spbu.histology.model.CrossSectionVisualization;
+import org.spbu.histology.model.HideCells;
 
 /**
  * Top component which displays something.
@@ -71,6 +73,9 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         });
     }
 
+    double mouseOldX = 0;
+    double mouseOldY = 0;
+    
     private void createScene() {
         Pane drawingPane = new Pane();
         drawingPane.getChildren().add(root);
@@ -95,6 +100,23 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
                 event.consume();
             }
         });
+        drawingPane.setOnMousePressed(me -> {         
+            mouseOldX = me.getSceneX();
+            mouseOldY = me.getSceneY();
+        });
+        drawingPane.setOnMouseDragged(me -> {
+            if (me.isPrimaryButtonDown()) {
+                double mousePosX = me.getSceneX();
+                double mousePosY = me.getSceneY();
+                double mouseDeltaX = (mousePosX - mouseOldX);
+                double mouseDeltaY = (mousePosY - mouseOldY);
+                scrollPane.setHvalue(scrollPane.getHvalue() + mouseDeltaX * 0.0005);
+                scrollPane.setVvalue(scrollPane.getVvalue() + mouseDeltaY * 0.0005);
+                //System.out.println(scrollPane.getVvalue());
+                mouseOldX = mousePosX;
+                mouseOldY = mousePosY;
+            }
+        });
         scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(true);
@@ -104,8 +126,9 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
         scrollPane.setHvalue(0.5);
         scrollPane.setVvalue(0.5);
         Scene scene = new Scene(scrollPane);
+        
         fxPanel.setScene(scene);
-        CrossSection.initialized.set(true);
+        CrossSectionPlane.initialized.set(true);
     }
 
     public void clear() {
@@ -169,6 +192,24 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
                     for (Polygon p : change.getValueAdded()) {
                         p.setTranslateX(paneSize / 2);
                         p.setTranslateY(paneSize / 2);
+                        if (HideCells.getCellIdToHideList().contains(change.getKey())) {
+                            p.setFill(Color.WHITE);
+                        }
+                        p.setOnMouseClicked(me -> {
+                            if (me.getButton() == MouseButton.SECONDARY) {
+                                if (!HideCells.getCellIdToHideList().contains(change.getKey())) {
+                                    HideCells.addCellIdToHide(change.getKey());
+                                    for (Polygon pol : CrossSectionVisualization.getPolygonMap().get(change.getKey())) {
+                                        pol.setFill(Color.WHITE);
+                                    }
+                                } else {
+                                    HideCells.removeCellIdToHide(change.getKey());
+                                    for (Polygon pol : CrossSectionVisualization.getPolygonMap().get(change.getKey())) {
+                                        pol.setFill(CrossSectionVisualization.getPolygonColorMap().get(change.getKey()));
+                                    }
+                                }
+                            }
+                        });
                         root.getChildren().add(p);
                     }
                 }
@@ -198,15 +239,15 @@ public final class CrossSectionViewerTopComponent extends TopComponent {
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
-        CrossSection.getPolygonMap().addListener(polygonListener);
-        CrossSection.getLineMap().addListener(lineListener);
+        CrossSectionVisualization.getPolygonMap().addListener(polygonListener);
+        CrossSectionVisualization.getLineMap().addListener(lineListener);
         // TODO add custom code on component opening
     }
 
     @Override
     public void componentClosed() {
-        CrossSection.getPolygonMap().removeListener(polygonListener);
-        CrossSection.getLineMap().removeListener(lineListener);
+        CrossSectionVisualization.getPolygonMap().removeListener(polygonListener);
+        CrossSectionVisualization.getLineMap().removeListener(lineListener);
         // TODO add custom code on component closing
     }
 

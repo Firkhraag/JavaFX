@@ -4,47 +4,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class GroupPosition {
-
-    private static StringProperty xRotate = new SimpleStringProperty("0");
-
-    public static final StringProperty xRotateProperty() {
-        return xRotate;
-    }
-
-    public static String getXRotate() {
-        return xRotateProperty().get();
-    }
-
-    public static void setXRotate(String xRotate) {
-        xRotateProperty().set(xRotate);
-    }
-
-    private static StringProperty yRotate = new SimpleStringProperty("0");
-
-    public static final StringProperty yRotateProperty() {
-        return yRotate;
-    }
-
-    public static String getYRotate() {
-        return yRotateProperty().get();
-    }
-
-    public static void setYRotate(String yRotate) {
-        yRotateProperty().set(yRotate);
-    }
-
-    /*private static StringProperty zRotate = new SimpleStringProperty("0");
-    public static final StringProperty zRotateProperty() {
-        return zRotate;
-    }
     
-    public static String getZRotate() {
-        return zRotateProperty().get();
-    }
-    
-    public static void setZRotate(String zRotate) {
-        zRotateProperty().set(zRotate);
-    }*/
     private static StringProperty xCoordinate = new SimpleStringProperty("0");
 
     public static final StringProperty xCoordinateProperty() {

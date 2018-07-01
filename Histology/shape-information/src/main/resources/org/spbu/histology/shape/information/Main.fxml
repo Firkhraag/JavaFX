@@ -6,9 +6,9 @@
 <TabPane fx:id="tabPane" fx:controller="org.spbu.histology.shape.information.MainController" 
          xmlns:fx="http://javafx.com/fxml" tabClosingPolicy="UNAVAILABLE">
     <tabs>
-        <Tab fx:id="viewTab" text="3D View">
+        <Tab fx:id="viewTab" text="3D Вид">
         </Tab>
-        <Tab fx:id="generalTab" text="General">
+        <Tab fx:id="generalTab" text="Общее">
             <fx:include fx:id="GeneralTab" source="GeneralTab.fxml"/>
         </Tab>
     </tabs>

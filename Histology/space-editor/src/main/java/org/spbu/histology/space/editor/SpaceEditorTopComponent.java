@@ -50,7 +50,6 @@ public final class SpaceEditorTopComponent extends TopComponent {
     private CameraViewController cameraViewController;
     private CrossSectionController crossSectionController;
     private GroupPositionController groupPositionController;
-    //private FXMLLoader fxmlLoader;
 
     public SpaceEditorTopComponent() {
         initComponents();

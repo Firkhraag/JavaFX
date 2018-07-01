@@ -16,7 +16,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_CrossSectionAction"
 )
 @ActionReference(path = "Toolbars/File", position = 350)
-@Messages("CTL_CrossSectionAction=Cross section")
+@Messages("CTL_CrossSectionAction=Управление секущей плоскостью")
 public final class CrossSectionAction implements ActionListener {
 
     @Override

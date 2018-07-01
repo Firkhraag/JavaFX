@@ -23,4 +23,11 @@
                 <Env.MAVEN_OPTS>-Xmx1024m -XX:+UseParallelGC</Env.MAVEN_OPTS>
             </properties>
         </action>
+        <action>
+            <actionName>CUSTOM-Generate installers</actionName>
+            <displayName>Generate installers</displayName>
+            <goals>
+                <goal>nbm:build-installers</goal>
+            </goals>
+        </action>
     </actions>

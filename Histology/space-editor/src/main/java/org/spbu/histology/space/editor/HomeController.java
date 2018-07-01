@@ -1,5 +1,10 @@
 package org.spbu.histology.space.editor;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -20,14 +25,17 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.collections.ObservableMap;
 import javafx.geometry.Point3D;
 import javafx.scene.control.CheckMenuItem;
+import javafx.scene.paint.Color;
+import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import javax.swing.filechooser.FileSystemView;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
 import org.spbu.histology.model.Cell;
-import org.spbu.histology.model.HideCells;
 import org.spbu.histology.model.Histion;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.HistologyObject;
@@ -36,9 +44,10 @@ import org.spbu.histology.model.LineEquations;
 import org.spbu.histology.model.Names;
 import org.spbu.histology.model.Node;
 import org.spbu.histology.model.Part;
+import org.spbu.histology.model.RecurrenceShifts;
 import org.spbu.histology.model.TetgenPoint;
+import org.spbu.histology.model.TwoIntegers;
 import org.spbu.histology.shape.information.PartInformationInitialization;
-import org.spbu.histology.shape.information.HistionInformationInitialization;
 
 public class HomeController implements Initializable {
 
@@ -304,33 +313,457 @@ public class HomeController implements Initializable {
         @Override
         public ContextMenu getMenu() {
 
-            MenuItem editHistion = new MenuItem();
-            editHistion.setText("Edit histion");
-            editHistion.setOnAction(event -> {
-                HistionInformationInitialization.createScene(this.getValue().getId());
-            });
             MenuItem saveHistion = new MenuItem();
-            saveHistion.setText("Save histion");
+            saveHistion.setText("Сохранить гистион");
             saveHistion.setOnAction(event -> {
-                SaveBox.display();
+                histionMenu.hide();
+                FileChooser fileChooser = new FileChooser();
+
+                //Set extension filter
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                userDirectoryString += "\\HistologyApp" + System.getProperty("sun.arch.data.model") + "\\Histions";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+
+                //Show save file dialog
+                File file = fileChooser.showSaveDialog(null);
+
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectoryString
+                            + "\\" + file.getName()));
+
+                    writer.write(0 + " "
+                            + 0 + " "
+                            + hm.getHistionMap().get(0).getXCoordinate() + " "
+                            + hm.getHistionMap().get(0).getYCoordinate() + " "
+                            + hm.getHistionMap().get(0).getZCoordinate());
+                    writer.newLine();
+
+                    writer.write(RecurrenceShifts.getXShift() + "");
+                    writer.newLine();
+                    writer.write(RecurrenceShifts.getZShift() + "");
+                    writer.newLine();
+                    
+                    writer.write(hm.getHistionMap().get(0).getItems().size() + "");
+                    writer.newLine();
+
+                    hm.getHistionMap().get(0).getItems().forEach(c -> {
+                        try {
+                            writer.write(c.getName());
+                            writer.newLine();
+                            writer.write(c.getXRotate() + " " + c.getYRotate() + " "
+                                    + c.getXCoordinate() + " " + c.getYCoordinate() + " "
+                                    + c.getZCoordinate());
+                            writer.newLine();
+                            writer.write(c.getDiffuseColor().getRed() + " "
+                                    + c.getDiffuseColor().getGreen() + " "
+                                    + c.getDiffuseColor().getBlue());
+                            writer.newLine();
+                            writer.write(c.getSpecularColor().getRed() + " "
+                                    + c.getSpecularColor().getGreen() + " "
+                                    + c.getSpecularColor().getBlue());
+                            writer.newLine();
+                            writer.write(c.getShow() + "");
+                            writer.newLine();
+                            writer.write(c.getItems().size() + "");
+                            writer.newLine();
+
+                            c.getItems().forEach(p -> {
+                                try {
+                                    writer.write(p.getName());
+                                    writer.newLine();
+                                    writer.write(p.getPointData().size() + "");
+                                    writer.newLine();
+                                    for (int i = 0; i < p.getPointData().size(); i++) {
+                                        writer.write(p.getPointData().get(i).getX() + " "
+                                                + p.getPointData().get(i).getY() + " "
+                                                + p.getPointData().get(i).getZ());
+                                        writer.newLine();
+                                    }
+                                } catch (Exception ex) {
+
+                                }
+                            });
+
+                            writer.write(c.getFacetData().size() + "");
+                            writer.newLine();
+
+                            c.getFacetData().forEach(list -> {
+                                try {
+                                    for (int i = 0; i < list.size(); i++) {
+                                        if (i == list.size() - 1) {
+                                            writer.write(list.get(i) + "");
+                                        } else {
+                                            writer.write(list.get(i) + " ");
+                                        }
+                                    }
+                                    writer.newLine();
+                                } catch (Exception ex) {
+
+                                }
+                            });
+                        } catch (Exception ex) {
+
+                        }
+                    });
+                    writer.close();
+                } catch (Exception ex) {
+
+                }
+
             });
+            /*MenuItem deleteHistion = new MenuItem();
+            deleteHistion.setText("Очистить гистион");
+            deleteHistion.setOnAction(event -> {
+                hm.getHistionMap().get(0).getItems().forEach(c -> {
+                    String name = c.getName();
+                    Names.removeCellName(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+                    hm.getHistionMap().get(0).deleteChild(c.getId());
+                });
+            });*/
             MenuItem loadHistion = new MenuItem();
-            loadHistion.setText("Load histion");
+            loadHistion.setText("Загрузить гистион");
             loadHistion.setOnAction(event -> {
-                LoadBox.display();
+                histionMenu.hide();
+                /*FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open Resource File");
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                //System.out.println(userDirectoryString);
+                userDirectoryString += "\\HistologyApp\\Histions";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+                File selectedFile = fileChooser.showOpenDialog(null);
+
+                try {
+                    Histion main = hm.getHistionMap().get(0);
+                    BufferedReader br = new BufferedReader(new FileReader(userDirectoryString + "\\" + selectedFile.getName()));
+                    String line = br.readLine();
+
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setXCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setYCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setZCoordinate(Double.parseDouble(line));
+                    
+                    line = br.readLine();
+                    RecurrenceShifts.setXShift(Double.parseDouble(line));
+                    line = br.readLine();
+                    RecurrenceShifts.setZShift(Double.parseDouble(line));
+                    
+                    line = br.readLine();
+                    int cellNum = Integer.parseInt(line);
+                    for (int i = 0; i < cellNum; i++) {
+                        ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
+                        Cell c = new Cell("Name", 0, 0, 0, 0, 0, FXCollections.observableArrayList(),
+                                Color.BLUE, Color.LIGHTBLUE, 0, true);
+                        double r, g, b;
+                        line = br.readLine();
+
+                        String name = line;
+                        name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                        int count = 1;
+                        while (Names.containsCellName(name)) {
+                            name = line;
+                            name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                            name += "(" + count + ")";
+                            count++;
+                        }
+                        c.setName("Клетка <" + name + ">");
+
+                        line = br.readLine();
+                        c.setXRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setYRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setXCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setYCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setZCoordinate(Double.parseDouble(line));
+
+                        line = br.readLine();
+                        r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        b = Double.parseDouble(line);
+                        c.setDiffuseColor(Color.color(r, g, b));
+
+                        line = br.readLine();
+                        r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        b = Double.parseDouble(line);
+                        c.setSpecularColor(Color.color(r, g, b));
+
+                        line = br.readLine();
+                        c.setShow(Boolean.parseBoolean(line));
+
+                        line = br.readLine();
+                        int partNum = Integer.parseInt(line);
+
+                        ArrayList<TetgenPoint> pd = new ArrayList<>();
+                        int num = 1;
+                        for (int j = 0; j < partNum; j++) {
+                            ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+                            Part p = new Part("Слой", FXCollections.observableArrayList(), c.getId());
+                            line = br.readLine();
+                            //p.setName(line);
+
+                            name = line;
+                            name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                            p.setName("Слой <" + name + ">");
+
+                            line = br.readLine();
+                            int pointNum = Integer.parseInt(line);
+                            for (int q = 0; q < pointNum; q++) {
+                                line = br.readLine();
+                                r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                                g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                                b = Double.parseDouble(line);
+                                pointData.add(new TetgenPoint(q + 1, r, g, b));
+                                pd.add(new TetgenPoint(num, r, g, b));
+                                num++;
+                            }
+                            p.setPointData(pointData);
+                            p.setAvgNode();
+                            c.addChild(p);
+                        }
+                        line = br.readLine();
+                        int facetNum = Integer.parseInt(line);
+                        for (int j = 0; j < facetNum; j++) {
+                            ArrayList<Integer> list = new ArrayList<>();
+                            line = br.readLine();
+                            while (line.contains(" ")) {
+                                list.add(Integer.parseInt(line.substring(0, line.indexOf(" "))));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                            }
+                            list.add(Integer.parseInt(line));
+                            facetData.add(list);
+                        }
+                        c.setFacetData(facetData);
+
+                        ArrayList<TwoIntegers> lineList = new ArrayList<>();
+                        for (ArrayList<Integer> f : facetData) {
+                            for (int j = 1; j < f.size(); j++) {
+                                TwoIntegers ti = new TwoIntegers(j, f.get(j - 1), f.get(j));
+                                if (!lineList.contains(ti)) {
+                                    lineList.add(ti);
+                                }
+                            }
+                            TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
+                            if (!lineList.contains(ti)) {
+                                lineList.add(ti);
+                            }
+                        }
+
+                        ArrayList<Line> lines = new ArrayList<>();
+                        for (int j = 0; j < lineList.size(); j++) {
+
+                            TetgenPoint point1 = pd.get(lineList.get(j).getPoint1() - 1);
+                            TetgenPoint point2 = pd.get(lineList.get(j).getPoint2() - 1);
+                            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
+                                lines.add(new Line(new org.spbu.histology.model.Node(point1.getX(), point1.getZ(), point1.getY()),
+                                        new org.spbu.histology.model.Node(point2.getX(), point2.getZ(), point2.getY())));
+                            }
+                        }
+                        LineEquations.addLine(c.getId(), lines);
+
+                        main.addChild(c);
+                        name = c.getName();
+                        Names.addCellName(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+                    }
+                    br.close();
+                } catch (Exception ex) {
+                    System.out.println("error");
+                }*/
+
+                LoadHistionBox.display();
             });
             MenuItem loadCell = new MenuItem();
-            loadCell.setText("Load cell");
+            loadCell.setText("Загрузить клетку");
             loadCell.setOnAction(event -> {
-                LoadCellBox.display();
+                histionMenu.hide();
+                //LoadCellBox.display();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open Resource File");
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                //System.out.println(userDirectoryString);
+                userDirectoryString += "\\HistologyApp" + System.getProperty("sun.arch.data.model") + "\\Cells";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+                File selectedFile = fileChooser.showOpenDialog(null);
+
+                try {
+                    Histion main = hm.getHistionMap().get(0);
+                    BufferedReader br = new BufferedReader(new FileReader(userDirectoryString + "\\" + selectedFile.getName()));
+                    String line = br.readLine();
+
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setXCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setYCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                    line = line.substring(line.indexOf(" ") + 1, line.length());
+                    main.setZCoordinate(Double.parseDouble(line));
+                    line = br.readLine();
+                    int cellNum = Integer.parseInt(line);
+                    for (int i = 0; i < cellNum; i++) {
+                        ObservableList<ArrayList<Integer>> facetData = FXCollections.observableArrayList();
+                        Cell c = new Cell("Name", 0, 0, 0, 0, 0, FXCollections.observableArrayList(),
+                                Color.BLUE, Color.LIGHTBLUE, 0, true);
+                        double r, g, b;
+                        line = br.readLine();
+
+                        String name = line;
+                        name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                        int count = 1;
+                        while (Names.containsCellName(name)) {
+                            name = line;
+                            name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                            name += "(" + count + ")";
+                            count++;
+                        }
+                        c.setName("Клетка <" + name + ">");
+
+                        line = br.readLine();
+                        c.setXRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setYRotate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setXCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setYCoordinate(Double.parseDouble(line.substring(0, line.indexOf(" "))));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        c.setZCoordinate(Double.parseDouble(line));
+
+                        line = br.readLine();
+                        r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        b = Double.parseDouble(line);
+                        c.setDiffuseColor(Color.color(r, g, b));
+
+                        line = br.readLine();
+                        r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        b = Double.parseDouble(line);
+                        c.setSpecularColor(Color.color(r, g, b));
+
+                        line = br.readLine();
+                        c.setShow(Boolean.parseBoolean(line));
+
+                        line = br.readLine();
+                        int partNum = Integer.parseInt(line);
+
+                        ArrayList<TetgenPoint> pd = new ArrayList<>();
+                        int num = 1;
+                        for (int j = 0; j < partNum; j++) {
+                            ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+                            Part p = new Part("Слой", FXCollections.observableArrayList(), c.getId());
+                            line = br.readLine();
+
+                            name = line;
+                            name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                            p.setName("Слой <" + name + ">");
+
+                            line = br.readLine();
+                            int pointNum = Integer.parseInt(line);
+                            for (int q = 0; q < pointNum; q++) {
+                                line = br.readLine();
+                                r = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                                g = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                                b = Double.parseDouble(line);
+                                pointData.add(new TetgenPoint(q + 1, r, g, b));
+                                pd.add(new TetgenPoint(num, r, g, b));
+                                num++;
+                            }
+                            p.setPointData(pointData);
+                            p.setAvgNode();
+                            c.addChild(p);
+                        }
+                        line = br.readLine();
+                        int facetNum = Integer.parseInt(line);
+                        for (int j = 0; j < facetNum; j++) {
+                            ArrayList<Integer> list = new ArrayList<>();
+                            line = br.readLine();
+                            while (line.contains(" ")) {
+                                list.add(Integer.parseInt(line.substring(0, line.indexOf(" "))));
+                                line = line.substring(line.indexOf(" ") + 1, line.length());
+                            }
+                            list.add(Integer.parseInt(line));
+                            facetData.add(list);
+                        }
+                        c.setFacetData(facetData);
+
+                        ArrayList<TwoIntegers> lineList = new ArrayList<>();
+                        for (ArrayList<Integer> f : facetData) {
+                            for (int j = 1; j < f.size(); j++) {
+                                TwoIntegers ti = new TwoIntegers(j, f.get(j - 1), f.get(j));
+                                if (!lineList.contains(ti)) {
+                                    lineList.add(ti);
+                                }
+                            }
+                            TwoIntegers ti = new TwoIntegers(f.size(), f.get(f.size() - 1), f.get(0));
+                            if (!lineList.contains(ti)) {
+                                lineList.add(ti);
+                            }
+                        }
+
+                        ArrayList<Line> lines = new ArrayList<>();
+                        for (int j = 0; j < lineList.size(); j++) {
+
+                            TetgenPoint point1 = pd.get(lineList.get(j).getPoint1() - 1);
+                            TetgenPoint point2 = pd.get(lineList.get(j).getPoint2() - 1);
+                            if (Math.abs(point1.getY() - point2.getY()) < 0.0001) {
+                                lines.add(new Line(new org.spbu.histology.model.Node(point1.getX(), point1.getZ(), point1.getY()),
+                                        new org.spbu.histology.model.Node(point2.getX(), point2.getZ(), point2.getY())));
+                            }
+                        }
+                        LineEquations.addLine(c.getId(), lines);
+
+                        main.addChild(c);
+                        name = c.getName();
+                        Names.addCellName(name.substring(name.indexOf("<") + 1, name.lastIndexOf(">")));
+                    }
+                    br.close();
+                } catch (Exception ex) {
+                    System.out.println("error");
+                }
             });
             MenuItem addCell = new MenuItem();
-            addCell.setText("Add cell");
+            addCell.setText("Добавить клетку");
             addCell.setOnAction(event -> {
-                AddBox.display("Add Cell", "Cell name", this.getValue().getId());
+                AddBox.display("Добавить клетку", "Название клетки", this.getValue().getId());
             });
             CheckMenuItem fillModel = new CheckMenuItem();
-            fillModel.setText("Fill model");
+            fillModel.setText("Распространить гистион");
             fillModel.setOnAction(event -> {
                 histionMenu.hide();
                 if (fillModel.isSelected()) {
@@ -474,6 +907,16 @@ public class HomeController implements Initializable {
                         return;
                     }
 
+                    /*if (hm.getHistionMap().get(0).getItems().size() > 0) {
+                        Cell cell = hm.getHistionMap().get(0).getItems().get(hm.getHistionMap().get(0).getItems().size() - 1);
+                        Cell c = new Cell(cell.getId(), cell);
+
+                        hm.getHistionMap().get(0).getItemMap().get(c.getId()).getItems().forEach(p -> {
+                            c.addChild(p);
+                        });
+                        hm.getHistionMap().get(0).addChild(c);
+                    }*/
+                    
                     double deltaX = xSpace.get();
                     double deltaY = ySpace.get();
                     double deltaZ = zSpace.get();
@@ -1023,7 +1466,7 @@ public class HomeController implements Initializable {
                 }
             });
             MenuItem pasteCell = new MenuItem();
-            pasteCell.setText("Paste cell");
+            pasteCell.setText("Вставить клетку");
             pasteCell.setOnAction(event -> {
                 Cell newCell = new Cell(hm.getHistionMap().get(0).getItemMap().get(cellId), 0);
                 String name = newCell.getName();
@@ -1035,7 +1478,7 @@ public class HomeController implements Initializable {
                     name += "(" + count + ")";
                     count++;
                 }
-                newCell.setName("Cell <" + name + ">");
+                newCell.setName("Клетка <" + name + ">");
                 Names.addCellName(name);
                 hm.getHistionMap().get(0).getItemMap().get(cellId).getItems().forEach(p -> {
                     newCell.addChild(new Part(p, newCell.getId()));
@@ -1046,17 +1489,18 @@ public class HomeController implements Initializable {
 
             loadHistion.disableProperty().bind(disableEverything);
             loadCell.disableProperty().bind(disableEverything);
-            editHistion.disableProperty().bind(disableEverything);
             addCell.disableProperty().bind(disableEverything);
             if (hm.getAllHistions().size() > 1) {
                 fillModel.setSelected(true);
             }
-            histionMenu = new ContextMenu(loadHistion, saveHistion, editHistion, loadCell, addCell, pasteCell, fillModel);
+            histionMenu = new ContextMenu(loadHistion, saveHistion, loadCell, addCell, pasteCell, fillModel);
             return histionMenu;
         }
     }
 
     public class CellTreeItem extends AbstractTreeItem {
+        
+        ContextMenu cellMenu = new ContextMenu();
 
         public CellTreeItem(HistologyObject<?> object) {
             this.setValue(object);
@@ -1067,29 +1511,175 @@ public class HomeController implements Initializable {
         public ContextMenu getMenu() {
             Cell c = (Cell) this.getValue();
             MenuItem saveCell = new MenuItem();
-            saveCell.setText("Save cell");
+            saveCell.setText("Сохранить клетку");
             saveCell.setOnAction(event -> {
+                cellMenu.hide();
+                /*FileChooser fileChooser = new FileChooser();
+
+                //Set extension filter
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                userDirectoryString += "\\HistologyApp\\Cells";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+
+                //Show save file dialog
+                File file = fileChooser.showSaveDialog(null);
+
+                try {
+
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectoryString
+                            + "\\" + file.getName()));
+
+                    writer.write(0 + " "
+                            + 0 + " "
+                            + hm.getHistionMap().get(0).getXCoordinate() + " "
+                            + hm.getHistionMap().get(0).getYCoordinate() + " "
+                            + hm.getHistionMap().get(0).getZCoordinate());
+                    writer.newLine();
+
+                    writer.write("1");
+                    writer.newLine();
+                    ArrayList<Integer> pointIds = new ArrayList<>();
+                    try {
+                        writer.write(c.getName());
+                        writer.newLine();
+                        writer.write(c.getXRotate() + " " + c.getYRotate() + " "
+                                + c.getXCoordinate() + " " + c.getYCoordinate() + " "
+                                + c.getZCoordinate());
+                        writer.newLine();
+                        writer.write(c.getDiffuseColor().getRed() + " "
+                                + c.getDiffuseColor().getGreen() + " "
+                                + c.getDiffuseColor().getBlue());
+                        writer.newLine();
+                        writer.write(c.getSpecularColor().getRed() + " "
+                                + c.getSpecularColor().getGreen() + " "
+                                + c.getSpecularColor().getBlue());
+                        writer.newLine();
+                        writer.write(c.getShow() + "");
+                        writer.newLine();
+
+                        IntegerProperty num = new SimpleIntegerProperty(1);
+                        ArrayList<Integer> partIds = new ArrayList<>();
+                        writer.write(c.getItems().size() + "");
+                        writer.newLine();
+
+                        IntegerProperty num2 = new SimpleIntegerProperty(1);
+                        num.set(1);
+                        c.getItems().forEach(p -> {
+                            try {
+                                writer.write(p.getName());
+                                writer.newLine();
+                                writer.write(p.getPointData().size() + "");
+                                writer.newLine();
+                                for (int i = 0; i < p.getPointData().size(); i++) {
+                                    writer.write(p.getPointData().get(i).getX() + " "
+                                            + p.getPointData().get(i).getY() + " "
+                                            + p.getPointData().get(i).getZ());
+                                    writer.newLine();
+                                }
+                            } catch (Exception ex) {
+
+                            }
+                        });
+
+                        writer.write(c.getFacetData().size() + "");
+                        writer.newLine();
+
+                        c.getFacetData().forEach(list -> {
+                            try {
+
+                                for (int i = 0; i < list.size(); i++) {
+                                    if (i == list.size() - 1) {
+                                        writer.write(list.get(i) + "");
+                                    } else {
+                                        writer.write(list.get(i) + " ");
+                                    }
+                                }
+                                writer.newLine();
+                            } catch (Exception ex) {
+
+                            }
+                        });
+                    } catch (Exception ex) {
+
+                    }
+                    writer.close();
+                } catch (Exception ex) {
+
+                }*/
+                cellMenu.hide();
                 SaveCellBox.display(c.getId());
             });
             MenuItem editCell = new MenuItem();
-            editCell.setText("Edit cell");
+            editCell.setText("Изменить клетку");
             editCell.setOnAction(event -> {
                 CellInformationInitialization.createScene(hm.getHistionMap().
                         get(c.getHistionId()).getItemMap().
                         get(c.getId()));
             });
             MenuItem loadPart = new MenuItem();
-            loadPart.setText("Load part");
+            loadPart.setText("Загрузить слой");
             loadPart.setOnAction(event -> {
-                LoadPartBox.display(c.getId());
+                cellMenu.hide();
+                FileChooser fileChooser = new FileChooser();
+                fileChooser.setTitle("Open Resource File");
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                userDirectoryString += "\\HistologyApp" + System.getProperty("sun.arch.data.model") + "\\Parts";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+                File selectedFile = fileChooser.showOpenDialog(null);
+
+                try {
+                    Histion main = hm.getHistionMap().get(0);
+                    BufferedReader br = new BufferedReader(new FileReader(userDirectory + "\\" + selectedFile.getName()));
+
+                    double x, y, z;
+
+                    String line = br.readLine();
+
+                    ObservableList<TetgenPoint> pointData = FXCollections.observableArrayList();
+                    Part p = new Part("Слой", FXCollections.observableArrayList(), c.getId());
+                    String name = line;
+                    name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
+                    p.setName("Слой <" + name + ">");
+
+                    line = br.readLine();
+                    int pointNum = Integer.parseInt(line);
+                    for (int q = 0; q < pointNum; q++) {
+                        line = br.readLine();
+                        x = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        y = Double.parseDouble(line.substring(0, line.indexOf(" ")));
+                        line = line.substring(line.indexOf(" ") + 1, line.length());
+                        z = Double.parseDouble(line);
+                        pointData.add(new TetgenPoint(q + 1, x, y, z));
+                    }
+                    p.setPointData(pointData);
+                    p.setAvgNode();
+                    hm.getHistionMap().get(0).getItemMap().get(c.getId()).addChild(p);
+                    br.close();
+                } catch (Exception ex) {
+                    System.out.println("error");
+                }
             });
             MenuItem addPart = new MenuItem();
-            addPart.setText("Add part");
+            addPart.setText("Добавить слой");
             addPart.setOnAction(event -> {
                 PartInformationInitialization.show(c.getId(), -1);
             });
             MenuItem copyCell = new MenuItem();
-            copyCell.setText("Copy cell");
+            copyCell.setText("Копировать клетку");
             copyCell.setOnAction(event -> {
                 pastePartDisabledProperty.set(true);
                 pasteCellDisabledProperty.set(false);
@@ -1097,7 +1687,7 @@ public class HomeController implements Initializable {
                 partId = -1;
             });
             MenuItem pastePart = new MenuItem();
-            pastePart.setText("Paste part");
+            pastePart.setText("Вставить слой");
             pastePart.setOnAction(event -> {
                 Integer newHistionId = c.getHistionId();
                 Integer newCellId = c.getId();
@@ -1105,55 +1695,36 @@ public class HomeController implements Initializable {
                         getItemMap().get(cellId).getItemMap().get(partId), newCellId);
                 String name = newPart.getName();
                 name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
-                name += "(Copy)";
-                newPart.setName("Part <" + name + ">");
+                name += "(Копия)";
+                newPart.setName("Слой <" + name + ">");
                 hm.getHistionMap().get(newHistionId).getItemMap().get(newCellId).
                         addChild(newPart);
             });
             pastePart.disableProperty().bind(pastePartDisabledProperty);
-            CheckMenuItem hideCell = new CheckMenuItem();
-            hideCell.setText("Hide cell");
-            hideCell.setOnAction(event -> {
-                if (hm.getHistionMap().get(c.getHistionId()).getItemMap().get(c.getId()).getShow()) {
-                    if (hideCell.isSelected()) {
-                        String name = c.getName();
-                        name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
-                        HideCells.addCellNameToHide(name);
-                    } else {
-                        String name = c.getName();
-                        name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
-                        HideCells.removeCellNameToHide(name);
-                    }
-                } else if (hideCell.isSelected()) {
-                    hideCell.setSelected(false);
-                }
-            });
             MenuItem deleteCell = new MenuItem();
-            deleteCell.setText("Delete cell");
+            deleteCell.setText("Удалить клетку");
             deleteCell.setOnAction(event -> {
                 pastePartDisabledProperty.set(true);
                 pasteCellDisabledProperty.set(true);
-                ConfirmBox.display("Delete Confirmation", "Are you sure you want to delete "
+                ConfirmBox.display("Подтверждение удаления", "Вы уверены, что хотите удалить "
                         + c.getName(), c.getId(), -1);
             });
-
-            String name = c.getName();
-            name = name.substring(name.indexOf("<") + 1, name.lastIndexOf(">"));
-            if (HideCells.getCellNameToHideList().contains(name)) {
-                hideCell.setSelected(true);
-            }
 
             loadPart.disableProperty().bind(disableEverything);
             editCell.disableProperty().bind(disableEverything);
             addPart.disableProperty().bind(disableEverything);
             deleteCell.disableProperty().bind(disableEverything);
             copyCell.disableProperty().bind(disableEverything);
-
-            return new ContextMenu(editCell, saveCell, loadPart, addPart, copyCell, pastePart, hideCell, deleteCell);
+            
+            cellMenu = new ContextMenu(editCell, saveCell, loadPart, addPart, copyCell, pastePart, deleteCell);
+            return cellMenu;
+            //return new ContextMenu(editCell, saveCell, loadPart, addPart, copyCell, pastePart, deleteCell);
         }
     }
 
     public class PartTreeItem extends AbstractTreeItem {
+        
+        ContextMenu partMenu = new ContextMenu();
 
         public PartTreeItem(HistologyObject<?> object) {
             this.setValue(object);
@@ -1164,17 +1735,52 @@ public class HomeController implements Initializable {
         public ContextMenu getMenu() {
             Part p = (Part) this.getValue();
             MenuItem savePart = new MenuItem();
-            savePart.setText("Save part");
+            savePart.setText("Сохранить слой");
             savePart.setOnAction(event -> {
-                SavePartBox.display(p.getCellId(), p.getId());
+                partMenu.hide();
+                FileChooser fileChooser = new FileChooser();
+
+                //Set extension filter
+                FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("TXT files (*.txt)", "*.txt");
+                fileChooser.getExtensionFilters().add(extFilter);
+
+                String userDirectoryString = FileSystemView.getFileSystemView().getDefaultDirectory().getPath();
+                userDirectoryString += "\\HistologyApp" + System.getProperty("sun.arch.data.model") + "\\Parts";
+                File userDirectory = new File(userDirectoryString);
+                if (!userDirectory.exists()) {
+                    userDirectory.mkdirs();
+                }
+                fileChooser.setInitialDirectory(userDirectory);
+
+                //Show save file dialog
+                File file = fileChooser.showSaveDialog(null);
+
+                try {
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(userDirectoryString
+                            + "\\" + file.getName()));
+
+                    writer.write(p.getName());
+                    writer.newLine();
+                    writer.write(p.getPointData().size() + "");
+                    writer.newLine();
+                    for (int i = 0; i < p.getPointData().size(); i++) {
+                        writer.write(p.getPointData().get(i).getX() + " "
+                                + p.getPointData().get(i).getY() + " "
+                                + p.getPointData().get(i).getZ());
+                        writer.newLine();
+                    }
+                    writer.close();
+                } catch (Exception ex) {
+
+                }
             });
             MenuItem editPart = new MenuItem();
-            editPart.setText("Edit part");
+            editPart.setText("Изменить слой");
             editPart.setOnAction(event -> {
                 PartInformationInitialization.show(p.getCellId(), p.getId());
             });
             MenuItem copyPart = new MenuItem();
-            copyPart.setText("Copy part");
+            copyPart.setText("Копировать слой");
             copyPart.setOnAction(event -> {
                 pastePartDisabledProperty.set(false);
                 pasteCellDisabledProperty.set(true);
@@ -1182,19 +1788,21 @@ public class HomeController implements Initializable {
                 partId = p.getId();
             });
             MenuItem deletePart = new MenuItem();
-            deletePart.setText("Delete part");
+            deletePart.setText("Удалить слой");
             deletePart.setOnAction(event -> {
                 pastePartDisabledProperty.set(true);
                 pasteCellDisabledProperty.set(true);
-                ConfirmBox.display("Delete Confirmation", "Are you sure you want to delete "
+                ConfirmBox.display("Подтверждение удаления", "Вы уверены, что хотите удалить "
                         + p.getName(), p.getCellId(), p.getId());
             });
 
             editPart.disableProperty().bind(disableEverything);
             copyPart.disableProperty().bind(disableEverything);
             deletePart.disableProperty().bind(disableEverything);
-
-            return new ContextMenu(editPart, savePart, copyPart, deletePart);
+            
+            partMenu = new ContextMenu(editPart, savePart, copyPart, deletePart);
+            return partMenu;
+            //return new ContextMenu(editPart, savePart, copyPart, deletePart);
         }
     }
 
@@ -1242,7 +1850,7 @@ public class HomeController implements Initializable {
         }
 
         if (hm.getHistionMap().isEmpty()) {
-            hm.addHistion(new Histion("Main histion", 0, 0, 0));
+            hm.addHistion(new Histion("Главный гистион", 0, 0, 0));
         }
 
         if (hm.getAllHistions().size() > 1) {

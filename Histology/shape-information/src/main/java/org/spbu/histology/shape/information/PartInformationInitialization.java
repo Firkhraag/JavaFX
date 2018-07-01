@@ -12,6 +12,7 @@ import javafx.fxml.JavaFXBuilderFactory;
 import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
@@ -34,7 +35,8 @@ public class PartInformationInitialization {
         final int width = 1200;
         final int height = 800;
         Stage primaryStage = new Stage();
-        primaryStage.setTitle("Part");
+        primaryStage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("hexagon.png")));
+        primaryStage.setTitle("Слой");
         BorderPane borderPane = new BorderPane();
         Group root = new Group();
         Parent leftPart;
@@ -93,18 +95,12 @@ public class PartInformationInitialization {
                 int yPos = (int)e.getY();
                 if (xPos >= 0 && xPos <= width && yPos >= 0 && yPos <= height) {
                     Rectangle r = new Rectangle();
-                    r.setStroke(Color.BLACK);
                     r.setX(xPos - 2);
                     r.setY(yPos - 2);
                     r.setWidth(5);
                     r.setHeight(5);
                     root.getChildren().add(r);
                     rectangleList.add(r);
-                    /*double y = 0;
-                    if (partId != -1)
-                        if (hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getPointData().size() > 0)
-                            y = hm.getHistionMap().get(0).getItemMap().get(cellId).getItemMap().get(partId).getPointData().get(0).getY();*/
-                    //TetgenPoint p = new TetgenPoint(count.get(), xPos - width / 2, y, -yPos + height / 2);
                     TetgenPoint p = new TetgenPoint(count.get(), xPos - width / 2, 0, -yPos + height / 2);
                     pointTabController.addPoint(p);
                     count.set(count.get() + 1);

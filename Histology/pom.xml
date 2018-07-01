@@ -68,6 +68,7 @@
         <module>histion-manager-impl</module>
         <module>fxyz</module>
         <module>util</module>
+        <module>menu</module>
     </modules>
 
     <properties>

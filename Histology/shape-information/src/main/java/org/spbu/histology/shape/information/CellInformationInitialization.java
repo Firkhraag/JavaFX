@@ -28,7 +28,7 @@ public class CellInformationInitialization {
             stage.getIcons().add(new Image(CellInformationInitialization.class.getResourceAsStream("cube-with-arrows.png")));
             Scene scene = new Scene(root, 1000, 700);
             stage.setScene(scene);
-            stage.setTitle("Cell");
+            stage.setTitle("Клетка");
             stage.heightProperty().addListener((obs, oldVal, newVal) -> {
                 mainController.setTableHeight(stage.getHeight() - 100);
             });

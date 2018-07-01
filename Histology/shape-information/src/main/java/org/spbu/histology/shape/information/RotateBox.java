@@ -1,8 +1,5 @@
 package org.spbu.histology.shape.information;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.stage.*;
 import javafx.scene.*;
@@ -27,18 +24,14 @@ public class RotateBox {
         }
         
         Stage window = new Stage();
-        //window.initStyle(StageStyle.UTILITY);
-        //window.setTitle("Change");
-        window.setTitle("Rotate");
+        window.setTitle("Поворот");
 
         
         HBox hBox = new HBox();
         HBox hBox2 = new HBox();
-        //HBox hBox3 = new HBox();
         
-        Label label = new Label("Change");
+        Label label = new Label("Повернуть на");
         TextField field = new TextField();
-        //field.setDisable(true);
         field.setPrefWidth(100);
         
         Label labelK = new Label("k");
@@ -46,12 +39,6 @@ public class RotateBox {
         fieldK.setDisable(true);
         fieldK.setPrefWidth(100);
         fieldK.setDisable(true);
-        
-        /*Label labelB = new Label("b");
-        TextField fieldB = new TextField();
-        fieldB.setDisable(true);
-        fieldB.setPrefWidth(100);
-        fieldB.setDisable(true);*/
         
         hBox.getChildren().addAll(label, field);
         hBox.setPadding(new Insets(10, 10, 10, 10));
@@ -61,17 +48,13 @@ public class RotateBox {
         hBox2.setPadding(new Insets(10, 10, 10, 10));
         hBox2.setSpacing(20);
         
-        /*hBox3.getChildren().addAll(labelB, fieldB);
-        hBox3.setPadding(new Insets(10, 10, 10, 10));
-        hBox3.setSpacing(20);*/
-        
         final ToggleGroup group = new ToggleGroup();
 
-        RadioButton rb1 = new RadioButton("Usual rotate");
+        RadioButton rb1 = new RadioButton("Обычный поворот");
         rb1.setToggleGroup(group);
         rb1.setSelected(true);
 
-        RadioButton rb2 = new RadioButton("Rotate horizontal line till y = kx");
+        RadioButton rb2 = new RadioButton("Повернуть горизонтальную прямую до y = kx");
         rb2.setToggleGroup(group);
         
         rb1.selectedProperty().addListener((o, ov, nv) -> {
@@ -85,10 +68,8 @@ public class RotateBox {
         rb2.selectedProperty().addListener((o, ov, nv) -> {
             if (nv) {
                 fieldK.setDisable(false);
-                //fieldB.setDisable(false);
             } else {
                 fieldK.setDisable(true);
-                //fieldB.setDisable(true);
             }
         });
         
@@ -100,22 +81,19 @@ public class RotateBox {
                     value.set(v);
                 } else if (rb2.isSelected()) {
                     double vk = Double.parseDouble(fieldK.getText());
-                    //double vb = Double.parseDouble(fieldB.getText());
                     k.set(vk);
-                    //b.set(vb);
                 }
                 window.close();
             } catch (Exception ex) {
                 
             }
         });
-        //closeButton.disableProperty().bind(Bindings.isEmpty(field.textProperty()));
 
         VBox layout = new VBox(10);
         layout.getChildren().addAll(rb1, hBox, rb2, hBox2, closeButton);
         layout.setAlignment(Pos.CENTER);
 
-        Scene scene = new Scene(layout, 300, 350); //220
+        Scene scene = new Scene(layout, 300, 350);
         window.setScene(scene);
         window.showAndWait();
     }

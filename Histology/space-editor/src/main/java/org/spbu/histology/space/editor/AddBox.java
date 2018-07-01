@@ -12,7 +12,7 @@ import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
 import org.openide.LifecycleManager;
 import org.openide.util.Lookup;
-import org.spbu.histology.model.AlertBox;
+import org.spbu.histology.util.AlertBox;
 import org.spbu.histology.model.Cell;
 import org.spbu.histology.model.HistionManager;
 import org.spbu.histology.model.Names;
@@ -39,7 +39,7 @@ public class AddBox {
         Button closeButton = new Button("OK");
         closeButton.setOnAction(e -> {
             if (!Names.containsCellName(field.getText())) {
-                hm.getHistionMap().get(histionId).addChild(new Cell("Cell <" + field.getText() + ">",
+                hm.getHistionMap().get(histionId).addChild(new Cell("Клетка <" + field.getText() + ">",
                         0, 0, 0, 0, 0, FXCollections.observableArrayList(),
                         Color.RED, Color.RED, histionId, false));
                 Names.addCellName(field.getText());

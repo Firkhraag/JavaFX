@@ -16,7 +16,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_HomeAction"
 )
 @ActionReference(path = "Toolbars/File", position = 300)
-@Messages("CTL_HomeAction=Home")
+@Messages("CTL_HomeAction=Главная")
 public final class HomeAction implements ActionListener {
 
     @Override

@@ -19,24 +19,6 @@ public class GroupPositionController implements Initializable {
     private VBox vBox;
 
     @FXML
-    private Label xRotationLabel;
-
-    @FXML
-    private Label yRotationLabel;
-
-    @FXML
-    private TextField xRotation;
-
-    @FXML
-    private TextField yRotation;
-
-    @FXML
-    private Slider xRotSlider;
-
-    @FXML
-    private Slider yRotSlider;
-
-    @FXML
     private Label xPositionLabel;
 
     @FXML
@@ -70,17 +52,6 @@ public class GroupPositionController implements Initializable {
 
     private final double camPosLim = 2000;
 
-    ChangeListener xRotationChangeListener = (v, oldValue, newValue) -> {
-        if (change) {
-            xRotation.setText(newValue + "");
-        }
-    };
-    ChangeListener yRotationChangeListener = (v, oldValue, newValue) -> {
-        if (change) {
-            yRotation.setText(newValue + "");
-        }
-    };
-
     ChangeListener xPositionChangeListener = (v, oldValue, newValue) -> {
         if (change) {
             xPosition.setText(newValue + "");
@@ -97,40 +68,17 @@ public class GroupPositionController implements Initializable {
         }
     };
 
-    ChangeListener<String> xRotationTextListener = (v, oldValue, newValue) -> {
-        try {
-            double ang = Double.parseDouble(xRotation.getText());
-            if ((ang > 360) || (ang < -360)) {
-                ang %= 360;
-            }
-            change = false;
-            xRotSlider.setValue(ang);
-            change = true;
-        } catch (Exception ex) {
-
-        }
-    };
-    ChangeListener<String> yRotationTextListener = (v, oldValue, newValue) -> {
-        try {
-            double ang = Double.parseDouble(yRotation.getText());
-            if ((ang > 360) || (ang < -360)) {
-                ang %= 360;
-            }
-            change = false;
-            yRotSlider.setValue(ang);
-            change = true;
-        } catch (Exception ex) {
-
-        }
-    };
-
     ChangeListener<String> xPositionTextListener = (v, oldValue, newValue) -> {
         try {
             double pos = Double.parseDouble(xPosition.getText());
-            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                change = false;
-                xPosSlider.setValue(pos);
-                change = true;
+            if (Math.abs(pos) < 0.00001) {
+                xPosition.setText(0 + "");
+            } else {
+                if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                    change = false;
+                    xPosSlider.setValue(pos);
+                    change = true;
+                }
             }
         } catch (Exception ex) {
 
@@ -139,10 +87,14 @@ public class GroupPositionController implements Initializable {
     ChangeListener<String> yPositionTextListener = (v, oldValue, newValue) -> {
         try {
             double pos = Double.parseDouble(yPosition.getText());
-            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                change = false;
-                yPosSlider.setValue(pos);
-                change = true;
+            if (Math.abs(pos) < 0.00001) {
+                yPosition.setText(0 + "");
+            } else {
+                if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                    change = false;
+                    yPosSlider.setValue(pos);
+                    change = true;
+                }
             }
         } catch (Exception ex) {
 
@@ -151,10 +103,14 @@ public class GroupPositionController implements Initializable {
     ChangeListener<String> zPositionTextListener = (v, oldValue, newValue) -> {
         try {
             double pos = Double.parseDouble(zPosition.getText());
-            if ((pos <= camPosLim) && (pos >= -camPosLim)) {
-                change = false;
-                zPosSlider.setValue(pos);
-                change = true;
+            if (Math.abs(pos) < 0.00001) {
+                zPosition.setText(0 + "");
+            } else {
+                if ((pos <= camPosLim) && (pos >= -camPosLim)) {
+                    change = false;
+                    zPosSlider.setValue(pos);
+                    change = true;
+                }
             }
         } catch (Exception ex) {
 
@@ -163,10 +119,6 @@ public class GroupPositionController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        xRotSlider.valueProperty().addListener(xRotationChangeListener);
-        xRotation.textProperty().addListener(xRotationTextListener);
-        yRotSlider.valueProperty().addListener(yRotationChangeListener);
-        yRotation.textProperty().addListener(yRotationTextListener);
         xPosSlider.valueProperty().addListener(xPositionChangeListener);
         xPosition.textProperty().addListener(xPositionTextListener);
         yPosSlider.valueProperty().addListener(yPositionChangeListener);
@@ -176,17 +128,13 @@ public class GroupPositionController implements Initializable {
 
         scrollPane.setStyle("-fx-background-color:transparent;");
         vBox.setPadding(new Insets(10, 10, 10, 10));
-        xRotationLabel.setPadding(new Insets(0, 0, 0, 0));
-        yRotationLabel.setPadding(new Insets(10, 0, 0, 0));
-        xPositionLabel.setPadding(new Insets(10, 0, 0, 0));
+        xPositionLabel.setPadding(new Insets(0, 0, 0, 0));
         yPositionLabel.setPadding(new Insets(10, 0, 0, 0));
         zPositionLabel.setPadding(new Insets(10, 0, 0, 0));
         setBindings();
     }
 
     private void setBindings() {
-        xRotation.textProperty().bindBidirectional(GroupPosition.xRotateProperty());
-        yRotation.textProperty().bindBidirectional(GroupPosition.yRotateProperty());
         xPosition.textProperty().bindBidirectional(GroupPosition.xCoordinateProperty());
         yPosition.textProperty().bindBidirectional(GroupPosition.yCoordinateProperty());
         zPosition.textProperty().bindBidirectional(GroupPosition.zCoordinateProperty());
@@ -197,18 +145,12 @@ public class GroupPositionController implements Initializable {
     }
 
     public void removeListeners() {
-        xRotSlider.valueProperty().removeListener(xRotationChangeListener);
-        xRotation.textProperty().removeListener(xRotationTextListener);
-        yRotSlider.valueProperty().removeListener(yRotationChangeListener);
-        yRotation.textProperty().removeListener(yRotationTextListener);
         xPosSlider.valueProperty().removeListener(xPositionChangeListener);
         xPosition.textProperty().removeListener(xPositionTextListener);
         yPosSlider.valueProperty().removeListener(yPositionChangeListener);
         yPosition.textProperty().removeListener(yPositionTextListener);
         zPosSlider.valueProperty().removeListener(zPositionChangeListener);
         zPosition.textProperty().removeListener(zPositionTextListener);
-        xRotation.textProperty().unbind();
-        yRotation.textProperty().unbind();
         xPosition.textProperty().unbind();
         yPosition.textProperty().unbind();
         zPosition.textProperty().unbind();

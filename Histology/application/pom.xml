@@ -100,6 +100,11 @@
             <artifactId>cross-section-viewer</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>menu</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -109,6 +114,8 @@
                 <artifactId>nbm-maven-plugin</artifactId>
                 <configuration>
                     <etcConfFile>src/main/build/launcher.conf</etcConfFile>
+                    <installerOsSolaris>false</installerOsSolaris>
+                    <installerOsMacosx>false</installerOsMacosx>
                 </configuration>
             </plugin>
             <!-- Permits NbModuleSuite to be run in integration-test phase: -->
