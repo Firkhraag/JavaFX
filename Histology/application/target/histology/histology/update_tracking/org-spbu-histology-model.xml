@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="org.spbu.histology.model">
+    <module_version install_time="1530453287060" last="true" origin="installer" specification_version="1.0">
+        <file crc="1290552952" name="config/Modules/org-spbu-histology-model.xml"/>
+        <file crc="953846182" name="modules/org-spbu-histology-model.jar"/>
+    </module_version>
+</module>

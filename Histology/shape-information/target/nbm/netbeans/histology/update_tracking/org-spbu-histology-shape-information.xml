@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="org.spbu.histology.shape.information">
+    <module_version install_time="1530453214334" last="true" origin="installer" specification_version="1.0">
+        <file crc="1969627432" name="config/Modules/org-spbu-histology-shape-information.xml"/>
+        <file crc="2138698255" name="modules/org-spbu-histology-shape-information.jar"/>
+    </module_version>
+</module>

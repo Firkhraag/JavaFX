@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="200.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.spbu.histology.space.editor.CrossSectionController">
+    <children>
+        <ScrollPane fx:id="scrollPane">
+            <content>
+                <VBox fx:id="vBox">
+                    <children>
+                        <Label fx:id="xRotationLabel" text="Поворот вокруг оси X" />
+                        <TextField fx:id="xRotation" prefWidth="300"/>
+                        <Slider fx:id="xRotSlider" blockIncrement="1" majorTickUnit="10"
+                                max="90" min="0" value="0" minorTickCount="10"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="yRotationLabel" text="Поворот вокруг оси Y" />
+                        <TextField fx:id="yRotation" prefWidth="300"/>
+                        <Slider fx:id="yRotSlider" blockIncrement="1" majorTickUnit="90"
+                                max="360" min="-360" value="0" minorTickCount="45"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="xPositionLabel" text="X координата" />
+                        <TextField fx:id="xPosition" prefWidth="300"/>
+                        <Slider fx:id="xPosSlider" blockIncrement="10" majorTickUnit="300"
+                                max="900" min="-900" value="0" minorTickCount="50"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="yPositionLabel" text="Y координата" />
+                        <TextField fx:id="yPosition" prefWidth="300"/>
+                        <Slider fx:id="yPosSlider" blockIncrement="10" majorTickUnit="300"
+                                max="900" min="-900" value="0" minorTickCount="50"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="zPositionLabel" text="Z координата" />
+                        <TextField fx:id="zPosition" prefWidth="300"/>
+                        <Slider fx:id="zPosSlider" blockIncrement="10" majorTickUnit="300"
+                                max="900" min="-900" value="0" minorTickCount="50"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="opaquenessLabel" text="Непрозрачность" />
+                        <TextField fx:id="opaqueness" prefWidth="300"/>
+                        <Slider fx:id="opaquenessSlider" blockIncrement="0.05" majorTickUnit="0.1"
+                                max="1" min="0" value="0.1" minorTickCount="10"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

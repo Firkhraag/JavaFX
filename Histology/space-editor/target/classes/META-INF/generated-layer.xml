@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+                            "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="xml">
+        <folder name="entities">
+            <folder name="org_spbu_histology_space_editor">
+                <file name="SpaceEditor" url="nbres:/org/netbeans/modules/settings/resources/properties-1_0.dtd">
+                    <!--org.spbu.histology.space.editor.SpaceEditorTopComponent-->
+                    <attr name="hint.originalPublicID" stringvalue="-//org.spbu.histology.space.editor//SpaceEditor//EN"/>
+                </file>
+            </folder>
+        </folder>
+        <folder name="memory">
+            <folder name="org">
+                <folder name="spbu">
+                    <folder name="histology">
+                        <folder name="space">
+                            <folder name="editor">
+                                <file name="SpaceEditorTopComponent">
+                                    <!--org.spbu.histology.space.editor.SpaceEditorTopComponent-->
+                                    <attr name="settings.providerPath" stringvalue="xml/lookups//org_spbu_histology_space_editor/SpaceEditor.instance"/>
+                                </file>
+                            </folder>
+                        </folder>
+                    </folder>
+                </folder>
+            </folder>
+        </folder>
+        <folder name="lookups">
+            <folder name="org_spbu_histology_space_editor">
+                <file name="SpaceEditor.instance">
+                    <!--org.spbu.histology.space.editor.SpaceEditorTopComponent-->
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.create" name="instanceCreate"/>
+                    <attr
+                        methodvalue="org.netbeans.api.settings.Factory.properties" name="settings.convertor"/>
+                    <attr name="settings.instanceClass" stringvalue="org.spbu.histology.space.editor.SpaceEditorTopComponent"/>
+                    <attr name="settings.instanceOf" stringvalue="org.spbu.histology.space.editor.SpaceEditorTopComponent"/>
+                    <attr boolvalue="true" name="xmlproperties.preventStoring"/>
+                </file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Window">
+            <file name="org-spbu-histology-space-editor-SpaceEditorTopComponent.shadow">
+                <!--org.spbu.histology.space.editor.SpaceEditorTopComponent-->
+                <attr name="originalFile" stringvalue="Actions/Window/org-spbu-histology-space-editor-SpaceEditorTopComponent.instance"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Windows2">
+        <folder name="Components">
+            <file name="SpaceEditorTopComponent.settings">
+                <!--org.spbu.histology.space.editor.SpaceEditorTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE settings PUBLIC "-//NetBeans//DTD Session settings 1.0//EN" "http://www.netbeans.org/dtds/sessionsettings-1_0.dtd">
+<settings version="1.0">
+  <instance class="org.spbu.histology.space.editor.SpaceEditorTopComponent"/>
+</settings>
+]]></file>
+        </folder>
+        <folder name="Modes">
+            <folder name="explorer">
+                <file name="SpaceEditorTopComponent.wstcref">
+                    <!--org.spbu.histology.space.editor.SpaceEditorTopComponent--><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tc-ref PUBLIC "-//NetBeans//DTD Top Component in Mode Properties 2.0//EN" "http://www.netbeans.org/dtds/tc-ref2_0.dtd">
+<tc-ref version="2.0">
+  <tc-id id="SpaceEditorTopComponent"/>
+  <state opened="true"/>
+</tc-ref>
+]]></file>
+            </folder>
+        </folder>
+    </folder>
+    <folder name="Actions">
+        <folder name="Window">
+            <file name="org-spbu-histology-space-editor-SpaceEditorTopComponent.instance">
+                <!--org.spbu.histology.space.editor.SpaceEditorTopComponent-->
+                <attr
+                    methodvalue="org.openide.windows.TopComponent.openAction" name="instanceCreate"/>
+                <attr name="component" newvalue="org.spbu.histology.space.editor.SpaceEditorTopComponent"/>
+                <attr name="preferredID" stringvalue="SpaceEditorTopComponent"/>
+                <attr
+                    bundlevalue="org.spbu.histology.space.editor.Bundle#CTL_ToolsAction" name="displayName"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

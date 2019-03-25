@@ -1,0 +1,17 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/spbu/histology/histion/manager/i
+ mpl/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 1.0-20180701
+OpenIDE-Module-Build-Version: 201807011238
+OpenIDE-Module: org.spbu.histology.histion.manager.impl
+OpenIDE-Module-Public-Packages: -
+OpenIDE-Module-Requires: org.openide.modules.ModuleFormat1
+OpenIDE-Module-Display-Category: org.spbu.histology
+OpenIDE-Module-Name: histion-manager-impl
+OpenIDE-Module-Short-Description: <undefined>
+OpenIDE-Module-Long-Description: <undefined>
+OpenIDE-Module-Module-Dependencies: org.openide.util.lookup > 8.32.1, 
+ org.spbu.histology.model > 1.0, org.netbeans.api.annotations.common/1
+  > 1.26.1
+

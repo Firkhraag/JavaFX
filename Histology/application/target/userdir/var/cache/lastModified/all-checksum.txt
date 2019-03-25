@@ -1,0 +1,13 @@
+platform=1530454121613
+cluster.bin=1530454121612
+cluster.etc=1530454121612
+cluster.extra=1530454121612
+cluster.histology=1530454121612
+cluster.java=1530454121613
+cluster.platform=1530454121613
+user=1530454121613
+crc=7
+locale=ru_RU
+branding=histology
+java.version=1.8.0_144
+java.vm.version=25.144-b01
