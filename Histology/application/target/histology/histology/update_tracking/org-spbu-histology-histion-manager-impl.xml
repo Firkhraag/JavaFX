@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="org.spbu.histology.histion.manager.impl">
+    <module_version install_time="1530453287144" last="true" origin="installer" specification_version="1.0">
+        <file crc="1641004625" name="config/Modules/org-spbu-histology-histion-manager-impl.xml"/>
+        <file crc="3060446808" name="modules/org-spbu-histology-histion-manager-impl.jar"/>
+    </module_version>
+</module>

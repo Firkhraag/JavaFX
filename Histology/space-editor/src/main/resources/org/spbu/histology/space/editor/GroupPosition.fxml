@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="800.0" prefWidth="200.0" 
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.spbu.histology.space.editor.GroupPositionController">
+    <children>
+        <ScrollPane fx:id="scrollPane">
+            <content>
+                <VBox fx:id="vBox">
+                    <children>
+                        <Label fx:id="xPositionLabel" text="X координата" />
+                        <TextField fx:id="xPosition" prefWidth="300"/>
+                        <Slider fx:id="xPosSlider" blockIncrement="1" majorTickUnit="500"
+                                max="2000" min="-2000" value="0" minorTickCount="90"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="yPositionLabel" text="Y координата" />
+                        <TextField fx:id="yPosition" prefWidth="300"/>
+                        <Slider fx:id="yPosSlider" blockIncrement="1" majorTickUnit="500"
+                                max="2000" min="-2000" value="0" minorTickCount="90"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                        <Label fx:id="zPositionLabel" text="Z координата" />
+                        <TextField fx:id="zPosition" prefWidth="300"/>
+                        <Slider fx:id="zPosSlider" blockIncrement="1" majorTickUnit="500"
+                                max="2000" min="-2000" value="0" minorTickCount="90"
+                                showTickLabels="true" showTickMarks="true" snapToTicks="true" />
+                    </children>
+                </VBox>
+            </content>
+        </ScrollPane>
+    </children>
+</AnchorPane>

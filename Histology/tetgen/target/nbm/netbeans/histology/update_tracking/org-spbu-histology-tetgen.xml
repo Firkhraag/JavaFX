@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="org.spbu.histology.tetgen">
+    <module_version install_time="1530453240357" last="true" origin="installer" specification_version="1.0">
+        <file crc="2201459072" name="config/Modules/org-spbu-histology-tetgen.xml"/>
+        <file crc="3937200060" name="modules/org-spbu-histology-tetgen.jar"/>
+    </module_version>
+</module>

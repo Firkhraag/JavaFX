@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+
+<VBox fx:id="facetVBox" xmlns:fx="http://javafx.com/fxml" fx:controller="org.spbu.histology.shape.information.FacetTabController">
+    <children>
+        <TableView fx:id="table" prefHeight="700.0" prefWidth="182.0">
+            <columns>
+                <TableColumn fx:id="idColumn" prefWidth="40.0" minWidth="40.0" text="#">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="id" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="p1Column" prefWidth="70.0" text="P1">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="point1" />
+                    </cellValueFactory>
+                </TableColumn>
+                <TableColumn fx:id="p2Column" prefWidth="70.0" text="P2">
+                    <cellValueFactory>
+                      <PropertyValueFactory property="point2" />
+                    </cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </children>
+</VBox>

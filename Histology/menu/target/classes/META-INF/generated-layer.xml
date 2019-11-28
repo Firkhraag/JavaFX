@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE filesystem PUBLIC "-//NetBeans//DTD Filesystem 1.2//EN"
+                            "http://www.netbeans.org/dtds/filesystem-1_2.dtd">
+<filesystem>
+    <folder name="Actions">
+        <folder name="Edit">
+            <file name="org-spbu-histology-menu-MidpointAction.instance">
+                <!--org.spbu.histology.menu.MidpointAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_MidpointAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.MidpointAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-FindDistanceAction.instance">
+                <!--org.spbu.histology.menu.FindDistanceAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_FindDistanceAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.FindDistanceAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction4.instance">
+                <!--org.spbu.histology.menu.RotationAction4-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction4" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction4"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction10.instance">
+                <!--org.spbu.histology.menu.RotationAction10-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction10" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction10"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction8.instance">
+                <!--org.spbu.histology.menu.RotationAction8-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction8" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction8"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction1.instance">
+                <!--org.spbu.histology.menu.RotationAction1-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction1" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction1"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-PrinterAction.instance">
+                <!--org.spbu.histology.menu.PrinterAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_PrinterAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.PrinterAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction6.instance">
+                <!--org.spbu.histology.menu.RotationAction6-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction6" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction6"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-InstructionAction.instance">
+                <!--org.spbu.histology.menu.InstructionAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_InstructionAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.InstructionAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction3.instance">
+                <!--org.spbu.histology.menu.RotationAction3-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction3" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction3"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-SymmetryAction.instance">
+                <!--org.spbu.histology.menu.SymmetryAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_SymmetryAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.SymmetryAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-HideShowAxesAction.instance">
+                <!--org.spbu.histology.menu.HideShowAxesAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_HideShowAxesAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.HideShowAxesAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction9.instance">
+                <!--org.spbu.histology.menu.RotationAction9-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction9" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction9"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-FindPointAction.instance">
+                <!--org.spbu.histology.menu.FindPointAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_FindPointAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.FindPointAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-ShowCellsAction.instance">
+                <!--org.spbu.histology.menu.ShowCellsAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_ShowCellsAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.ShowCellsAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-SumAction.instance">
+                <!--org.spbu.histology.menu.SumAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_SumAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.SumAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction5.instance">
+                <!--org.spbu.histology.menu.RotationAction5-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction5" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction5"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction7.instance">
+                <!--org.spbu.histology.menu.RotationAction7-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction7" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction7"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-HideCellsAction.instance">
+                <!--org.spbu.histology.menu.HideCellsAction-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_HideCellsAction" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.HideCellsAction"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction2.instance">
+                <!--org.spbu.histology.menu.RotationAction2-->
+                <attr
+                    bundlevalue="org.spbu.histology.menu.Bundle#CTL_RotationAction2" name="displayName"/>
+                <attr
+                    methodvalue="org.openide.awt.Actions.alwaysEnabled" name="instanceCreate"/>
+                <attr name="delegate" newvalue="org.spbu.histology.menu.RotationAction2"/>
+                <attr boolvalue="false" name="noIconInMenu"/>
+            </file>
+        </folder>
+    </folder>
+    <folder name="Menu">
+        <folder name="Tools">
+            <file name="org-spbu-histology-menu-MidpointAction.shadow">
+                <!--org.spbu.histology.menu.MidpointAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-MidpointAction.instance"/>
+                <attr intvalue="18" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-FindDistanceAction.shadow">
+                <!--org.spbu.histology.menu.FindDistanceAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-FindDistanceAction.instance"/>
+                <attr intvalue="25" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-PrinterAction.shadow">
+                <!--org.spbu.histology.menu.PrinterAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-PrinterAction.instance"/>
+                <attr intvalue="75" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-PrinterAction-separatorAfter.instance">
+                <!--org.spbu.histology.menu.PrinterAction-->
+                <attr name="instanceCreate" newvalue="javax.swing.JSeparator"/>
+                <attr intvalue="87" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-SymmetryAction.shadow">
+                <!--org.spbu.histology.menu.SymmetryAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-SymmetryAction.instance"/>
+                <attr intvalue="6" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-FindPointAction.shadow">
+                <!--org.spbu.histology.menu.FindPointAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-FindPointAction.instance"/>
+                <attr intvalue="0" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-FindPointAction-separatorAfter.instance">
+                <!--org.spbu.histology.menu.FindPointAction-->
+                <attr name="instanceCreate" newvalue="javax.swing.JSeparator"/>
+                <attr intvalue="50" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-SumAction.shadow">
+                <!--org.spbu.histology.menu.SumAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-SumAction.instance"/>
+                <attr intvalue="12" name="position"/>
+            </file>
+        </folder>
+        <folder name="View">
+            <file name="org-spbu-histology-menu-RotationAction4.shadow">
+                <!--org.spbu.histology.menu.RotationAction4-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction4.instance"/>
+                <attr intvalue="3" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction10.shadow">
+                <!--org.spbu.histology.menu.RotationAction10-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction10.instance"/>
+                <attr intvalue="9" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction8.shadow">
+                <!--org.spbu.histology.menu.RotationAction8-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction8.instance"/>
+                <attr intvalue="7" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction1.shadow">
+                <!--org.spbu.histology.menu.RotationAction1-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction1.instance"/>
+                <attr intvalue="0" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction1-separatorAfter.instance">
+                <!--org.spbu.histology.menu.RotationAction1-->
+                <attr name="instanceCreate" newvalue="javax.swing.JSeparator"/>
+                <attr intvalue="50" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction6.shadow">
+                <!--org.spbu.histology.menu.RotationAction6-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction6.instance"/>
+                <attr intvalue="5" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction3.shadow">
+                <!--org.spbu.histology.menu.RotationAction3-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction3.instance"/>
+                <attr intvalue="2" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-HideShowAxesAction.shadow">
+                <!--org.spbu.histology.menu.HideShowAxesAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-HideShowAxesAction.instance"/>
+                <attr intvalue="75" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-HideShowAxesAction-separatorAfter.instance">
+                <!--org.spbu.histology.menu.HideShowAxesAction-->
+                <attr name="instanceCreate" newvalue="javax.swing.JSeparator"/>
+                <attr intvalue="87" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction9.shadow">
+                <!--org.spbu.histology.menu.RotationAction9-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction9.instance"/>
+                <attr intvalue="8" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-ShowCellsAction.shadow">
+                <!--org.spbu.histology.menu.ShowCellsAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-ShowCellsAction.instance"/>
+                <attr intvalue="84" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction5.shadow">
+                <!--org.spbu.histology.menu.RotationAction5-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction5.instance"/>
+                <attr intvalue="4" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction7.shadow">
+                <!--org.spbu.histology.menu.RotationAction7-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction7.instance"/>
+                <attr intvalue="6" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-HideCellsAction.shadow">
+                <!--org.spbu.histology.menu.HideCellsAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-HideCellsAction.instance"/>
+                <attr intvalue="81" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-RotationAction2.shadow">
+                <!--org.spbu.histology.menu.RotationAction2-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-RotationAction2.instance"/>
+                <attr intvalue="1" name="position"/>
+            </file>
+        </folder>
+        <folder name="Help">
+            <file name="org-spbu-histology-menu-InstructionAction.shadow">
+                <!--org.spbu.histology.menu.InstructionAction-->
+                <attr name="originalFile" stringvalue="Actions/Edit/org-spbu-histology-menu-InstructionAction.instance"/>
+                <attr intvalue="100" name="position"/>
+            </file>
+            <file name="org-spbu-histology-menu-InstructionAction-separatorAfter.instance">
+                <!--org.spbu.histology.menu.InstructionAction-->
+                <attr name="instanceCreate" newvalue="javax.swing.JSeparator"/>
+                <attr intvalue="150" name="position"/>
+            </file>
+        </folder>
+    </folder>
+</filesystem>

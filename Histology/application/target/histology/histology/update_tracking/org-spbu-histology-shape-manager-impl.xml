@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><module codename="org.spbu.histology.shape.manager.impl">
+    <module_version install_time="1530453287117" last="true" origin="installer" specification_version="1.0">
+        <file crc="2301406802" name="config/Modules/org-spbu-histology-shape-manager-impl.xml"/>
+        <file crc="154290523" name="modules/org-spbu-histology-shape-manager-impl.jar"/>
+    </module_version>
+</module>

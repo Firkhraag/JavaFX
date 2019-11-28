@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+OpenIDE-Module-Localizing-Bundle: org/spbu/histology/cross/section/vie
+ wer/Bundle.properties
+OpenIDE-Module-Requires: org.openide.windows.WindowManager
+OpenIDE-Module-Specification-Version: 1.0
+OpenIDE-Module-Implementation-Version: 1.0-20180701
+OpenIDE-Module-Build-Version: 201807011238
+OpenIDE-Module: org.spbu.histology.cross.section.viewer
+OpenIDE-Module-Public-Packages: org.spbu.histology.cross.section.viewe
+ r.*
+OpenIDE-Module-Display-Category: org.spbu.histology
+OpenIDE-Module-Name: cross-section-viewer
+OpenIDE-Module-Short-Description: <undefined>
+OpenIDE-Module-Long-Description: <undefined>
+OpenIDE-Module-Module-Dependencies: org.spbu.histology.model > 1.0, or
+ g.netbeans.api.annotations.common/1 > 1.26.1, org.openide.windows > 6
+ .74.1, org.openide.util > 9.5.1, org.openide.util.ui > 9.4.1, org.ope
+ nide.util.lookup > 8.32.1, org.openide.awt > 7.65.1, org.netbeans.mod
+ ules.settings/1 > 1.48.1
+
